@@ -1,4 +1,4 @@
-# Proyek Tengah Semester C06 - PBP Gasal 2024/2025
+# Proyek Akhir Semester C06 - PBP Gasal 2024/2025
 - [Nama Aplikasi](#nama-aplikasi-dinepasar)
 - [Anggota Kelompok C06](#anggota-kelompok-c06)
 - [Deskripsi Aplikasi](#deskripsi-aplikasi)
