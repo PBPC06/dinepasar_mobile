@@ -84,4 +84,4 @@ Di aplikasi Flutter, menggunakan FutureBuilder untuk menampilkan data melalui Fu
 
 
 ## Tautan Deployment Aplikasi
-http://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/
+(tautan deployment aplikasi)
