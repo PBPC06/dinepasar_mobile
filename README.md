@@ -5,7 +5,7 @@
 - [Modul Aplikasi](#modul-aplikasi)
 - [Sumber Initial Dataset](#sumber-initial-dataset)
 - [Role Pengguna](#role-pengguna)
-- [Tautan Deployment Aplikasi](#tautan-deployment-aplikasi)
+- [Alur Pengintegrasian dengan Web Service](#alur-pengintegrasian-dengan-web-service)
 
 # Nama Aplikasi: Dinepasar
 
@@ -32,9 +32,13 @@ Lebih dari itu, Dinepasar dapat menjadi teman setia dalam mengeksplorasi cita ra
 - Autentikasi, Role Pengguna, dan Halaman Utama
 
 Dinepasar menyediakan fitur autentikasi dengan halaman registrasi dan login. Setelah login, pengguna akan diarahkan ke landing page yang menampilkan pesan pembuka. Sejak memasuki halaman utama dan seterusnya, fitur yang dapat digunakan pengguna akan ditentukan oleh rolenya, sebagai user biasa atau sebagai admin.
-- Pencarian dan Daftar Restoran
 
-Pengguna dapat mencari restoran melalui search bar di bagian atas halaman. Daftar restoran ditampilkan dari A-Z sesuai dataset, dan setiap restoran menampilkan preview saat diklik.
+- Edit Profile dan Riwayat Makanan yang Pernah Dicoba
+
+Pengguna dapat mengedit profile yang telah dibuat sebelumnya pada halaman tertentu. Halaman tersebut juga memuat riwayat makanan yang pernah dicoba oleh pengguna tersebut.
+- Katalog produk (makanan dan minuman) serta terdapat fitur untuk mencari dan juga filter makanan berdasar kategori dan range harga
+
+Pengguna dapat melihat berbagai macam card makanan dan minuman serta mencari makanan melalui search bar di bagian atas halaman. Pengguna juga dapat melakukan filter makanan berdasar kategori dan juga range harga makanan. Terdapat button details dan review di setiap card makanan yang apabila ditekan akan mengarahkan ke page food details ataupun food review.
 - Preview Restoran dan Tambahkan ke Favorit
 
 Pada halaman preview makanan, pengguna dapat melihat informasi lengkap mengenai suatu makanan. Di halaman ini, pengguna juga memiliki opsi untuk menambahkan makanan tersebut ke dalam daftar favorit atau wishlist melalui tombol yang telah disediakan. Halaman favorit memungkinkan pengguna untuk melihat daftar makanan favorit mereka, dan di bagian bawah halaman, terdapat rekomendasi restoran lain yang sesuai dengan kategori makanan yang disukai pengguna.
@@ -44,7 +48,7 @@ Pengguna dapat menambahkan ulasan melalui tombol yang tersedia di halaman previe
 
 - Informasi tentang Denpasar
 
-Dinepasar menyediakan halaman khusus yang berisi informasi tentang berbagai hal terkait Denpasar. Halaman ini juga dilengkapi dengan penambahan artikel sebagai cara untuk setiap pengguna berbagi informasi spesifik mengenai Denpasar.
+Dinepasar menyediakan halaman khusus yang berisi informasi tentang berbagai hal terkait makanan dan juga minuman terkait di Denpasar. Halaman ini juga dilengkapi dengan penambahan artikel sebagai cara untuk setiap pengguna berbagi informasi spesifik mengenai Denpasar.
 
 Berikut link menuju detail penjelasan modul dan pembagiannya:
 https://docs.google.com/spreadsheets/d/1D2Tk0wCMrCWT3HMLjPZVTOpfQ64sDqC_8w8SRwu9P0g/edit?usp=sharing
@@ -71,6 +75,13 @@ User setelah login bisa mengakses berbagai fitur seperti autentikasi, halaman pr
 
 Selain memiliki akses seperti user, juga dapat menambahkan dan menghapus card restoran pada halaman pencarian.
 
+## Alur Pengintegrasian dengan Web Service
+Integrasi antara web service dan aplikasi web dilakukan dengan langkah-langkah berikut:
+1. Menggunakan library `http` untuk menghubungkan aplikasi mobile dengan web melalui pengiriman permintaan (request).
+2. Memanfaatkan library `pbp_django_auth` guna mengelola cookie serta memastikan setiap request yang dikirim ke server telah terautentikasi dan terotorisasi.
+3. Membuat model berdasarkan respons JSON dari web service, dengan bantuan QuickType untuk mempermudah pembuatan model aplikasi melalui konversi data JSON menjadi kode Dart.
+4. Dalam aplikasi Flutter, menggunakan `FutureBuilder` untuk menampilkan data setelah memastikan data telah dikonversi ke model yang sesuai.
+
 
 ## Tautan Deployment Aplikasi
-http://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/
+(tautan deployment aplikasi)
