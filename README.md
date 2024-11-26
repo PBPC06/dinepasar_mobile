@@ -23,9 +23,9 @@
 ## Deskripsi Aplikasi
 Denpasar, Bali terkenal sebagai statusnya sebagai destinasi pariwisata yang terkenal dengan keindahan budaya dan ragam kulinernya. Sebagai salah satu destinasi favorit turis, Denpasar tidak hanya menyajikan pantai yang eksotis dan keunikan budaya, namun juga variasi hidangan lezat yang mampu memanjakan lidah.
 
-Di tengah keberagaman kuliner tersebut, turis seringkali menemui kesulitan dalam menentukan tempat makan yang sesuai dengan selera pribadi. Untuk mengatasi masalah tersebut, Dinepasar hadir sebagai platform digital yang dirancang khusus untuk menemukan restoran yang sesuai dengan permintaan pengguna. Situs ini menyediakan informasi yang lengkap dan terpercaya mengenai restoran-restoran yang ada di kota Denpasar, termasuk menu, harga, lokasi, rating, hingga dari review pengunjung lain. 
+Di tengah keberagaman kuliner tersebut, turis seringkali menemui kesulitan dalam menentukan tempat makan yang sesuai dengan selera pribadi. Untuk mengatasi masalah tersebut, Dinepasar hadir sebagai platform digital yang dirancang khusus untuk menemukan restoran yang sesuai dengan permintaan pengguna. Aplikasi ini menyediakan informasi yang lengkap dan terpercaya mengenai restoran-restoran yang ada di kota Denpasar, termasuk menu, harga, lokasi, rating, hingga dari review pengunjung lain. 
 
-Lebih dari itu, Dinepasar dapat menjadi teman setia dalam mengeksplorasi cita rasa khas kuliner Denpasar. Hadirnya situs ini diharapkan dapat memberikan pengalaman liburan yang lebih mudah, praktis, dan berkesan dalam memenuhi kebutuhan kuliner para turis.
+Lebih dari itu, Dinepasar dapat menjadi teman setia dalam mengeksplorasi cita rasa khas kuliner Denpasar. Hadirnya aplikasi ini diharapkan dapat memberikan pengalaman liburan yang lebih mudah, praktis, dan berkesan dalam memenuhi kebutuhan kuliner para turis.
 
 
 ## Modul Aplikasi
