@@ -48,7 +48,7 @@ Pengguna dapat menambahkan ulasan melalui tombol yang tersedia di halaman previe
 
 - Informasi tentang Denpasar
 
-Dinepasar menyediakan halaman khusus yang berisi informasi tentang berbagai hal terkait makanan dan juga minuman terkait di Denpasar. Halaman ini juga dilengkapi dengan penambahan artikel sebagai cara untuk setiap pengguna berbagi informasi spesifik mengenai Denpasar.
+Dinepasar menyediakan halaman khusus bernama Densiklopedia yang berisi informasi tentang berbagai hal terkait makanan dan juga minuman terkait di Denpasar. Halaman ini juga dilengkapi dengan penambahan artikel sebagai cara untuk setiap pengguna berbagi informasi spesifik mengenai Denpasar.
 
 Berikut link menuju detail penjelasan modul dan pembagiannya:
 https://docs.google.com/spreadsheets/d/1D2Tk0wCMrCWT3HMLjPZVTOpfQ64sDqC_8w8SRwu9P0g/edit?usp=sharing
@@ -84,4 +84,8 @@ Integrasi antara web service dan aplikasi web dilakukan dengan langkah-langkah b
 
 
 ## Tautan Deployment Aplikasi
-(tautan deployment aplikasi)
+(Tautan deployment aplikasi)
+
+
+## Tautan Design Aplikasi
+https://www.figma.com/design/TSFcu7BFIfJ4H2hhmGNuBi/Dinepasar-Flutter-Design?node-id=0-1&t=JvM71gqiFklpPgz7-1
