@@ -1,6 +1,6 @@
-import 'package:dinepasar_mobile/screens/profile.dart';
+import 'package:dinepasar_mobile/profile/screens/profile.dart';
 import 'package:flutter/material.dart';
-import 'package:dinepasar_mobile/screens/menu.dart';
+import 'package:dinepasar_mobile/profile/screens/menu.dart';
 // import 'package:food_pedia/screens/foodentry_form.dart';
 // import 'package:food_pedia/screens/list_foodentry.dart';
 

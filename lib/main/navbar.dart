@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:dinepasar_mobile/search/screens/explore_page.dart';
+import 'package:dinepasar_mobile/profile/screens/profile.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key}) : super(key: key);
@@ -13,11 +14,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
   // List of pages to navigate between
   final List<Widget> _pages = <Widget>[
-    const ExplorePage(),  // Explore Page
-    const Placeholder(),  // Placeholder for Search Page
+    const Placeholder(),  // Explore Page
+    const ExplorePage(),  // Placeholder for Search Page
     const Placeholder(),  // Placeholder for Review Page
     const Placeholder(),  // Placeholder for Favorite Page
-    const Placeholder(),  // Placeholder for Profile Page
+    const Placeholder(),
+    const ProfilePage(),  // Placeholder for Profile Page
   ];
 
   void _onItemTapped(int index) {
@@ -41,8 +43,8 @@ class _MyHomePageState extends State<MyHomePage> {
         unselectedItemColor: Colors.grey,  // Set the color of unselected items to grey
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.explore),
-            label: 'Explore',
+            icon: Icon(Icons.home),
+            label: 'Home',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.search),
@@ -55,6 +57,10 @@ class _MyHomePageState extends State<MyHomePage> {
           BottomNavigationBarItem(
             icon: Icon(Icons.favorite),
             label: 'Favorite',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.article),
+            label: 'Densiklopedia',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
