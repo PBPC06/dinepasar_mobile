@@ -1,4 +1,4 @@
-# Proyek Tengah Semester C06 - PBP Gasal 2024/2025
+# Proyek Akhir Semester C06 - PBP Gasal 2024/2025
 - [Nama Aplikasi](#nama-aplikasi-dinepasar)
 - [Anggota Kelompok C06](#anggota-kelompok-c06)
 - [Deskripsi Aplikasi](#deskripsi-aplikasi)
@@ -23,15 +23,16 @@
 ## Deskripsi Aplikasi
 Denpasar, Bali terkenal sebagai statusnya sebagai destinasi pariwisata yang terkenal dengan keindahan budaya dan ragam kulinernya. Sebagai salah satu destinasi favorit turis, Denpasar tidak hanya menyajikan pantai yang eksotis dan keunikan budaya, namun juga variasi hidangan lezat yang mampu memanjakan lidah.
 
-Di tengah keberagaman kuliner tersebut, turis seringkali menemui kesulitan dalam menentukan tempat makan yang sesuai dengan selera pribadi. Untuk mengatasi masalah tersebut, Dinepasar hadir sebagai platform digital yang dirancang khusus untuk menemukan restoran yang sesuai dengan permintaan pengguna. Situs ini menyediakan informasi yang lengkap dan terpercaya mengenai restoran-restoran yang ada di kota Denpasar, termasuk menu, harga, lokasi, rating, hingga dari review pengunjung lain. 
+Di tengah keberagaman kuliner tersebut, turis seringkali menemui kesulitan dalam menentukan tempat makan yang sesuai dengan selera pribadi. Untuk mengatasi masalah tersebut, Dinepasar hadir sebagai platform digital yang dirancang khusus untuk menemukan restoran yang sesuai dengan permintaan pengguna. Aplikasi ini menyediakan informasi yang lengkap dan terpercaya mengenai restoran-restoran yang ada di kota Denpasar, termasuk menu, harga, lokasi, rating, hingga dari review pengunjung lain. 
 
-Lebih dari itu, Dinepasar dapat menjadi teman setia dalam mengeksplorasi cita rasa khas kuliner Denpasar. Hadirnya situs ini diharapkan dapat memberikan pengalaman liburan yang lebih mudah, praktis, dan berkesan dalam memenuhi kebutuhan kuliner para turis.
+Lebih dari itu, Dinepasar dapat menjadi teman setia dalam mengeksplorasi cita rasa khas kuliner Denpasar. Hadirnya aplikasi ini diharapkan dapat memberikan pengalaman liburan yang lebih mudah, praktis, dan berkesan dalam memenuhi kebutuhan kuliner para turis.
 
 
 ## Modul Aplikasi
 - Autentikasi, Role Pengguna, dan Halaman Utama
 
 Dinepasar menyediakan fitur autentikasi dengan halaman registrasi dan login. Setelah login, pengguna akan diarahkan ke landing page yang menampilkan pesan pembuka. Sejak memasuki halaman utama dan seterusnya, fitur yang dapat digunakan pengguna akan ditentukan oleh rolenya, sebagai user biasa atau sebagai admin.
+
 - Edit Profile dan Riwayat Makanan yang Pernah Dicoba
 
 Pengguna dapat mengedit profile yang telah dibuat sebelumnya pada halaman tertentu. Halaman tersebut juga memuat riwayat makanan yang pernah dicoba oleh pengguna tersebut.
@@ -47,7 +48,7 @@ Pengguna dapat menambahkan ulasan melalui tombol yang tersedia di halaman previe
 
 - Informasi tentang Denpasar
 
-Dinepasar menyediakan halaman khusus yang berisi informasi tentang berbagai hal terkait makanan dan juga minuman terkait di Denpasar. Halaman ini juga dilengkapi dengan penambahan artikel sebagai cara untuk setiap pengguna berbagi informasi spesifik mengenai Denpasar.
+Dinepasar menyediakan halaman khusus bernama Densiklopedia yang berisi informasi tentang berbagai hal terkait makanan dan juga minuman terkait di Denpasar. Halaman ini juga dilengkapi dengan penambahan artikel sebagai cara untuk setiap pengguna berbagi informasi spesifik mengenai Denpasar.
 
 Berikut link menuju detail penjelasan modul dan pembagiannya:
 https://docs.google.com/spreadsheets/d/1D2Tk0wCMrCWT3HMLjPZVTOpfQ64sDqC_8w8SRwu9P0g/edit?usp=sharing
@@ -75,13 +76,16 @@ User setelah login bisa mengakses berbagai fitur seperti autentikasi, halaman pr
 Selain memiliki akses seperti user, juga dapat menambahkan dan menghapus card restoran pada halaman pencarian.
 
 ## Alur Pengintegrasian dengan Web Service
-Pengintegrasian web service dan aplikasi web dilakukan dengan cara:
-
-Menggunakan library http untuk menghubungkan aplikasi mobile dengan aplikasi web dengan pengiriman request.
-Memanfaatkan library pbp_django_auth untuk mengelola cookie dan juga untuk memastikan tiap request yang dikirim ke server sudah terautentikasi dan terotorisasi.
-Membuat model sesuai dengan respons JSON dari web service serta menggunakan QuickType untuk membantu pembuatan models dari app dengan mengubah data JSON menjadi Dart.
-Di aplikasi Flutter, menggunakan FutureBuilder untuk menampilkan data melalui FutureBuilder dengan sebelumnya memastikan data telah dikonversi ke model yang sesuai.
+Integrasi antara web service dan aplikasi web dilakukan dengan langkah-langkah berikut:
+1. Menggunakan library `http` untuk menghubungkan aplikasi mobile dengan web melalui pengiriman permintaan (request).
+2. Memanfaatkan library `pbp_django_auth` guna mengelola cookie serta memastikan setiap request yang dikirim ke server telah terautentikasi dan terotorisasi.
+3. Membuat model berdasarkan respons JSON dari web service, dengan bantuan QuickType untuk mempermudah pembuatan model aplikasi melalui konversi data JSON menjadi kode Dart.
+4. Dalam aplikasi Flutter, menggunakan `FutureBuilder` untuk menampilkan data setelah memastikan data telah dikonversi ke model yang sesuai.
 
 
 ## Tautan Deployment Aplikasi
-(tautan deployment aplikasi)
+(Tautan deployment aplikasi)
+
+
+## Tautan Design Aplikasi
+https://www.figma.com/design/TSFcu7BFIfJ4H2hhmGNuBi/Dinepasar-Flutter-Design?node-id=0-1&t=JvM71gqiFklpPgz7-1
