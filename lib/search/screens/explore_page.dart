@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:dinepasar_mobile/search/widgets/search_bar.dart' as custom;
 import 'package:dinepasar_mobile/search/widgets/category_slider.dart';
 import 'package:dinepasar_mobile/search/widgets/product_card.dart';
-
+import 'package:dinepasar_mobile/search/screens/productentry_form.dart'; 
 class ExplorePage extends StatefulWidget {
   const ExplorePage({super.key});
 
@@ -16,14 +15,9 @@ class _ExplorePageState extends State<ExplorePage> {
   String selectedCategory = 'All';
   int currentPage = 1;
 
-  // Simulating a list of dummy products
   List<Map<String, dynamic>> products = [
     {'name': 'Nasi Ayam', 'description': 'Ayam bakar enak', 'price': 25000, 'rating': 4.5, 'image': 'https://awsimages.detik.net.id/community/media/visual/2023/02/06/1385476906_169.jpeg?w=600&q=90'},
-    {'name': 'Sate Kambing', 'description': 'Sate kambing gurih Sate kambing gurihSate kambing gurihSate kambing gurihSate kambing gurihSate kambing gurihSate kambing gurihSate kambing gurih', 'price': 30000, 'rating': 4.8, 'image': 'https://assets.unileversolutions.com/recipes-v2/252622.png'},
-    {'name': 'Sate Kambing', 'description': 'Sate kambing gurih Sate kambing gurihSate kambing gurihSate kambing gurihSate kambing gurihSate kambing gurihSate kambing gurihSate kambing gurih', 'price': 30000, 'rating': 4.8, 'image': 'https://assets.unileversolutions.com/recipes-v2/252622.png'},
-    {'name': 'Nasi Ayam', 'description': 'Ayam bakar enak', 'price': 25000, 'rating': 4.5, 'image': 'https://awsimages.detik.net.id/community/media/visual/2023/02/06/1385476906_169.jpeg?w=600&q=90'},
-    {'name': 'Sate Kambing', 'description': 'Sate kambing gurih Sate kambing gurihSate kambing gurihSate kambing gurihSate kambing gurihSate kambing gurihSate kambing gurihSate kambing gurih', 'price': 30000, 'rating': 4.8, 'image': 'https://assets.unileversolutions.com/recipes-v2/252622.png'},
-    // More products...
+    {'name': 'Sate Kambing', 'description': 'Sate kambing gurih', 'price': 30000, 'rating': 4.8, 'image': 'https://assets.unileversolutions.com/recipes-v2/252622.png'},
   ];
 
   @override
@@ -33,53 +27,73 @@ class _ExplorePageState extends State<ExplorePage> {
         title: const Text(
           'Explore',
           style: TextStyle(
-            fontFamily: 'Roboto', // Using the default font (similar to Poppins)
-            fontSize: 24, // Adjust the font size to be more aesthetic
-            fontWeight: FontWeight.w600, // Slightly bold for emphasis
-            letterSpacing: 1.2, // Spacing between letters for better readability
+            fontFamily: 'Roboto',
+            fontSize: 24,
+            fontWeight: FontWeight.w600,
           ),
         ),
-        backgroundColor: Color.fromRGBO(254, 252, 232, 1), // Light yellow color
-        centerTitle: true, // Center the title in the AppBar
+        backgroundColor: const Color(0xFFFEFCEC),
+        centerTitle: true,
       ),
       body: SingleChildScrollView(
         controller: _scrollController,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Search Bar with Filter Icon next to it
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               child: Row(
                 children: [
-                  // Expanded Search Bar to take up the available space
-                  const Expanded(
-                    child: custom.SearchBar(),
+                  Expanded(
+                    child: Container(
+                      height: 45,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 5,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: TextField(
+                        decoration: InputDecoration(
+                          prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                          hintText: 'Search...',
+                          hintStyle: const TextStyle(color: Colors.grey),
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.only(top: 12),
+                        ),
+                      ),
+                    ),
                   ),
                   const SizedBox(width: 10),
-                  // Filter Icon with background
                   GestureDetector(
                     onTap: () {
                       // Navigate to Filter Page or show filter options
-                      // TODO: Implement filter functionality here
                     },
                     child: Container(
-                      padding: const EdgeInsets.all(10),
+                      height: 45,
+                      width: 45,
                       decoration: BoxDecoration(
-                        color: Colors.yellow[700], // Yellow background
-                        borderRadius: BorderRadius.circular(12), // Rounded corners
+                        color: const Color.fromARGB(255, 200, 161, 35),
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 5,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
                       ),
-                      child: const Icon(
-                        Icons.filter_list,  // Filter icon
-                        color: Colors.black, // Black icon color
-                      ),
+                      child: const Icon(Icons.filter_list, color: Colors.black),
                     ),
                   ),
                 ],
               ),
             ),
-
-            // Scrollable Categories
             CategorySlider(
               categories: categories,
               selectedCategory: selectedCategory,
@@ -89,8 +103,6 @@ class _ExplorePageState extends State<ExplorePage> {
                 });
               },
             ),
-
-            // Product Cards
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: GridView.builder(
@@ -108,22 +120,36 @@ class _ExplorePageState extends State<ExplorePage> {
                 },
               ),
             ),
-
-            // Pagination Button
-            if (currentPage < 3) // Example for pagination limit
+            if (currentPage < 3)
               Center(
                 child: ElevatedButton(
                   onPressed: () {
                     setState(() {
                       currentPage += 1;
-                      // TODO: Load more products here
                     });
                   },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFFFD700),
+                    foregroundColor: Colors.black,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
                   child: const Text('Load More'),
                 ),
               ),
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const ProductEntryFormPage()),
+          );
+        },
+        backgroundColor: const Color.fromARGB(255, 255, 193, 7),
+        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }

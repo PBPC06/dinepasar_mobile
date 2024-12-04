@@ -35,7 +35,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Dinepasar'),
-        backgroundColor: Colors.yellow[700],
+        backgroundColor: Color.fromARGB(255, 200, 161, 35),
       ),
       body: _pages[_selectedIndex],  // Show the selected page from the _pages list
       bottomNavigationBar: BottomNavigationBar(
