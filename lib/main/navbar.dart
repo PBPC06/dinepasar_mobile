@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:dinepasar_mobile/search/screens/explore_page.dart';
 import 'package:dinepasar_mobile/profile/screens/profile.dart';
+import 'package:dinepasar_mobile/densiklopedia/screens/home.dart';
+
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key}) : super(key: key);
@@ -18,7 +20,7 @@ class _MyHomePageState extends State<MyHomePage> {
     const ExplorePage(),  // Placeholder for Search Page
     const Placeholder(),  // Placeholder for Review Page
     const Placeholder(),  // Placeholder for Favorite Page
-    const Placeholder(),
+    const HomePageArticle(), // Placeholder for Favorite Page
     const ProfilePage(),  // Placeholder for Profile Page
   ];
 
@@ -33,7 +35,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Dinepasar'),
-        backgroundColor: Colors.yellow[700],
+        backgroundColor: Color.fromARGB(255, 200, 161, 35),
       ),
       body: _pages[_selectedIndex],  // Show the selected page from the _pages list
       bottomNavigationBar: BottomNavigationBar(

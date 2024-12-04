@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 // import 'package:google_fonts/google_fonts.dart';
 // TODO: Impor drawer yang sudah dibuat sebelumnya
-import 'package:dinepasar_mobile/search/widgets/left_drawer.dart';
+// import 'package:dinepasar_mobile/search/widgets/left_drawer.dart';
 
 class ProductEntryFormPage extends StatefulWidget {
   const ProductEntryFormPage({super.key});
