@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:dinepasar_mobile/search/models/food_entry.dart';
-import 'package:dinepasar_mobile/search/widgets/category_slider.dart';
+import 'package:dinepasar_mobile/search/widgets/search_bar.dart' as custom;
 
 class ExplorePage extends StatefulWidget {
   const ExplorePage({super.key});
@@ -13,6 +13,8 @@ class ExplorePage extends StatefulWidget {
 
 class _ExplorePageState extends State<ExplorePage> {
   String selectedCategory = 'All';
+  String searchQuery = '';
+  String priceRange = '';
 
   Future<List<Food>> fetchProduct(CookieRequest request) async {
     final response = await request.get('http://127.0.0.1:8000/search/api/foods/');
@@ -27,77 +29,55 @@ class _ExplorePageState extends State<ExplorePage> {
     return listProduct;
   }
 
+  void handleSearch(String? query) {
+    setState(() {
+      searchQuery = query ?? '';
+    });
+  }
+
+  void handleCategoryChange(String? category) {
+    setState(() {
+      selectedCategory = category ?? '';
+    });
+  }
+
+  void handlePriceRangeChange(String? range) {
+    setState(() {
+      priceRange = range ?? '';
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final request = context.watch<CookieRequest>();
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Explore'),
+        title: Text(
+          'Let\'s Find Your Food!',
+          style: const TextStyle(
+            fontFamily: 'Roboto', // Font yang lebih enak dibaca
+            fontWeight: FontWeight.bold,
+            fontSize: 22,
+            color: Colors.black,
+          ),
+        ),
         centerTitle: true,
         backgroundColor: const Color(0xFFFEFCEC),
       ),
       body: Column(
         children: [
-          // Search Bar and Filter Button
+          // Search Bar with padding
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    height: 45,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          blurRadius: 5,
-                          offset: const Offset(0, 3),
-                        ),
-                      ],
-                    ),
-                    child: const TextField(
-                      decoration: InputDecoration(
-                        prefixIcon: Icon(Icons.search, color: Colors.grey),
-                        hintText: 'Search...',
-                        border: InputBorder.none,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                GestureDetector(
-                  onTap: () {
-                    // Filter logic (if needed)
-                  },
-                  child: Container(
-                    height: 45,
-                    width: 45,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFD4AF37),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(Icons.filter_list, color: Colors.black),
-                  ),
-                ),
-              ],
+            child: custom.SearchBar(
+              onSearch: handleSearch,
+              onCategoryChange: handleCategoryChange,
+              onPriceRangeChange: handlePriceRangeChange,
             ),
           ),
 
-          // Category Slider
-          CategorySlider(
-            categories: ['All', 'Ayam', 'Sate', 'Dessert', 'Minuman', 'Jajanan', 'Sambal'],
-            selectedCategory: selectedCategory,
-            onCategorySelected: (category) {
-              setState(() {
-                selectedCategory = category;
-              });
-            },
-          ),
-
-          // Food Cards
+          // Food Cards Grid
           Expanded(
             child: FutureBuilder(
               future: fetchProduct(request),
@@ -109,24 +89,44 @@ class _ExplorePageState extends State<ExplorePage> {
                 }
 
                 final foods = snapshot.data!;
+
+                // Apply search query, category, and price filter
+                final filteredFoods = foods.where((food) {
+                  bool matchesSearch = food.fields.namaMakanan.toLowerCase().contains(searchQuery.toLowerCase());
+                  bool matchesCategory = selectedCategory == 'All' || food.fields.kategori == selectedCategory;
+                  bool matchesPrice = true;
+
+                  if (priceRange == 'Under 50k') {
+                    matchesPrice = food.fields.harga < 50000;
+                  } else if (priceRange == '50k-100k') {
+                    matchesPrice = food.fields.harga >= 50000 && food.fields.harga <= 100000;
+                  } else if (priceRange == 'Above 100k') {
+                    matchesPrice = food.fields.harga > 100000;
+                  }
+
+                  return matchesSearch && matchesCategory && matchesPrice;
+                }).toList();
+
                 return GridView.builder(
                   padding: const EdgeInsets.all(8.0),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
-                    childAspectRatio: 0.8,
+                    childAspectRatio: 0.75, // Menyesuaikan ukuran card agar lebih rapi
                     crossAxisSpacing: 10,
                     mainAxisSpacing: 10,
                   ),
-                  itemCount: foods.length,
+                  itemCount: filteredFoods.length,
                   itemBuilder: (context, index) {
-                    final food = foods[index];
+                    final food = filteredFoods[index];
                     return Card(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
+                      elevation: 5, // Menambahkan efek bayangan pada card
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          // Food Image
                           Expanded(
                             child: ClipRRect(
                               borderRadius: const BorderRadius.only(
@@ -134,7 +134,7 @@ class _ExplorePageState extends State<ExplorePage> {
                                 topRight: Radius.circular(12),
                               ),
                               child: Image.network(
-                                food.fields.gambar, // URL gambar
+                                food.fields.gambar,
                                 fit: BoxFit.cover,
                                 width: double.infinity,
                                 errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
@@ -152,68 +152,45 @@ class _ExplorePageState extends State<ExplorePage> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+                                // Food Name
                                 Text(
                                   food.fields.namaMakanan,
-                                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                                ),
-                                const SizedBox(height: 4),
-                                // Price text now bold and larger
-                                Text(
-                                  'Rp ${food.fields.harga}',
                                   style: const TextStyle(
-                                    fontSize: 13,
+                                    fontSize: 14, // Menambah ukuran font agar lebih terbaca
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
                                 const SizedBox(height: 4),
-                                // Star rating below the price
+                                // Food Price
+                                Text(
+                                  'Rp ${food.fields.harga.toString()}',
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w900,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                // Food Rating
                                 Row(
                                   children: [
-                                    Icon(
-                                      Icons.star,
-                                      color: Colors.yellow[800],
-                                      size: 18,
-                                    ),
-                                    const SizedBox(width: 4),
+                                    const Icon(Icons.star, color: Colors.amber, size: 14),
                                     Text(
-                                      (food.fields.rating as num).toDouble().toStringAsFixed(1),
-                                      style: const TextStyle(
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 12,
-                                      ),
+                                      food.fields.rating.toString(),
+                                      style: const TextStyle(fontSize: 12),
                                     ),
                                   ],
                                 ),
                                 const SizedBox(height: 4),
+                                // Food Description
                                 Text(
                                   food.fields.deskripsi,
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(fontSize: 12),
                                 ),
                               ],
                             ),
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              IconButton(
-                                onPressed: () {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Placeholder untuk centang')),
-                                  );
-                                },
-                                icon: const Icon(Icons.check, color: Colors.green),
-                              ),
-                              IconButton(
-                                onPressed: () {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Placeholder untuk detail')),
-                                  );
-                                },
-                                icon: const Icon(Icons.more_vert, color: Colors.grey),
-                              ),
-                            ],
                           ),
                         ],
                       ),
