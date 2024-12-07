@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:dinepasar_mobile/search/widgets/category_slider.dart';
-import 'package:dinepasar_mobile/search/widgets/product_card.dart';
-import 'package:dinepasar_mobile/search/screens/productentry_form.dart'; 
+import 'package:provider/provider.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:dinepasar_mobile/search/models/food_entry.dart';
+import 'package:dinepasar_mobile/search/widgets/food_card.dart';
+import 'package:dinepasar_mobile/search/widgets/search_bar.dart' as custom;
+import 'package:dinepasar_mobile/search/screens/placeholder/approval_page.dart';
+import 'package:dinepasar_mobile/search/screens/placeholder/details_page.dart';
+
+
 class ExplorePage extends StatefulWidget {
   const ExplorePage({super.key});
 
@@ -10,146 +16,131 @@ class ExplorePage extends StatefulWidget {
 }
 
 class _ExplorePageState extends State<ExplorePage> {
-  final ScrollController _scrollController = ScrollController();
-  List<String> categories = ['All', 'Ayam', 'Sate', 'Dessert', 'Minuman', 'Jajanan', 'Sambal'];
   String selectedCategory = 'All';
-  int currentPage = 1;
+  String searchQuery = '';
+  String priceRange = '';
 
-  List<Map<String, dynamic>> products = [
-    {'name': 'Nasi Ayam', 'description': 'Ayam bakar enak', 'price': 25000, 'rating': 4.5, 'image': 'https://awsimages.detik.net.id/community/media/visual/2023/02/06/1385476906_169.jpeg?w=600&q=90'},
-    {'name': 'Sate Kambing', 'description': 'Sate kambing gurih', 'price': 30000, 'rating': 4.8, 'image': 'https://assets.unileversolutions.com/recipes-v2/252622.png'},
-  ];
+  Future<List<Food>> fetchProduct(CookieRequest request) async {
+    final response = await request.get('http://127.0.0.1:8000/search/api/foods/');
+    var data = response;
+
+    List<Food> listProduct = [];
+    for (var d in data) {
+      if (d != null) {
+        listProduct.add(Food.fromJson(d));
+      }
+    }
+    return listProduct;
+  }
+
+  void handleSearch(String? query) {
+    setState(() {
+      searchQuery = query ?? '';
+    });
+  }
+
+  void handleCategoryChange(String? category) {
+    setState(() {
+      selectedCategory = category ?? '';
+    });
+  }
+
+  void handlePriceRangeChange(String? range) {
+    setState(() {
+      priceRange = range ?? '';
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    final request = context.watch<CookieRequest>();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Explore',
+          'Let\'s Find Your Food!',
           style: TextStyle(
             fontFamily: 'Roboto',
-            fontSize: 24,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.bold,
+            fontSize: 22,
+            color: Colors.black,
           ),
         ),
-        backgroundColor: const Color(0xFFFEFCEC),
         centerTitle: true,
+        backgroundColor: const Color(0xFFFEFCEC),
       ),
-      body: SingleChildScrollView(
-        controller: _scrollController,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      height: 45,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            blurRadius: 5,
-                            offset: const Offset(0, 3),
-                          ),
-                        ],
-                      ),
-                      child: TextField(
-                        decoration: InputDecoration(
-                          prefixIcon: const Icon(Icons.search, color: Colors.grey),
-                          hintText: 'Search...',
-                          hintStyle: const TextStyle(color: Colors.grey),
-                          border: InputBorder.none,
-                          contentPadding: const EdgeInsets.only(top: 12),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  GestureDetector(
-                    onTap: () {
-                      // Navigate to Filter Page or show filter options
-                    },
-                    child: Container(
-                      height: 45,
-                      width: 45,
-                      decoration: BoxDecoration(
-                        color: const Color.fromARGB(255, 200, 161, 35),
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            blurRadius: 5,
-                            offset: const Offset(0, 3),
-                          ),
-                        ],
-                      ),
-                      child: const Icon(Icons.filter_list, color: Colors.black),
-                    ),
-                  ),
-                ],
-              ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            child: custom.SearchBar(
+              onSearch: handleSearch,
+              onCategoryChange: handleCategoryChange,
+              onPriceRangeChange: handlePriceRangeChange,
             ),
-            CategorySlider(
-              categories: categories,
-              selectedCategory: selectedCategory,
-              onCategorySelected: (category) {
-                setState(() {
-                  selectedCategory = category;
-                });
+          ),
+          Expanded(
+            child: FutureBuilder(
+              future: fetchProduct(request),
+              builder: (context, AsyncSnapshot<List<Food>> snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return const Center(child: Text('Belum ada makanan di Dinepasar'));
+                }
+
+                final foods = snapshot.data!;
+                final filteredFoods = foods.where((food) {
+                  bool matchesSearch = food.fields.namaMakanan.toLowerCase().contains(searchQuery.toLowerCase());
+                  bool matchesCategory = selectedCategory == 'All' || food.fields.kategori == selectedCategory;
+                  bool matchesPrice = true;
+
+                  if (priceRange == 'Under 50k') {
+                    matchesPrice = food.fields.harga < 50000;
+                  } else if (priceRange == '50k-100k') {
+                    matchesPrice = food.fields.harga >= 50000 && food.fields.harga <= 100000;
+                  } else if (priceRange == 'Above 100k') {
+                    matchesPrice = food.fields.harga > 100000;
+                  }
+
+                  return matchesSearch && matchesCategory && matchesPrice;
+                }).toList();
+
+                return GridView.builder(
+                  padding: const EdgeInsets.all(8.0),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    childAspectRatio: 0.75,
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 10,
+                  ),
+                  itemCount: filteredFoods.length,
+                  itemBuilder: (context, index) {
+                    final food = filteredFoods[index];
+                    return FoodCard(
+                        food: food,
+                        onApprove: () {
+                          // Navigasi ke halaman Approval (placeholder)
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const ApprovalPage()),
+                          );
+                        },
+                        onMore: () {
+                          // Navigasi ke halaman Details (placeholder)
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const DetailsPage()),
+                          );
+                        },
+                      );
+
+                  },
+                );
               },
             ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 0.8,
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10,
-                ),
-                itemCount: products.length,
-                itemBuilder: (context, index) {
-                  return ProductCard(product: products[index]);
-                },
-              ),
-            ),
-            if (currentPage < 3)
-              Center(
-                child: ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      currentPage += 1;
-                    });
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFFD700),
-                    foregroundColor: Colors.black,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: const Text('Load More'),
-                ),
-              ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const ProductEntryFormPage()),
-          );
-        },
-        backgroundColor: const Color.fromARGB(255, 255, 193, 7),
-        child: const Icon(Icons.add, color: Colors.white),
+          ),
+        ],
       ),
     );
   }
