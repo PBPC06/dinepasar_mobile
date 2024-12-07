@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:dinepasar_mobile/main/screens/login.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -267,7 +268,7 @@ class ProfilePage extends StatelessWidget {
       // Jika logout berhasil, arahkan ke halaman login
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const LoginPage()),
+        MaterialPageRoute(builder: (context) => const LoginApp()),
       );
     } else {
       // Jika terjadi error saat logout
