@@ -25,7 +25,7 @@ class _CategorySliderState extends State<CategorySlider> {
   @override
   void initState() {
     super.initState();
-    selectedIndex = widget.defaultIndex; // Default ke kategori "Home"
+    selectedIndex = widget.defaultIndex;
   }
 
   @override
@@ -44,24 +44,25 @@ class _CategorySliderState extends State<CategorySlider> {
               setState(() {
                 selectedIndex = index;
               });
-              widget.onCategorySelected(index); // Callback ke parent
+              // Panggil callback untuk navigasi
+              widget.onCategorySelected(index);
             },
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: ShapeDecoration(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
                 color: isSelected ? Color(0xFFC67C4E) : Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(6),
-                  side: BorderSide(color: Color(0xFFC67C4E), width: 1),
-                ),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Color(0xFFC67C4E), width: 1),
               ),
-              child: Text(
-                categories[index],
-                style: TextStyle(
-                  color: isSelected ? Colors.white : Color(0xFF303030),
-                  fontSize: 14,
-                  fontFamily: 'Sora',
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+              child: Center(
+                child: Text(
+                  categories[index],
+                  style: TextStyle(
+                    color: isSelected ? Colors.white : Color(0xFF303030),
+                    fontSize: 14,
+                    fontFamily: 'Sora',
+                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                  ),
                 ),
               ),
             ),
