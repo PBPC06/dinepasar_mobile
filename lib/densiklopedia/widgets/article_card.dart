@@ -16,76 +16,86 @@ class ArticleCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8.0),
-      width: double.infinity,
-      decoration: ShapeDecoration(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15.53),
+    return GestureDetector(
+      onTap: () {
+        Navigator.pushNamed(
+          context,
+          '/view_article',
+          arguments: {
+            'title': title,
+            'imageUrl': imageUrl,
+            'author': author,
+            'date': date,
+          },
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16.0),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 8.0,
+              offset: Offset(0, 4),
+            ),
+          ],
         ),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          // Image section
-          Container(
-            width: double.infinity,
-            height: 200,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(7.76),
-              image: DecorationImage(
-                image: NetworkImage(imageUrl),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(16.0)),
+              child: Image.network(
+                imageUrl,
+                height: 200,
+                width: double.infinity,
                 fit: BoxFit.cover,
-                onError: (error, stackTrace) {
-                  print("Failed to load image: $error");
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    height: 200,
+                    color: Colors.grey,
+                    child: Center(
+                      child: Icon(Icons.error, color: Colors.white),
+                    ),
+                  );
                 },
               ),
             ),
-          ),
-          // Text section
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16.0),
-            decoration: ShapeDecoration(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(15.53),
-                  bottomRight: Radius.circular(15.53),
-                ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'by $author',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    date,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ],
               ),
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Title
-                Text(
-                  title,
-                  style: TextStyle(
-                    color: Color(0xFF231F20),
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 8.0),
-                // Author and Date
-                Text(
-                  '$author · $date',
-                  style: TextStyle(
-                    color: Color(0xFF6D6265),
-                    fontSize: 12,
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
