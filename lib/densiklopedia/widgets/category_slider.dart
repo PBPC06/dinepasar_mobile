@@ -34,9 +34,9 @@ class _CategorySliderState extends State<CategorySlider> {
       height: 40,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         itemCount: categories.length,
-        separatorBuilder: (context, index) => SizedBox(width: 16),
+        separatorBuilder: (context, index) => const SizedBox(width: 16),
         itemBuilder: (context, index) {
           bool isSelected = index == selectedIndex;
           return GestureDetector(
@@ -44,21 +44,21 @@ class _CategorySliderState extends State<CategorySlider> {
               setState(() {
                 selectedIndex = index;
               });
-              // Panggil callback untuk navigasi
+              // Panggil callback untuk mengganti halaman
               widget.onCategorySelected(index);
             },
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: isSelected ? Color(0xFFC67C4E) : Colors.white,
+                color: isSelected ? const Color(0xFFC67C4E) : Colors.white,
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Color(0xFFC67C4E), width: 1),
+                border: Border.all(color: const Color(0xFFC67C4E), width: 1),
               ),
               child: Center(
                 child: Text(
                   categories[index],
                   style: TextStyle(
-                    color: isSelected ? Colors.white : Color(0xFF303030),
+                    color: isSelected ? Colors.white : const Color(0xFF303030),
                     fontSize: 14,
                     fontFamily: 'Sora',
                     fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
