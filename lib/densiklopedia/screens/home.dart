@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:dinepasar_mobile/densiklopedia/widgets/category_slider.dart';
 import 'package:dinepasar_mobile/densiklopedia/widgets/article_card.dart';
 
 class HomePageArticle extends StatelessWidget {
@@ -33,32 +32,16 @@ class HomePageArticle extends StatelessWidget {
   ];
 
   @override 
-  Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async => false,
-      child: Scaffold(
-        body: ListView(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: CategorySlider(
-                defaultIndex: 0,
-                onCategorySelected: (index) {
-                  if (index == 1) {
-                    Navigator.pushReplacementNamed(context, '/artikel');
-                  }
-                },
-              ),
-            ),
-            ...articles.map((article) => ArticleCard(
-              title: article["title"]!,
-              imageUrl: article["imageUrl"]!,
-              author: article["author"]!,
-              date: article["date"]!,
-            )).toList(),
-          ],
-        ),
-      ),
+  Widget build(BuildContext context){
+    return ListView(
+      children: [
+        ...articles.map((article) => ArticleCard(
+          title: article["title"]!,
+          imageUrl: article["imageUrl"]!,
+          author: article["author"]!,
+          date: article["date"]!,
+        )).toList(),
+      ],
     );
   }
 }
