@@ -164,16 +164,24 @@ class _EditFoodPageState extends State<EditFoodPage> {
                       label: "URL Restoran",
                       hint: "Link URL Restoran",
                       initialValue: _restoran,
-                      onChanged: (value) => setState(() {
+                      onChanged: (String? value) => setState(() {
                         _restoran = value!;
                       }),
-                      validator: (value) {
+                      validator: (String? value) {
                         if (value == null || value.isEmpty) {
                           return "URL restoran tidak boleh kosong!";
                         }
+
+                        // Validasi dasar dengan Uri.parse
+                        final uri = Uri.tryParse(value);
+                        if (uri == null || !uri.hasScheme || (uri.scheme != 'http' && uri.scheme != 'https')) {
+                          return "URL tidak valid! Pastikan menggunakan format HTTP atau HTTPS.";
+                        }
+
                         return null;
                       },
                     ),
+
                     // Field Kategori
                     buildFormField(
                       label: "Kategori",
@@ -189,21 +197,36 @@ class _EditFoodPageState extends State<EditFoodPage> {
                         return null;
                       },
                     ),
+                    
                     // Field Gambar
                     buildFormField(
                       label: "Gambar Produk",
                       hint: "Link URL Gambar Produk",
                       initialValue: _gambar,
-                      onChanged: (value) => setState(() {
+                      onChanged: (String? value) => setState(() {
                         _gambar = value!;
                       }),
-                      validator: (value) {
+                      validator: (String? value) {
                         if (value == null || value.isEmpty) {
                           return "URL gambar tidak boleh kosong!";
                         }
+
+                        // Validasi URL dasar
+                        final uri = Uri.tryParse(value);
+                        if (uri == null || !uri.hasScheme || (uri.scheme != 'http' && uri.scheme != 'https')) {
+                          return "URL tidak valid! Pastikan menggunakan format HTTP atau HTTPS.";
+                        }
+
+                        // Memastikan ekstensi file gambar yang valid
+                        final imageExtensions = ['.jpg', '.jpeg', '.png', '.gif'];
+                        if (!imageExtensions.any((ext) => value.toLowerCase().endsWith(ext))) {
+                          return "URL harus mengarah ke gambar (.jpg, .jpeg, .png, .gif).";
+                        }
+
                         return null;
                       },
                     ),
+
                     // Field Deskripsi
                     buildFormField(
                       label: "Deskripsi",
