@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:dinepasar_mobile/search/screens/explore_page.dart';
+import 'package:dinepasar_mobile/search/screens/admin_page.dart';
 import 'package:dinepasar_mobile/profile/screens/profile.dart';
 import 'package:dinepasar_mobile/densiklopedia/densiklopedia.dart';
 
