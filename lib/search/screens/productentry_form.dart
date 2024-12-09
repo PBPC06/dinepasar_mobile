@@ -72,20 +72,26 @@ class _ProductEntryFormPageState extends State<ProductEntryFormPage> {
                 ),
                 
                 
-                const SizedBox(height: 16),
-                buildFormField(
-                  label: "URL Restoran", 
-                  hint: "Link URL Restoran",
-                  onChanged: (String? value) => setState(() {
-                    _restoran = value!;
-                  }),
-                  validator: (String? value) {
-                    if (value == null || value.isEmpty) {
-                      return "URL restoran tidak boleh kosong!";
-                    }
-                    return null;
-                  },
-                ),
+              const SizedBox(height: 16),
+              buildFormField(
+                label: "URL Restoran", 
+                hint: "Link URL Restoran",
+                onChanged: (String? value) => setState(() {
+                  _restoran = value!;
+                }),
+                validator: (String? value) {
+                  if (value == null || value.isEmpty) {
+                    return "URL restoran tidak boleh kosong!";
+                  }
+
+                  // Menggunakan Uri.parse untuk validasi dasar URL
+                  final uri = Uri.tryParse(value);
+                  if (uri == null || !uri.hasScheme || (uri.scheme != 'https' && uri.scheme != 'http')) {
+                    return "URL tidak valid! Pastikan menggunakan format HTTP atau HTTPS.";
+                  }
+                  return null;
+                },
+              ),
                 
                 
                 const SizedBox(height: 16),
@@ -117,6 +123,19 @@ class _ProductEntryFormPageState extends State<ProductEntryFormPage> {
                     if (value == null || value.isEmpty) {
                       return "URL gambar tidak boleh kosong!";
                     }
+
+                    // Menggunakan Uri.parse untuk validasi dasar URL
+                    final uri = Uri.tryParse(value);
+                    if (uri == null || !uri.hasScheme || (uri.scheme != 'http' && uri.scheme != 'https')) {
+                      return "URL tidak valid! Pastikan menggunakan format HTTP atau HTTPS.";
+                    }
+
+                    // Memastikan ekstensi file yang valid untuk gambar
+                    final imageExtensions = ['.jpg', '.jpeg', '.png', '.gif'];
+                    if (!imageExtensions.any((ext) => value.toLowerCase().endsWith(ext))) {
+                      return "URL harus mengarah ke gambar (.jpg, .jpeg, .png, .gif).";
+                    }
+
                     return null;
                   },
                 ),
