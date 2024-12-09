@@ -63,7 +63,7 @@ class _AllReviewsPageState extends State<AllReviewsPage> {
   // Fungsi untuk menampilkan modal edit ulasan
   void _showEditModal(BuildContext context, FoodReview review) {
     final _formKey = GlobalKey<FormState>();
-    int rating = review.fields.rating;
+    double rating = review.fields.rating;
     String message = review.fields.reviewMessage;
 
     showDialog(
@@ -97,7 +97,7 @@ class _AllReviewsPageState extends State<AllReviewsPage> {
                           ),
                           onRatingUpdate: (newRating) {
                             setState(() {
-                              rating = newRating.toInt();
+                              rating = newRating;
                             });
                           },
                         ),
@@ -141,7 +141,7 @@ class _AllReviewsPageState extends State<AllReviewsPage> {
                 if (_formKey.currentState!.validate()) {
                   final request = context.read<CookieRequest>();
                   final editUrl =
-                      "http://127.0.0.1:8000/edit/${review.pk}/"; // Sesuaikan dengan endpoint edit Anda
+                      "http://127.0.0.1:8000/review/edit/${review.pk}/"; // Sesuaikan dengan endpoint edit Anda
 
                   final response = await request.post(
                     editUrl,
@@ -181,7 +181,7 @@ class _AllReviewsPageState extends State<AllReviewsPage> {
   void _deleteReview(int reviewId) async {
     final request = context.read<CookieRequest>();
     final deleteUrl =
-        "http://127.0.0.1:8000/delete-review/$reviewId/"; // Sesuaikan dengan endpoint delete Anda
+        "http://127.0.0.1:8000/review/delete-review/$reviewId/"; // Sesuaikan dengan endpoint delete Anda
 
     final response = await request.post(
       deleteUrl,
@@ -284,9 +284,7 @@ class _AllReviewsPageState extends State<AllReviewsPage> {
                             children: [
                               // Menampilkan nama makanan
                               Text(
-                                food != null
-                                    ? food.fields.namaMakanan
-                                    : 'Unknown Food',
+                                review.fields.namaMakanan,
                                 style: TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,

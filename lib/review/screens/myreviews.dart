@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:provider/provider.dart';
@@ -15,52 +16,53 @@ class MyReviewsPage extends StatefulWidget {
 
 class _MyReviewsPageState extends State<MyReviewsPage> {
   late Future<List<Map<String, dynamic>>> _myReviewsFuture;
-  String? _currentUsername;
+  // String? _currentUsername;
 
   @override
   void initState() {
     super.initState();
-    _initializeUsername();
+    _myReviewsFuture = _fetchMyReviews(); // Inisialisasi di sini
   }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _initializeUsername();
+  // }
 
-  Future<void> _initializeUsername() async {
-    try {
-      final request = context.read<CookieRequest>();
-      final response =
-          await request.get("http://127.0.0.1:8000/editProfile/get_profile/");
+  // Future<void> _initializeUsername() async {
+  //   try {
+  //     final request = context.read<CookieRequest>();
+  //     final response =
+  //         await request.get("http://127.0.0.1:8000/editProfile/get_profile/");
 
-      if (response['status'] == 'success') {
-        final userData = response['data'];
+  //     if (response['status'] == 'success') {
+  //       final userData = response['data'];
 
-        setState(() {
-          _currentUsername = userData['username'];
-          _myReviewsFuture = _fetchMyReviews();
-        });
-      } else {
-        // Tampilkan pesan error jika status tidak sukses
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content:
-                  Text('Gagal memuat data pengguna: ${response['message']}')),
-        );
-      }
-    } catch (e) {
-      // Tangani error yang terjadi selama permintaan HTTP
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
-    }
-  }
+  //       setState(() {
+  //         _currentUsername = userData['username'];
+  //         _myReviewsFuture = _fetchMyReviews();
+  //       });
+  //     } else {
+  //       // Tampilkan pesan error jika status tidak sukses
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(
+  //             content:
+  //                 Text('Gagal memuat data pengguna: ${response['message']}')),
+  //       );
+  //     }
+  //   } catch (e) {
+  //     // Tangani error yang terjadi selama permintaan HTTP
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(content: Text('Error: $e')),
+  //     );
+  //   }
+  // }
 
   Future<List<Map<String, dynamic>>> _fetchMyReviews() async {
     final request = context.read<CookieRequest>();
 
-    if (_currentUsername == null) {
-      throw Exception('User not authenticated');
-    }
-
-    final url =
-        Uri.parse('http://127.0.0.1:8000/review/json/$_currentUsername/');
+    final url = Uri.parse(
+        'http://127.0.0.1:8000/review/json/'); // Gunakan IP yang benar
 
     final response = await request.get(url.toString());
 
@@ -69,29 +71,29 @@ class _MyReviewsPageState extends State<MyReviewsPage> {
     }
 
     List<dynamic> data = response["data"];
-    List<Map<String, dynamic>> detailedReviews = [];
+    List<FoodReview> reviews = foodReviewFromJson(jsonEncode(data));
 
-    for (var item in data) {
-      FoodReview review = FoodReview.fromJson(item);
-      // Fetch food details
-      final foodUrl =
-          Uri.parse('http://127.0.0.1:8000/review/json/${review.fields.food}/');
+    // Menggunakan Future.wait untuk mengambil detail makanan secara paralel
+    List<Future<Map<String, dynamic>>> futures = reviews.map((review) async {
+      final foodId = review.fields.food;
+      final foodUrl = Uri.parse(
+          'http://127.0.0.1:8000/review/json/$foodId/'); // Sesuaikan dengan endpoint makanan
       final foodResponse = await request.get(foodUrl.toString());
       if (foodResponse["status"] == "success") {
         Food food = Food.fromJson(foodResponse["data"]);
-        detailedReviews.add({
+        return {
           'review': review,
           'food': food,
-        });
+        };
+      } else {
+        // Jika gagal mendapatkan detail makanan, gunakan placeholder
+        return {'review': review, 'food': Food};
       }
-      // else {
-      //   detailedReviews.add({
-      //     'review': review,
-      //     'food': Food(id: review.fields.food, namaMakanan: 'Unknown', gambar: ''),
-      //   });
-      // }
-    }
+    }).toList();
 
+    List<Map<String, dynamic>> detailedReviews = await Future.wait(futures);
+
+    // throw Exception(detailedReviews);
     return detailedReviews;
   }
 
@@ -99,7 +101,7 @@ class _MyReviewsPageState extends State<MyReviewsPage> {
     final FoodReview review = reviewData['review'];
     final Food food = reviewData['food'];
     final _formKey = GlobalKey<FormState>();
-    int rating = review.fields.rating;
+    double rating = review.fields.rating;
     String message = review.fields.reviewMessage;
 
     showDialog(
@@ -132,7 +134,7 @@ class _MyReviewsPageState extends State<MyReviewsPage> {
                           ),
                           onRatingUpdate: (newRating) {
                             setState(() {
-                              rating = newRating.toInt();
+                              rating = newRating;
                             });
                           },
                         ),
@@ -242,9 +244,9 @@ class _MyReviewsPageState extends State<MyReviewsPage> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           // Loading state
           return const Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          // Error state
-          return Center(child: Text('Error: ${snapshot.error}'));
+          // } else if (snapshot.hasError) {
+          //   // Error state
+          //   return Center(child: Text('Error: ${snapshot.error}'));
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           // Empty state
           return Center(
@@ -341,7 +343,7 @@ class _MyReviewsPageState extends State<MyReviewsPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                food.fields.namaMakanan,
+                                review.fields.namaMakanan,
                                 style: TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,

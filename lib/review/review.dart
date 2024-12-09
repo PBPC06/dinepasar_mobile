@@ -50,7 +50,7 @@ class _ReviewPageState extends State<ReviewPage>
       body: TabBarView(
         controller: _tabController,
         children: const [
-          MyReviewsPage(),
+          AllReviewsPage(),
           AllReviewsPage(),
         ],
       ),
