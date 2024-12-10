@@ -16,6 +16,7 @@ class CategorySlider extends StatefulWidget {
 
 class _CategorySliderState extends State<CategorySlider> {
   late int selectedIndex;
+  int? hoveredIndex;
 
   final List<String> categories = [
     'Home',
@@ -39,29 +40,52 @@ class _CategorySliderState extends State<CategorySlider> {
         separatorBuilder: (context, index) => const SizedBox(width: 16),
         itemBuilder: (context, index) {
           bool isSelected = index == selectedIndex;
+          bool isHovered = index == hoveredIndex;
+
           return GestureDetector(
             onTap: () {
               setState(() {
                 selectedIndex = index;
               });
-              // Panggil callback untuk mengganti halaman
               widget.onCategorySelected(index);
             },
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: isSelected ? const Color(0xFFC67C4E) : Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: const Color(0xFFC67C4E), width: 1),
-              ),
-              child: Center(
-                child: Text(
-                  categories[index],
-                  style: TextStyle(
-                    color: isSelected ? Colors.white : const Color(0xFF303030),
-                    fontSize: 14,
-                    fontFamily: 'Sora',
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+            child: MouseRegion(
+              onEnter: (_) => setState(() {
+                hoveredIndex = index;
+              }),
+              onExit: (_) => setState(() {
+                hoveredIndex = null;
+              }),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 16.0),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? Colors.yellow[700]
+                      : isHovered
+                          ? Colors.yellow[500]
+                          : Colors.grey[300],
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: isHovered
+                      ? [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 8.0,
+                            offset: const Offset(0, 4),
+                          ),
+                        ]
+                      : [],
+                ),
+                child: Center(
+                  child: Text(
+                    categories[index],
+                    style: TextStyle(
+                      color: isSelected ? Colors.black : Colors.grey[800],
+                      fontSize: 14,
+                      fontFamily: 'Sora',
+                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                    ),
                   ),
                 ),
               ),
