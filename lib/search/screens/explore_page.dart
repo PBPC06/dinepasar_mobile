@@ -195,7 +195,9 @@ class _ExplorePageState extends State<ExplorePage> {
                       onMore: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => DetailsPage()),
+                          MaterialPageRoute(
+                            builder: (context) => DetailsPage(foodId: food.pk), // Pastikan foodId dikirim
+                          ),
                         );
                       },
                     );
