@@ -16,6 +16,7 @@ class CategorySlider extends StatefulWidget {
 
 class _CategorySliderState extends State<CategorySlider> {
   late int selectedIndex;
+  int? hoveredIndex;
 
   final List<String> categories = [
     'Home',
@@ -25,7 +26,7 @@ class _CategorySliderState extends State<CategorySlider> {
   @override
   void initState() {
     super.initState();
-    selectedIndex = widget.defaultIndex; // Default ke kategori "Home"
+    selectedIndex = widget.defaultIndex;
   }
 
   @override
@@ -34,34 +35,58 @@ class _CategorySliderState extends State<CategorySlider> {
       height: 40,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         itemCount: categories.length,
-        separatorBuilder: (context, index) => SizedBox(width: 16),
+        separatorBuilder: (context, index) => const SizedBox(width: 16),
         itemBuilder: (context, index) {
           bool isSelected = index == selectedIndex;
+          bool isHovered = index == hoveredIndex;
+
           return GestureDetector(
             onTap: () {
               setState(() {
                 selectedIndex = index;
               });
-              widget.onCategorySelected(index); // Callback ke parent
+              widget.onCategorySelected(index);
             },
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: ShapeDecoration(
-                color: isSelected ? Color(0xFFC67C4E) : Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(6),
-                  side: BorderSide(color: Color(0xFFC67C4E), width: 1),
+            child: MouseRegion(
+              onEnter: (_) => setState(() {
+                hoveredIndex = index;
+              }),
+              onExit: (_) => setState(() {
+                hoveredIndex = null;
+              }),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 16.0),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? Colors.yellow[700]
+                      : isHovered
+                          ? Colors.yellow[500]
+                          : Colors.grey[300],
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: isHovered
+                      ? [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 8.0,
+                            offset: const Offset(0, 4),
+                          ),
+                        ]
+                      : [],
                 ),
-              ),
-              child: Text(
-                categories[index],
-                style: TextStyle(
-                  color: isSelected ? Colors.white : Color(0xFF303030),
-                  fontSize: 14,
-                  fontFamily: 'Sora',
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                child: Center(
+                  child: Text(
+                    categories[index],
+                    style: TextStyle(
+                      color: isSelected ? Colors.black : Colors.grey[800],
+                      fontSize: 14,
+                      fontFamily: 'Sora',
+                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                    ),
+                  ),
                 ),
               ),
             ),

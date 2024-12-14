@@ -258,6 +258,40 @@ class _EditFoodPageState extends State<EditFoodPage> {
                         return null;
                       },
                     ),
+
+                    // Field Rating
+                    buildFormField(
+                      label: "Rating (1 - 5)", 
+                      hint: "Rating",
+                      initialValue: _rating.toString(),  // Set initial value to _rating
+                      onChanged: (String? value) => setState(() {
+                        // Parse the input as a double and update the rating, defaulting to 0.0 if parsing fails
+                        _rating = double.tryParse(value ?? '0.0') ?? 0.0;
+                      }),
+                      validator: (String? value) {
+                        if (value == null || value.isEmpty) {
+                          return "Rating tidak boleh kosong!";
+                        }
+
+                        // Parsing the value to double
+                        final double? rating = double.tryParse(value);
+                        if (rating == null || rating < 1.0 || rating > 5.0) {
+                          return "Rating harus antara 1.0 hingga 5.0!";
+                        }
+                        return null;
+                      },
+                    ),
+
+                    
+
+
+                    
+
+
+                    
+
+
+
                     // Submit Button
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 20.0),

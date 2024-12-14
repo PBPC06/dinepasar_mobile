@@ -30,14 +30,28 @@ class FoodCard extends StatelessWidget {
                 topLeft: Radius.circular(12),
                 topRight: Radius.circular(12),
               ),
-              child: Image.network(
-                food.fields.gambar,
-                fit: BoxFit.cover,
-                width: double.infinity,
-                errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
-                  return const Icon(Icons.broken_image, size: 48, color: Colors.yellow);
-                },
-              ),
+              child: food.fields.gambar.isEmpty
+                  ? Center(
+                      child: Icon(
+                        Icons.restaurant,  // Ganti dengan icon sendok dan garpu
+                        size: 48,
+                        color: Colors.grey,  // Warna icon sesuai tema
+                      ),
+                    )
+                  : Image.network(
+                      food.fields.gambar,
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
+                        return Center(
+                          child: Icon(
+                            Icons.restaurant,  // Ganti dengan icon sendok dan garpu
+                            size: 48,
+                            color: Colors.grey,  // Warna icon sesuai tema
+                          ),
+                        );
+                      },
+                    ),
             ),
           ),
           // Konten bagian bawah
@@ -85,7 +99,7 @@ class FoodCard extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       // Tombol More
-                      GestureDetector(
+                      InkWell(
                         onTap: onMore,
                         child: Container(
                           width: 32,
@@ -103,7 +117,7 @@ class FoodCard extends StatelessWidget {
                         ),
                       ),
                       // Tombol Approve
-                      GestureDetector(
+                      InkWell(
                         onTap: onApprove,
                         child: Container(
                           width: 32,

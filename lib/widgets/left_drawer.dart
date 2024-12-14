@@ -1,4 +1,5 @@
 import 'package:dinepasar_mobile/profile/screens/profile.dart';
+import 'package:dinepasar_mobile/review/review.dart';
 import 'package:flutter/material.dart';
 import 'package:dinepasar_mobile/profile/screens/menu.dart';
 // import 'package:food_pedia/screens/foodentry_form.dart';
@@ -47,75 +48,75 @@ class LeftDrawer extends StatelessWidget {
               ],
             ),
           ),
-            // Bagian routing
-            ListTile(
-              leading: const Icon(Icons.home),
-              title: const Text('Home'),
-              // Bagian redirection ke MyHomePage
-              onTap: () {
-                Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => MyHomePage(),
-                    ));
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.person),
-              title: const Text('Profile'),
-              onTap: () {
-                Navigator.push(
+          // Bagian routing
+          ListTile(
+            leading: const Icon(Icons.home),
+            title: const Text('Home'),
+            // Bagian redirection ke MyHomePage
+            onTap: () {
+              Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const ProfilePage(), // Route to FoodEntryFormPage
-                  ),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.search),
-              title: const Text('Search'),
-              onTap: () {
+                    builder: (context) => MyHomePage(),
+                  ));
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.person),
+            title: const Text('Profile'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      const ProfilePage(), // Route to FoodEntryFormPage
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.search),
+            title: const Text('Search'),
+            onTap: () {
               //     // Route menu ke halaman mood
               //     Navigator.push(
               //         context,
               //         MaterialPageRoute(builder: (context) => const FoodEntryPage()),
               //     );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.favorite),
-              title: const Text('Favorite'),
-              onTap: () {
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.favorite),
+            title: const Text('Favorite'),
+            onTap: () {
               //     // Route menu ke halaman mood
               //     Navigator.push(
               //         context,
               //         MaterialPageRoute(builder: (context) => const FoodEntryPage()),
               //     );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.chat_bubble),
-              title: const Text('Review'),
-              onTap: () {
-                  // Route menu ke halaman mood
-              //     Navigator.push(
-              //         context,
-              //         MaterialPageRoute(builder: (context) => const FoodEntryPage()),
-              //     );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.map),
-              title: const Text('Dinepasar'),
-              onTap: () {
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.chat_bubble),
+            title: const Text('Review'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ReviewPage()),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.map),
+            title: const Text('Dinepasar'),
+            onTap: () {
               //     // Route menu ke halaman mood
               //     Navigator.push(
               //         context,
               //         MaterialPageRoute(builder: (context) => const FoodEntryPage()),
               //     );
-              },
-            ),
+            },
+          ),
         ],
       ),
     );

@@ -1,11 +1,14 @@
+import 'package:dinepasar_mobile/main/screens/homepage.dart';
+import 'package:dinepasar_mobile/review/review.dart';
 import 'package:flutter/material.dart';
 import 'package:dinepasar_mobile/search/screens/explore_page.dart';
+import 'package:dinepasar_mobile/search/screens/admin_page.dart';
 import 'package:dinepasar_mobile/profile/screens/profile.dart';
-import 'package:dinepasar_mobile/densiklopedia/screens/home.dart';
-
+import 'package:dinepasar_mobile/densiklopedia/densiklopedia.dart';
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key}) : super(key: key);
+  final String userRole; // Menyimpan role user: "admin" atau "user"
+  const MyHomePage({Key? key, required this.userRole}) : super(key: key);
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -14,35 +17,52 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 0;
 
-  // List of pages to navigate between
+  // Declare a list of pages that correspond to each tab
   final List<Widget> _pages = <Widget>[
-    const Placeholder(),  // Explore Page
-    const ExplorePage(),  // Placeholder for Search Page
-    const Placeholder(),  // Placeholder for Review Page
-    const Placeholder(),  // Placeholder for Favorite Page
-    const HomePageArticle(), // Placeholder for Favorite Page
-    const ProfilePage(),  // Placeholder for Profile Page
+    const HomePage(), // Home Page
+    const Placeholder(), // Placeholder for conditional Search Page
+    const ReviewPage(),  // Review Page
+    const Placeholder(), // Favorite Page
+    const DensiklopediaPage(), // Densiklopedia Page
+    const ProfilePage(), // Profile Page
   ];
 
+  // Method to switch pages when a tab is clicked
   void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+    if (index == 1) { // If 'Search' is selected
+      setState(() {
+        _selectedIndex = index;
+      });
+    } else {
+      setState(() {
+        _selectedIndex = index;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Conditional display based on user role for the 'Search' tab
+    Widget searchPageContent;
+    if (widget.userRole == 'admin') {
+      searchPageContent = const AdminPage(); // Show AdminPage for admin
+    } else {
+      searchPageContent = const ExplorePage(); // Show ExplorePage for regular user
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Dinepasar'),
-        backgroundColor: Color.fromARGB(255, 200, 161, 35),
+        backgroundColor: const Color.fromARGB(255, 200, 161, 35),
       ),
-      body: _pages[_selectedIndex],  // Show the selected page from the _pages list
+      body: _selectedIndex == 1
+          ? searchPageContent // Display appropriate search page based on role
+          : _pages[_selectedIndex], // Display other pages based on tab selection
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,  // Set the current selected tab
-        onTap: _onItemTapped,  // Handle tab switch
-        selectedItemColor: Colors.yellow[700],  // Highlight color for the selected item
-        unselectedItemColor: Colors.grey,  // Set the color of unselected items to grey
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+        selectedItemColor: Colors.yellow[700],
+        unselectedItemColor: Colors.grey,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
