@@ -1,7 +1,10 @@
+import 'package:dinepasar_mobile/search/screens/admin_page.dart';
+import 'package:dinepasar_mobile/search/screens/explore_page.dart';
 import 'package:flutter/material.dart';
-// import 'package:google_fonts/google_fonts.dart';
-// TODO: Impor drawer yang sudah dibuat sebelumnya
-// import 'package:dinepasar_mobile/search/widgets/left_drawer.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
+import 'dart:convert';
+
 
 class ProductEntryFormPage extends StatefulWidget {
   const ProductEntryFormPage({super.key});
@@ -24,11 +27,12 @@ class _ProductEntryFormPageState extends State<ProductEntryFormPage> {
   
   @override
   Widget build(BuildContext context) {
+    final request = context.watch<CookieRequest>();
     return Scaffold(
     appBar: AppBar(
       title: const Center(
         child: Text(
-          'TAMBAH PRODUK',
+          'TAMBAH MAKANAN',
           style: TextStyle(
             fontWeight: FontWeight.bold,  // Membuat teks tebal
             fontSize: 22,  // Ukuran font lebih besar
@@ -49,6 +53,7 @@ class _ProductEntryFormPageState extends State<ProductEntryFormPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                
                 const SizedBox(height: 20), // Memberikan jarak lebih untuk estetika
                 buildFormField(
                   label: "Nama Makanan/Minuman", 
@@ -65,20 +70,30 @@ class _ProductEntryFormPageState extends State<ProductEntryFormPage> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 16),
-                buildFormField(
-                  label: "URL Restoran", 
-                  hint: "Link URL Restoran",
-                  onChanged: (String? value) => setState(() {
-                    _restoran = value!;
-                  }),
-                  validator: (String? value) {
-                    if (value == null || value.isEmpty) {
-                      return "URL restoran tidak boleh kosong!";
-                    }
-                    return null;
-                  },
-                ),
+                
+                
+              const SizedBox(height: 16),
+              buildFormField(
+                label: "URL Restoran", 
+                hint: "Link URL Restoran",
+                onChanged: (String? value) => setState(() {
+                  _restoran = value!;
+                }),
+                validator: (String? value) {
+                  if (value == null || value.isEmpty) {
+                    return "URL restoran tidak boleh kosong!";
+                  }
+
+                  // Menggunakan Uri.parse untuk validasi dasar URL
+                  final uri = Uri.tryParse(value);
+                  if (uri == null || !uri.hasScheme || (uri.scheme != 'https' && uri.scheme != 'http')) {
+                    return "URL tidak valid! Pastikan menggunakan format HTTP atau HTTPS.";
+                  }
+                  return null;
+                },
+              ),
+                
+                
                 const SizedBox(height: 16),
                 buildFormField(
                   label: "Kategori", 
@@ -95,6 +110,8 @@ class _ProductEntryFormPageState extends State<ProductEntryFormPage> {
                     return null;
                   },
                 ),
+                
+                
                 const SizedBox(height: 16),
                 buildFormField(
                   label: "Gambar Produk", 
@@ -106,9 +123,24 @@ class _ProductEntryFormPageState extends State<ProductEntryFormPage> {
                     if (value == null || value.isEmpty) {
                       return "URL gambar tidak boleh kosong!";
                     }
+
+                    // Menggunakan Uri.parse untuk validasi dasar URL
+                    final uri = Uri.tryParse(value);
+                    if (uri == null || !uri.hasScheme || (uri.scheme != 'http' && uri.scheme != 'https')) {
+                      return "URL tidak valid! Pastikan menggunakan format HTTP atau HTTPS.";
+                    }
+
+                    // Memastikan ekstensi file yang valid untuk gambar
+                    final imageExtensions = ['.jpg', '.jpeg', '.png', '.gif'];
+                    if (!imageExtensions.any((ext) => value.toLowerCase().endsWith(ext))) {
+                      return "URL harus mengarah ke gambar (.jpg, .jpeg, .png, .gif).";
+                    }
+
                     return null;
                   },
                 ),
+                
+                
                 const SizedBox(height: 16),
                 buildFormField(
                   label: "Deskripsi", 
@@ -126,6 +158,8 @@ class _ProductEntryFormPageState extends State<ProductEntryFormPage> {
                     return null;
                   },
                 ),
+                
+                
                 const SizedBox(height: 16),
                 buildFormField(
                   label: "Harga", 
@@ -144,6 +178,8 @@ class _ProductEntryFormPageState extends State<ProductEntryFormPage> {
                       return null;
                   },
                 ),
+                
+                
                 const SizedBox(height: 16),
                 buildFormField(
                   label: "Rating (1 - 5)", 
@@ -165,62 +201,58 @@ class _ProductEntryFormPageState extends State<ProductEntryFormPage> {
                     return null;
                   },
                 ),
+                
+                
                 const SizedBox(height: 32),
-                Align(
-                  alignment: Alignment.center,
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
                   child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Color.fromRGBO(202, 138, 4, 100),
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(25),
-                      ),
-                      textStyle: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all(
+                          Theme.of(context).colorScheme.secondary),
                     ),
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            return AlertDialog(
-                              title: const Text('Product berhasil tersimpan'),
-                              content: SingleChildScrollView(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text('Nama Makanan: $_namaMakanan'),
-                                    Text('URL Restoran: $_restoran'),
-                                    Text('Kategori: $_kategori'),
-                                    Text('Gambar: $_gambar'),
-                                    Text('Deskripsi: $_deskripsi'),
-                                    Text('Harga: $_harga'),
-                                    Text('Rating: $_rating'),
-                                  ],
-                                ),
-                              ),
-                              actions: [
-                                TextButton(
-                                  child: const Text('OK'),
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                    _formKey.currentState!.reset();
-                                  },
-                                ),
-                              ],
+                    onPressed: () async {
+                        if (_formKey.currentState!.validate()) {
+                            // Kirim ke Django dan tunggu respons
+                            // final request = Provider.of<CookieRequest>(context, listen: false);
+                            final response = await request.post(
+                                "http://127.0.0.1:8000/search/add-flutter/",
+                                jsonEncode(<String, String>{
+                                    'nama_makanan': _namaMakanan,
+                                    'restoran': _restoran,
+                                    'kategori': _kategori,
+                                    'gambar':_gambar,
+                                    'deskripsi': _deskripsi,
+                                    'harga': _harga.toString(),
+                                    'rating': _rating.toString(),
+                                }),
                             );
-                          },
-                        );
-                      }
+                            if (context.mounted) {
+                                if (response['status'] == 'success') {
+                                    ScaffoldMessenger.of(context)
+                                        .showSnackBar(const SnackBar(
+                                    content: Text("Food baru berhasil disimpan!"),
+                                    ));
+                                    Navigator.pop(context, true);
+                                } else {
+                                    ScaffoldMessenger.of(context)
+                                        .showSnackBar(const SnackBar(
+                                        content:
+                                            Text("Terdapat kesalahan, silakan coba lagi."),
+                                    ));
+                                }
+                            }
+                        }
                     },
                     child: const Text(
-                      "Simpan",
+                      "Save",
                       style: TextStyle(color: Colors.white),
                     ),
                   ),
                 ),
+              ),
                 const SizedBox(height: 20), // Spacer di bagian bawah
               ],
             ),
