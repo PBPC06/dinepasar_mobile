@@ -18,7 +18,7 @@ class _ArtikelPageState extends State<ArtikelPage> {
   late Future<List<Article>> futureArticles;
 
   Future<List<Article>> fetchArticles(CookieRequest request) async {
-    final response = await request.get("http://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/densiklopedia/json/");
+    final response = await request.get("https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/densiklopedia/json/");
     
     // Convert JSON data into Article objects
     List<Article> listArticles = [];
@@ -31,7 +31,7 @@ class _ArtikelPageState extends State<ArtikelPage> {
   }
 
   Future<void> deleteArticle(String id, CookieRequest request) async {
-    final url = "http://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/densiklopedia/delete-flutter/$id/";
+    final url = "https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/densiklopedia/delete-flutter/$id/";
 
     try {
       final response = await request.post(
