@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:dinepasar_mobile/widgets/left_drawer.dart';
 
 class MyHomePage extends StatelessWidget {
-    MyHomePage({super.key});
+    const MyHomePage({super.key});
 
     @override
   Widget build(BuildContext context) {
@@ -10,8 +10,8 @@ class MyHomePage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Dinepasar'),
       ),
-      body: Center(
-        child: const Text('Welcome to Dinepasar!'),
+      body: const Center(
+        child: Text('Welcome to Dinepasar!'),
       ),
       drawer: const LeftDrawer(),
     );

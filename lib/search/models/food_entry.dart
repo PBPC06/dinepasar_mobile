@@ -39,7 +39,7 @@ class Fields {
     String gambar;
     String deskripsi;
     int harga;
-    int rating;
+    double rating;
 
     Fields({
         required this.namaMakanan,
@@ -58,7 +58,7 @@ class Fields {
         gambar: json["gambar"],
         deskripsi: json["deskripsi"],
         harga: json["harga"],
-        rating: json["rating"],
+        rating: (json["rating"] is int) ? json["rating"].toDouble() : json["rating"],
     );
 
     Map<String, dynamic> toJson() => {

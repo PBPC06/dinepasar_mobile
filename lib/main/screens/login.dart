@@ -98,12 +98,9 @@ class _LoginPageState extends State<LoginPage> {
                       String username = _usernameController.text;
                       String password = _passwordController.text;
 
-                      // Cek kredensial
-                      // TODO: Ganti URL dan jangan lupa tambahkan trailing slash (/) di akhir URL!
-                      // Untuk menyambungkan Android emulator dengan Django pada localhost,
-                      // gunakan URL http://10.0.2.2/
+                      // Send the login request
                       final response = await request
-                          .login("http://127.0.0.1:8000//manageData/login_flutter/", {
+                          .login("https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/manageData/login_flutter", {
                         'username': username,
                         'password': password,
                       });
@@ -111,11 +108,16 @@ class _LoginPageState extends State<LoginPage> {
                       if (request.loggedIn) {
                         String message = response['message'];
                         String uname = response['username'];
+
+                        // Check for role in response
+                        String role = response['is_admin'] == true ? 'admin' : 'user'; // Default to 'user' if not admin
+
                         if (context.mounted) {
+                          // Navigate to home page with user role
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => MyHomePage()),
+                                builder: (context) => MyHomePage(userRole: role)),
                           );
                           ScaffoldMessenger.of(context)
                             ..hideCurrentSnackBar()

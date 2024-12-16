@@ -1,224 +1,308 @@
+import 'dart:convert';
+import 'package:dinepasar_mobile/profile/models/profile_entry.dart';
+import 'package:dinepasar_mobile/profile/screens/edit_form.dart';
+import 'package:dinepasar_mobile/search/models/food_entry.dart';
 import 'package:flutter/material.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
 
-class ProfilePage extends StatelessWidget {
+
+// Fungsi untuk mengambil data profil dengan autentikasi
+Future<ListProfileEntry> fetchProfileData(BuildContext context) async {
+  final request = context.read<CookieRequest>(); // Mengakses CookieRequest dari Provider
+  final response = await request.get('http://127.0.0.1:8000/editProfile/show-json-all/');
+
+  if (response is Map<String, dynamic>) {
+    if (response['status'] == true) {
+      return ListProfileEntry.fromJson(response);
+    } else {
+      throw Exception('Failed to load profile data: ${response['message']}');
+    }
+  } else {
+    throw Exception('Unexpected response format');
+  }
+}
+
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
   @override
+  _ProfilePageState createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  late Future<ListProfileEntry> futureListProfileEntry;
+
+  @override
+  void initState() {
+    super.initState();
+    futureListProfileEntry = fetchProfileData(context); // Ambil data profil
+  }
+
+  // Fungsi untuk mengambil semua data makanan
+  Future<List<Food>> fetchAllFoods() async {
+    final request = context.read<CookieRequest>();
+    final response = await request.get('http://127.0.0.1:8000/search/api/foods/');
+    
+    if (response is List) {
+      return response.map((foodJson) => Food.fromJson(foodJson)).toList();
+    } else {
+      throw Exception('Failed to load food data');
+    }
+  }
+
+  // Fungsi untuk menghapus makanan dari riwayat
+  Future<void> removeFoodFromHistory(String userId, int foodId) async {
+    final url = Uri.parse('http://127.0.0.1:8000/editProfile/remove_food_flutter/$userId/$foodId/');
+    final response = await http.post(url);
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = jsonDecode(response.body);
+      if (data['success']) {
+        print('Food removed successfully');
+        // Setelah penghapusan berhasil, perbarui UI dengan mem-fetch ulang data profil
+        setState(() {
+          futureListProfileEntry = fetchProfileData(context);
+        });
+      } else {
+        print('Failed to remove food: ${data['error']}');
+      }
+    } else {
+      print('Error: ${response.statusCode}');
+    }
+  }
+
+  // Fungsi untuk mengambil makanan yang dicoba berdasarkan id dari triedFoods
+  Future<List<Food>> fetchTriedFoods(List<TriedFood> triedFoods) async {
+    final allFoods = await fetchAllFoods(); // Ambil semua makanan terlebih dahulu
+    List<Food> foods = [];
+    
+    for (var triedFood in triedFoods) {
+      // Mencocokkan pk makanan dengan id triedFood
+      final food = allFoods.firstWhere(
+        (food) => food.pk == triedFood.id,
+        orElse: () => Food(model: Model.SEARCH_FOOD, pk: -1, fields: Fields(
+          namaMakanan: 'Not Found',
+          restoran: '',
+          kategori: '',
+          gambar: '',
+          deskripsi: '',
+          harga: 0,
+          rating: 0,
+        )),
+      );
+      if (food.pk != -1) {
+        foods.add(food);
+      }
+    }
+    
+    return foods;
+  }
+
+  // Fungsi untuk menampilkan dialog konfirmasi penghapusan
+  void showDeleteConfirmationDialog(BuildContext context, String userId, int foodId) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Are you sure?'),
+          content: const Text('Do you really want to delete this food?'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();  // Menutup dialog tanpa menghapus
+              },
+            ),
+            TextButton(
+              child: const Text('Yes'),
+              onPressed: () async {
+                // Memanggil fungsi untuk menghapus makanan
+                await removeFoodFromHistory(userId, foodId);
+                Navigator.of(context).pop();  // Menutup dialog setelah penghapusan
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // Variabel username (bisa diganti dengan data dinamis)
-    String username = "John Doe"; // Ganti dengan data username yang sesuai
-
-    // Menghitung lebar 2/3 halaman
-    double containerWidth = MediaQuery.of(context).size.width * 2 / 3;
-
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profile'),
+        title: const Text('Profile Page'),
       ),
-      body: SingleChildScrollView(  // Membuat halaman dapat di-scroll
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),  // Menyesuaikan padding kiri-kanan
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,  // Menjaga elemen tetap di tengah secara horizontal
-            children: [
-              const SizedBox(height: 32),
-              // Menampilkan teks "Hi, username!"
-              Text(
-                'Hi, $username!',
-                style: const TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
-              const SizedBox(height: 64),  // Menjaga jarak antara nama dan deskripsi
+      body: FutureBuilder<ListProfileEntry>(
+        future: futureListProfileEntry,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.userProfiles.isEmpty) {
+            return const Center(child: Text('No profile data found'));
+          }
 
-              // Container untuk menampilkan username dan deskripsi
-              Container(
-                width: containerWidth,  // Menggunakan 2/3 dari lebar layar
-                padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 24.0),
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],  // Sesuaikan warna latar belakang seperti pada gambar
-                  borderRadius: BorderRadius.circular(12.0),  // Menambahkan radius pada sudut-sudut
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Colors.black26,  // Warna bayangan
-                      blurRadius: 6.0,  // Membuat bayangan lebih halus
-                      offset: Offset(0, 3),  // Posisi bayangan
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,  // Menjaga teks di kiri
-                  children: [
-                    // Label "Username" dengan teks tebal
-                    const Text(
-                      'Username',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w900,  // Membuat label bold
-                        color: Color.fromARGB(255, 47, 47, 47),  // Warna teks label
-                      ),
-                    ),
-                    const SizedBox(height: 4),  // Memberi jarak antara label dan username
-                    // Nama pengguna
-                    Text(
-                      username,
-                      style: const TextStyle(
-                        fontSize: 20,
-                        color: Color.fromARGB(255, 47, 47, 47),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    // Label untuk Phone
-                    const Text(
-                      'Phone',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w900,  // Membuat label bold
-                        color: Color.fromARGB(255, 47, 47, 47),
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    // Nomor telepon
-                    const Text(
-                      '08123456789',
-                      style: TextStyle(
-                        fontSize: 20,
-                        color: Color.fromARGB(255, 47, 47, 47),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    // Label untuk Email
-                    const Text(
-                      'Email',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w900,  // Membuat label bold
-                        color: Color.fromARGB(255, 47, 47, 47),
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    // Alamat email
-                    const Text(
-                      "johndoe@gmail.com",
-                      style: TextStyle(
-                        fontSize: 20,
-                        color: Color.fromARGB(255, 47, 47, 47),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    // Label untuk About me
-                    const Text(
-                      'About me',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w900,  // Membuat label bold
-                        color: Color.fromARGB(255, 47, 47, 47),
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    // Deskripsi singkat
-                    const Text(
-                      "My name is John Doe. My life is sad. I'm a software engineer. Lmao. Bismillah UAS bisa semua. Bismillah semester 3 full A. Bismillah statprob ga jelek-jelek amat....",
-                      style: TextStyle(
-                        fontSize: 20,
-                        color: Color.fromARGB(255, 47, 47, 47),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+          ListProfileEntry listProfileEntry = snapshot.data!;
+          UserProfile profile = listProfileEntry.userProfiles.first;
 
-              const SizedBox(height: 32),  // Menjaga jarak antara deskripsi dan menu aksi
+          return FutureBuilder<List<Food>>(
+            future: fetchTriedFoods(profile.triedFoods),
+            builder: (context, foodSnapshot) {
+              if (foodSnapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (foodSnapshot.hasError) {
+                return Center(child: Text('Error: ${foodSnapshot.error}'));
+              }
 
-              // Membuat tombol Edit Profile seperti yang ditunjukkan di gambar
-              Center(
-                child: ElevatedButton(
-                  onPressed: () {
-                    // Aksi untuk navigasi ke halaman Edit Profile
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromARGB(255, 200, 161, 35),  // Warna tombol
-                    padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0),  // Padding tombol
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),  // Membuat tombol melengkung
+              return ListView(
+                children: [
+                  Card(
+                    margin: const EdgeInsets.all(16),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Hello, ${profile.username}!',
+                              style: const TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold)),
+                          Text('Email: ${profile.email ?? 'Not available'}'),
+                          Text('Phone: ${profile.phone ?? 'Not available'}'),
+                          Text('About Me: ${profile.aboutMe ?? 'Not available'}'),
+                          ElevatedButton(
+                            onPressed: () {
+                             // Tampilkan dialog dengan EditProfilePage sebagai konten
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return Dialog(
+                                        child: EditProfilePage(userId: profile.userId), // Pass userId ke EditProfilePage
+                                      );
+                                    },
+                                  ).then((_) {
+                                    // Setelah dialog ditutup, refresh data profil
+                                    setState(() {
+                                      futureListProfileEntry = fetchProfileData(context);
+                                    });
+                                  });
+                                },
+                                child: const Text('Edit Profile'),
+                              ),
+                          ],
+                      ),
                     ),
-                    textStyle: const TextStyle(
-                      fontSize: 18,  // Ukuran font pada tombol
-                      fontWeight: FontWeight.bold,  // Font bold
-                    ),
-                    foregroundColor: Colors.white,  // Pastikan warna teks putih
                   ),
-                  child: const Text('Edit Profile'),
-                ),
-              ),
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Foods You\'ve Tried',
+                          style: TextStyle(
+                              fontSize: 22, fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 8),
+                        foodSnapshot.hasData && foodSnapshot.data!.isNotEmpty
+                            ? GridView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                gridDelegate:
+                                    const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 2,
+                                  crossAxisSpacing: 16,
+                                  mainAxisSpacing: 16,
+                                  childAspectRatio: 0.75,
+                                ),
+                                itemCount: foodSnapshot.data!.length,
+                                itemBuilder: (context, index) {
+                                  Food food = foodSnapshot.data![index];
+                                  return Card(
+                                    color: Colors.white,
+                                    elevation: 4,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Stack(
+                                      children: [
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            ClipRRect(
+                                              borderRadius: const BorderRadius.only(
+                                                topLeft: Radius.circular(8),
+                                                topRight: Radius.circular(8),
+                                              ),
+                                              child: Image.network(
+                                                food.fields.gambar,
+                                                width: double.infinity,
+                                                height: 150,
+                                                fit: BoxFit.cover,
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding: const EdgeInsets.all(8.0),
+                                              child: Text(
+                                                food.fields.namaMakanan,
+                                                style: const TextStyle(
+                                                    fontWeight: FontWeight.bold),
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                              child: Text(
+                                                food.fields.deskripsi,
+                                                style: const TextStyle(fontSize: 12),
+                                                maxLines: 2, // Membatasi hingga 2 baris
+                                                overflow: TextOverflow.ellipsis, // Menambahkan elipsis di akhir jika terpotong
+                                              ),
+                                            )
 
-              const SizedBox(height: 64),
-
-              // Sesi Food You've Tried (tulis di luar kontainer)
-              const Text(
-                'Food You\'ve Tried',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w900,
-                  color: Color.fromARGB(255, 47, 47, 47),
-                ),
-              ),
-
-              const SizedBox(height: 32),
-
-              // GridView untuk menampilkan produk dalam 2 kolom per baris
-              SizedBox(
-                width: containerWidth,  // Menyamai lebar container seperti Edit Profile
-                height: 300, // Membatasi tinggi agar tidak terlalu tinggi
-                child: GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,  // Menampilkan 2 produk per baris
-                    crossAxisSpacing: 16.0,  // Jarak antar produk
-                    mainAxisSpacing: 16.0,  // Jarak antar baris
-                    childAspectRatio: 1,  // Menjaga rasio aspek gambar
-                  ),
-                  itemCount: 7,  // Ganti dengan jumlah produk yang dicoba
-                  itemBuilder: (context, index) {
-                    return ClipRRect(
-                      borderRadius: BorderRadius.circular(12.0),
-                      child: Image.network(
-                        'https://via.placeholder.com/150',  // Ganti dengan URL gambar produk
-                        fit: BoxFit.cover,
-                      ),
-                    );
-                  },
-                ),
-              ),
-
-              const SizedBox(height: 64),  // Jarak sebelum tombol logout
-
-              // Tombol Logout
-              Center(
-                child: ElevatedButton(
-                  onPressed: () {
-                    // Aksi untuk logout
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromARGB(255, 240, 80, 80),  // Warna tombol
-                    padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0),  // Padding tombol
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),  // Membuat tombol melengkung
+                                          ],
+                                        ),
+                                        Positioned(
+                                          top: 8,
+                                          right: 8,
+                                          child: CircleAvatar(
+                                            radius: 15,
+                                            backgroundColor: Colors.red,
+                                            child: IconButton(
+                                              onPressed: () {
+                                                showDeleteConfirmationDialog(
+                                                    context,
+                                                    profile.userId,
+                                                    food.pk);
+                                              },
+                                              icon: const Icon(
+                                                Icons.close,
+                                                color: Colors.white,
+                                                size: 18,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              )
+                            : const Padding(
+                                padding: EdgeInsets.only(top: 16),
+                                child: Text('You haven\'t tried any foods yet.'),
+                              ),
+                      ],
                     ),
-                    textStyle: const TextStyle(
-                      fontSize: 18,  // Ukuran font pada tombol
-                      fontWeight: FontWeight.bold,  // Font bold
-                    ),
-                    foregroundColor: Colors.white,  // Pastikan warna teks putih
                   ),
-                  child: const Text('Logout'),
-                ),
-              ),
-              const SizedBox(height: 64),
-            ],
-          ),
-        ),
+                ],
+              );
+            },
+          );
+        },
       ),
     );
   }

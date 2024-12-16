@@ -1,65 +1,90 @@
 import 'package:flutter/material.dart';
-import 'package:dinepasar_mobile/densiklopedia/widgets/category_slider.dart';
-import 'package:dinepasar_mobile/densiklopedia/widgets/article_card.dart';
+import 'package:dinepasar_mobile/densiklopedia/models/article_entry.dart';
+import 'package:dinepasar_mobile/densiklopedia/widgets/card_home.dart';
+import 'package:dinepasar_mobile/densiklopedia/screens/home/profil.dart';
+import 'package:dinepasar_mobile/densiklopedia/screens/home/sejarah.dart';
+import 'package:dinepasar_mobile/densiklopedia/screens/home/wisata.dart';
+import 'package:dinepasar_mobile/densiklopedia/screens/home/budaya.dart';
 
 class HomePageArticle extends StatelessWidget {
-  const HomePageArticle({Key? key}) : super(key: key); // Tambahkan const di sini
+  HomePageArticle({super.key});
 
-  static const List<Map<String, String>> articles = [
-    {
-      "title": "Profil Denpasar yang Harus Kamu Ketahui",
-      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f8/Aerial_view_of_Bajra_Sandhi_Monument_Denpasar_Bali_Indonesia.jpg",
-      "author": "Nyoman Arka",
-      "date": "July 15, 2023",
-    },
-    {
-      "title": "Sejarah Denpasar",
-      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/4/40/COLLECTIE_TROPENMUSEUM_Luchtfoto_van_Denpasar_TMnr_10029767.jpg",
-      "author": "I Wayan Suyasa",
-      "date": "August 20, 2023",
-    },
-    {
-      "title": "Wisata Denpasar",
-      "imageUrl": "https://akcdn.detik.net.id/community/media/visual/2019/03/30/0890595d-0b8a-4212-b2a9-934e19f0b58b_169.jpeg?w=700&q=90",
-      "author": "Ketut Rai",
-      "date": "September 5, 2023",
-    },
-    {
-      "title": "Budaya Denpasar",
-      "imageUrl": "https://awsimages.detik.net.id/community/media/visual/2019/06/05/d28786b8-4114-4725-bb39-9fc44ba519d9.jpeg?w=600&q=90",
-      "author": "Made Sukanta",
-      "date": "October 10, 2023",
-    },
+  final List<Article> articles = [
+    Article(
+      id: "1",
+      judul: "Profil Denpasar yang Harus Kamu Ketahui",
+      gambar: "https://upload.wikimedia.org/wikipedia/commons/f/f8/Aerial_view_of_Bajra_Sandhi_Monument_Denpasar_Bali_Indonesia.jpg",
+      subjudul: "Temukan berbagai informasi menarik tentang Denpasar, ibukota Bali.",
+      konten: "",
+    ),
+    Article(
+      id: "2",
+      judul: "Sejarah Denpasar dan Leluhurnya",
+      gambar: "https://upload.wikimedia.org/wikipedia/commons/4/40/COLLECTIE_TROPENMUSEUM_Luchtfoto_van_Denpasar_TMnr_10029767.jpg",
+      subjudul: "Menyelami sejarah panjang dan leluhur Denpasar yang kaya.",
+      konten: "",
+    ),
+    Article(
+      id: "3",
+      judul: "Wisata Seru yang Wajib Dikunjungi di Denpasar",
+      gambar: "https://akcdn.detik.net.id/community/media/visual/2019/03/30/0890595d-0b8a-4212-b2a9-934e19f0b58b_169.jpeg?w=700&q=90",
+      subjudul: "Jelajahi tempat-tempat wisata menarik yang harus dikunjungi di Denpasar.",
+      konten: "",
+    ),
+    Article(
+      id: "4",
+      judul: "Budaya Indah Ala Denpasar",
+      gambar: "https://awsimages.detik.net.id/community/media/visual/2019/06/05/d28786b8-4114-4725-bb39-9fc44ba519d9.jpeg?w=600&q=90",
+      subjudul: "Nikmati keindahan budaya Denpasar yang memikat.",
+      konten: "",
+    ),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [
-          // Category Slider
-          CategorySlider(
-            defaultIndex: 0,
-            onCategorySelected: (index) {
-              // Logic untuk onCategorySelected (opsional, bisa disesuaikan)
+      body: ListView.builder(
+        itemCount: articles.length,
+        itemBuilder: (context, index) {
+          final article = articles[index];
+          return ArticleCard(
+            article: article,
+            onTap: () {
+              // Navigate to the corresponding screen based on the article ID
+              switch (article.id) {
+                case "1":
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => ProfilPage()),
+                  );
+                  break;
+                case "2":
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => SejarahPage()),
+                  );
+                  break;
+                case "3":
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => WisataPage()),
+                  );
+                  break;
+                case "4":
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => BudayaPage()),
+                  );
+                  break;
+                default:
+                  // Show an error or navigate to a default page if the ID is unknown
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Artikel tidak ditemukan')),
+                  );
+              }
             },
-          ),
-          // Konten berdasarkan kategori
-          Expanded(
-            child: ListView.builder(
-              itemCount: articles.length,
-              itemBuilder: (context, index) {
-                final article = articles[index];
-                return ArticleCard(
-                  title: article["title"]!,
-                  imageUrl: article["imageUrl"]!,
-                  author: article["author"]!,
-                  date: article["date"]!,
-                );
-              },
-            ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }
