@@ -155,7 +155,7 @@ class _ArticleEntryFormState extends State<ArticleEntryForm> {
                         if (widget.article == null) {
                           try {
                             final response = await request.post(
-                              "http://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/densiklopedia/create-flutter/",
+                              "https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/densiklopedia/create-flutter/",
                               {
                                 "judul": _judul,
                                 "subjudul": _subjudul,
