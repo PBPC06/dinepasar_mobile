@@ -5,7 +5,6 @@ import 'package:dinepasar_mobile/search/models/food_entry.dart';
 import 'package:dinepasar_mobile/search/widgets/admin_food_card.dart';
 import 'package:dinepasar_mobile/search/screens/productentry_form.dart';
 import 'package:dinepasar_mobile/search/screens/edit_food.dart';
-import 'package:http/http.dart' as http;
 
 class AdminPage extends StatefulWidget {
   const AdminPage({super.key});
@@ -22,7 +21,7 @@ class _AdminPageState extends State<AdminPage> {
 
   // Fungsi untuk mengambil data makanan
   Future<List<Food>> fetchFoods(CookieRequest request) async {
-    final response = await request.get('http://127.0.0.1:8000/search/api/foods/');
+    final response = await request.get('https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/search/api/foods/');
     var data = response;
 
     List<Food> listFoods = [];
@@ -69,21 +68,27 @@ class _AdminPageState extends State<AdminPage> {
   // Fungsi untuk menghapus makanan
   Future<void> _deleteFood(int foodId) async {
     final request = context.read<CookieRequest>();
+    final url = 'https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/search/delete-flutter/$foodId/';
 
-    final response = await http.delete(
-      Uri.parse('http://127.0.0.1:8000/search/delete-flutter/$foodId/'),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    );
+    try {
+      final response = await request.post(url, {});
 
-    if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Makanan berhasil dihapus!')));
-      setState(() {
-        _foods.removeWhere((food) => food.pk == foodId);
-      });
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal menghapus makanan')));
+      if (response['success'] == true) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Makanan berhasil dihapus!')),
+        );
+        setState(() {
+          _foods.removeWhere((food) => food.pk == foodId);
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal menghapus makanan: ${response['message']}')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Terjadi kesalahan: $e')),
+      );
     }
   }
 
