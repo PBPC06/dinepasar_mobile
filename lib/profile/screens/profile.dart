@@ -11,7 +11,9 @@ import 'package:http/http.dart' as http;
 // Fungsi untuk mengambil data profil dengan autentikasi
 Future<ListProfileEntry> fetchProfileData(BuildContext context) async {
   final request = context.read<CookieRequest>(); // Mengakses CookieRequest dari Provider
-  final response = await request.get('http://127.0.0.1:8000/editProfile/show-json-all/');
+  final response = await request.get('https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/editProfile/show-json-all/');
+  // final response = await request.get('http://127.0.0.1:8000/editProfile/show-json-all/');
+  
 
   if (response is Map<String, dynamic>) {
     if (response['status'] == true) {
@@ -43,7 +45,9 @@ class _ProfilePageState extends State<ProfilePage> {
   // Fungsi untuk mengambil semua data makanan
   Future<List<Food>> fetchAllFoods() async {
     final request = context.read<CookieRequest>();
-    final response = await request.get('http://127.0.0.1:8000/search/api/foods/');
+    final response = await request.get('https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/search/api/foods/');
+    // final response = await request.get('http://127.0.0.1:8000/search/api/foods/');
+    
     
     if (response is List) {
       return response.map((foodJson) => Food.fromJson(foodJson)).toList();
@@ -54,7 +58,8 @@ class _ProfilePageState extends State<ProfilePage> {
 
   // Fungsi untuk menghapus makanan dari riwayat
   Future<void> removeFoodFromHistory(String userId, int foodId) async {
-    final url = Uri.parse('http://127.0.0.1:8000/editProfile/remove_food_flutter/$userId/$foodId/');
+    final url = Uri.parse('https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/editProfile/remove_food_flutter/$userId/$foodId/');
+    // final url = Uri.parse('http://127.0.0.1:8000/editProfile/remove_food_flutter/$userId/$foodId/');
     final response = await http.post(url);
 
     if (response.statusCode == 200) {
@@ -170,9 +175,9 @@ class _ProfilePageState extends State<ProfilePage> {
                           Text('Hello, ${profile.username}!',
                               style: const TextStyle(
                                   fontSize: 18, fontWeight: FontWeight.bold)),
-                          Text('Email: ${profile.email ?? 'Not available'}'),
-                          Text('Phone: ${profile.phone ?? 'Not available'}'),
-                          Text('About Me: ${profile.aboutMe ?? 'Not available'}'),
+                          Text('Email: ${profile.email ?? '-'}'),
+                          Text('Phone: ${profile.phone ?? '-'}'),
+                          Text('About Me: ${profile.aboutMe ?? '-'}'),
                           ElevatedButton(
                             onPressed: () {
                              // Tampilkan dialog dengan EditProfilePage sebagai konten
