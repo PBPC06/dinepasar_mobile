@@ -6,7 +6,6 @@ import 'package:dinepasar_mobile/search/models/food_entry.dart';
 import 'package:dinepasar_mobile/search/widgets/food_card.dart';
 import 'package:dinepasar_mobile/search/screens/placeholder/approval_page.dart';
 import 'package:dinepasar_mobile/search/screens/placeholder/details_page.dart';
-import 'package:http/http.dart' as http;
 
 class ExplorePage extends StatefulWidget {
   const ExplorePage({super.key});
@@ -19,54 +18,6 @@ class _ExplorePageState extends State<ExplorePage> {
   String selectedCategory = 'All';
   String searchQuery = '';
   String priceRange = 'all';
-
-  Future<String> fetchUserId(BuildContext context) async {
-  final request = context.read<CookieRequest>();
-  final response = await request.get('https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/editProfile/show-json-all/');
-  
-  if (response is Map<String, dynamic>) {
-    // Mengambil 'user_profile' yang berupa list
-    var userProfileList = response['user_profile'] as List;
-    
-    // Ambil userId pertama dari list, atau sesuaikan jika perlu
-    if (userProfileList.isNotEmpty) {
-      final userProfile = userProfileList[0]; // Bisa disesuaikan untuk memilih user yang sesuai
-      return userProfile['user_id'] ?? '';
-    } else {
-      throw Exception('No user profiles found');
-    }
-  } else {
-    throw Exception('Failed to load profile data');
-  }
-}
-
-
-  // Fungsi untuk menandai makanan sebagai sudah dicoba
-  void markFoodAsTried(String foodId) async {
-    try {
-      final userId = await fetchUserId(context);
-      if (userId.isNotEmpty) {
-        final url = 'https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/search/mark_food_flutter/$userId/$foodId/';
-        final response = await http.get(Uri.parse(url));
-        if (response.statusCode == 200) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Food marked as tried successfully!')),
-          );
-        } else {
-          throw Exception('Failed to mark food as tried.');
-        }
-      } else {
-        throw Exception('User ID is empty.');
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
-    }
-  }
-
-
-
 
   // Fungsi untuk mengambil data makanan
   Future<List<Food>> fetchProduct(CookieRequest request) async {
@@ -237,12 +188,17 @@ class _ExplorePageState extends State<ExplorePage> {
                     return FoodCard(
                       food: food,
                       onApprove: () {
-                        markFoodAsTried(food.pk.toString());
-                                        },
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const ApprovalPage()),
+                        );
+                      },
                       onMore: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => DetailsPage()),
+                          MaterialPageRoute(
+                            builder: (context) => DetailsPage(foodId: food.pk), // Pastikan foodId dikirim
+                          ),
                         );
                       },
                     );
