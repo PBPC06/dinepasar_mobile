@@ -27,10 +27,13 @@ class FoodCard extends StatelessWidget {
       ),
       child: ListTile(
         leading: Image.network(
-          image,
+          image.isNotEmpty ? image : 'https://via.placeholder.com/60',
           width: 60,
           height: 60,
           fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            return const Icon(Icons.error, size: 60);
+          },
         ),
         title: Text(
           name,
@@ -42,16 +45,25 @@ class FoodCard extends StatelessWidget {
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(category, style: const TextStyle(fontSize: 14)),
-            Text('⭐ $rating / 5', style: const TextStyle(fontSize: 14)),
+            Text(
+              category,
+              style: const TextStyle(fontSize: 14),
+            ),
+            const SizedBox(height: 4), // Jarak antara kategori dan harga
+            Text(
+              'Rp $price',
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+                color: Colors.yellow, // Warna kuning untuk harga
+              ),
+            ),
+            const SizedBox(height: 4), // Jarak antara harga dan rating
+            Text(
+              '⭐ $rating / 5',
+              style: const TextStyle(fontSize: 14),
+            ),
           ],
-        ),
-        trailing: Text(
-          'Rp $price',
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.green,
-          ),
         ),
       ),
     );

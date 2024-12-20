@@ -65,7 +65,7 @@ class _FavoritePageState extends State<FavoritePage> {
   }) async {
     try {
       final response = await request.get(url);
-      print('Server Response: $response');
+      print('Server Response: $response'); // Log data JSON
 
       if (response != null && response is List) {
         final data = response
@@ -126,15 +126,16 @@ class _FavoritePageState extends State<FavoritePage> {
       itemBuilder: (context, index) {
         final item = items[index];
         return FoodCard(
-          name: item.fields.namaMakanan,
-          image: item.fields.gambar,
-          category: item.fields.kategori,
-          rating: item.fields.rating,
-          price: item.fields.harga,
+          name: item.namaMakanan,
+          image: item.gambar,
+          category: item.kategori,
+          rating: item.rating,
+          price: item.harga,
         );
       },
     );
   }
+
 
   @override
   Widget build(BuildContext context) {
