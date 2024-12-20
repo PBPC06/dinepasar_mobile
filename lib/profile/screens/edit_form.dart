@@ -36,7 +36,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
     });
 
     // Ambil data profil dari server menggunakan widget.userId
-    final response = await http.get(Uri.parse('https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/editProfile/getProfile/${widget.userId}/'));
+    // final response = await http.get(Uri.parse('https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/editProfile/getProfile/${widget.userId}/'));
+    final response = await http.get(Uri.parse('http://127.0.0.1:8000/editProfile/getProfile/${widget.userId}/'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -73,7 +74,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
     });
 
     final response = await http.post(
-      Uri.parse('https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/editProfile/edit-flutter/${widget.userId}/'),
+      // Uri.parse('https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/editProfile/edit-flutter/${widget.userId}/'),
+      Uri.parse('http://127.0.0.1:8000/editProfile/edit-flutter/${widget.userId}/'),
       headers: {'Content-Type': 'application/json'},
       body: json.encode({
         'email': _email,

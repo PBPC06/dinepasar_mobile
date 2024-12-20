@@ -22,7 +22,9 @@ class _ExplorePageState extends State<ExplorePage> {
 
   Future<String> fetchUserId(BuildContext context) async {
   final request = context.read<CookieRequest>();
-  final response = await request.get('}https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/editProfile/show-json-all/');
+  // final response = await request.get('https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/editProfile/show-json-all/');
+  final response = await request.get('http://127.0.0.1:8000/editProfile/show-json-all/');
+
   
   if (response is Map<String, dynamic>) {
     // Mengambil 'user_profile' yang berupa list
@@ -46,7 +48,8 @@ class _ExplorePageState extends State<ExplorePage> {
     try {
       final userId = await fetchUserId(context);
       if (userId.isNotEmpty) {
-        final url = '}https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/search/mark_food_flutter/$userId/$foodId/';
+        // final url = 'https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/search/mark_food_flutter/$userId/$foodId/';
+        final url = 'http://127.0.0.1:8000/search/mark_food_flutter/$userId/$foodId/';
         final response = await http.get(Uri.parse(url));
         if (response.statusCode == 200) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -70,7 +73,8 @@ class _ExplorePageState extends State<ExplorePage> {
 
   // Fungsi untuk mengambil data makanan
   Future<List<Food>> fetchProduct(CookieRequest request) async {
-    final response = await request.get('}https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/search/api/foods/');
+    // final response = await request.get('https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/search/api/foods/');
+    final response = await request.get('http://127.0.0.1:8000/search/api/foods/');
     var data = response;
 
     List<Food> listProduct = [];

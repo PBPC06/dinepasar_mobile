@@ -21,7 +21,8 @@ class _AdminPageState extends State<AdminPage> {
 
   // Fungsi untuk mengambil data makanan
   Future<List<Food>> fetchFoods(CookieRequest request) async {
-    final response = await request.get('https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/search/api/foods/');
+    // final response = await request.get('https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/search/api/foods/');
+    final response = await request.get('http://127.0.0.1:8000/search/api/foods/');
     var data = response;
 
     List<Food> listFoods = [];
@@ -68,7 +69,8 @@ class _AdminPageState extends State<AdminPage> {
   // Fungsi untuk menghapus makanan
   Future<void> _deleteFood(int foodId) async {
     final request = context.read<CookieRequest>();
-    final url = 'https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/search/delete-flutter/$foodId/';
+    // final url = 'https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/search/delete-flutter/$foodId/';
+    final url = 'http://127.0.0.1:8000/search/delete-flutter/$foodId/';
 
     try {
       final response = await request.post(url, {});
