@@ -22,7 +22,7 @@ class _DetailsPageState extends State<DetailsPage> {
   Future<void> fetchFoodDetails() async {
     try {
       final response = await http.get(
-        Uri.parse('http://127.0.0.1:8000/deskripsi/api/${widget.foodId}/'),
+        Uri.parse('https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/deskripsi/api/${widget.foodId}/'),
       );
       if (response.statusCode == 200) {
         setState(() {

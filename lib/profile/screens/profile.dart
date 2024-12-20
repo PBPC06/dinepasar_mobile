@@ -13,7 +13,6 @@ Future<ListProfileEntry> fetchProfileData(BuildContext context) async {
   final request = context.read<CookieRequest>(); // Mengakses CookieRequest dari Provider
   final response = await request.get('https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/editProfile/show-json-all/');
   // final response = await request.get('http://127.0.0.1:8000/editProfile/show-json-all/');
-  
 
   if (response is Map<String, dynamic>) {
     if (response['status'] == true) {
@@ -47,6 +46,7 @@ class _ProfilePageState extends State<ProfilePage> {
     final request = context.read<CookieRequest>();
     final response = await request.get('https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/search/api/foods/');
     // final response = await request.get('http://127.0.0.1:8000/search/api/foods/');
+
     
     
     if (response is List) {
