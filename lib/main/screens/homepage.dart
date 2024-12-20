@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:dinepasar_mobile/main/widgets/welcome_section.dart';
+import 'package:dinepasar_mobile/main/widgets/foodgallery.dart';
+import 'package:dinepasar_mobile/main/widgets/personalized.dart';
+import 'package:dinepasar_mobile/main/widgets/whydinepasar.dart';
+import 'package:dinepasar_mobile/main/widgets/threesteps.dart';
+import 'package:dinepasar_mobile/main/widgets/densiklopedia_preview.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -9,7 +15,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  String _username = "User"; // Default username
+  String _username = "User";
 
   @override
   void initState() {
@@ -17,24 +23,28 @@ class _HomePageState extends State<HomePage> {
     _loadUsername();
   }
 
-  // Load username from SharedPreferences
   _loadUsername() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      _username = prefs.getString('username') ?? "User"; // If no username saved, default to "User"
+      _username = prefs.getString('username') ?? "User";
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Dinepasar'),
-      ),
-      body: Center(
-        child: Text(
-          'Hai, $_username!', // Menampilkan nama pengguna
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+      backgroundColor: const Color.fromRGBO(255, 241, 226, 1), // Warna background
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            WelcomeSection(username: _username),
+            FoodGallerySection(),
+            PersonalizedSection(),
+            WhyDinepasarSection(),
+            ThreeStepsSection(),
+            DensiklopediaPreviewSection(),
+          ],
         ),
       ),
     );

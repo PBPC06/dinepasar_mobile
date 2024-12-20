@@ -1,5 +1,3 @@
-import 'package:dinepasar_mobile/search/screens/admin_page.dart';
-import 'package:dinepasar_mobile/search/screens/explore_page.dart';
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
@@ -218,7 +216,7 @@ class _ProductEntryFormPageState extends State<ProductEntryFormPage> {
                             // Kirim ke Django dan tunggu respons
                             // final request = Provider.of<CookieRequest>(context, listen: false);
                             final response = await request.post(
-                                "http://127.0.0.1:8000/search/add-flutter/",
+                                "https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/search/add-flutter/",
                                 jsonEncode(<String, String>{
                                     'nama_makanan': _namaMakanan,
                                     'restoran': _restoran,

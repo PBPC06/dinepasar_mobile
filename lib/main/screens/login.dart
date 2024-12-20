@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:dinepasar_mobile/main/screens/register.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(const LoginApp());
@@ -100,7 +101,7 @@ class _LoginPageState extends State<LoginPage> {
 
                       // Send the login request
                       final response = await request
-                          .login("https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/manageData/login_flutter", {
+                          .login("https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/manageData/login_flutter/", {
                         'username': username,
                         'password': password,
                       });
@@ -111,6 +112,12 @@ class _LoginPageState extends State<LoginPage> {
 
                         // Check for role in response
                         String role = response['is_admin'] == true ? 'admin' : 'user'; // Default to 'user' if not admin
+
+
+                        // Save username and role to SharedPreferences
+                        SharedPreferences prefs = await SharedPreferences.getInstance();
+                        await prefs.setString('username', uname); // Save username
+                        await prefs.setString('role', role); // Save user role
 
                         if (context.mounted) {
                           // Navigate to home page with user role
@@ -150,7 +157,7 @@ class _LoginPageState extends State<LoginPage> {
                     style: ElevatedButton.styleFrom(
                       foregroundColor: Colors.white,
                       minimumSize: Size(double.infinity, 50),
-                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      backgroundColor: Theme.of(context).colorScheme.secondary,
                       padding: const EdgeInsets.symmetric(vertical: 16.0),
                     ),
                     child: const Text('Login'),
@@ -167,7 +174,7 @@ class _LoginPageState extends State<LoginPage> {
                     child: Text(
                       'Don\'t have an account? Register',
                       style: TextStyle(
-                        color: Theme.of(context).colorScheme.primary,
+                        color: Theme.of(context).colorScheme.secondary,
                         fontSize: 16.0,
                       ),
                     ),
