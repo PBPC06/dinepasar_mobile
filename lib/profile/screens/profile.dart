@@ -11,7 +11,9 @@ import 'package:http/http.dart' as http;
 // Fungsi untuk mengambil data profil dengan autentikasi
 Future<ListProfileEntry> fetchProfileData(BuildContext context) async {
   final request = context.read<CookieRequest>(); // Mengakses CookieRequest dari Provider
-  final response = await request.get('http://127.0.0.1:8000/editProfile/show-json-all/');
+  final response = await request.get('https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/editProfile/show-json-all/');
+  // https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id
+  // http://127.0.0.1:8000
 
   if (response is Map<String, dynamic>) {
     if (response['status'] == true) {
@@ -43,7 +45,7 @@ class _ProfilePageState extends State<ProfilePage> {
   // Fungsi untuk mengambil semua data makanan
   Future<List<Food>> fetchAllFoods() async {
     final request = context.read<CookieRequest>();
-    final response = await request.get('http://127.0.0.1:8000/search/api/foods/');
+    final response = await request.get('https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/search/api/foods/');
     
     if (response is List) {
       return response.map((foodJson) => Food.fromJson(foodJson)).toList();
@@ -54,7 +56,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   // Fungsi untuk menghapus makanan dari riwayat
   Future<void> removeFoodFromHistory(String userId, int foodId) async {
-    final url = Uri.parse('http://127.0.0.1:8000/editProfile/remove_food_flutter/$userId/$foodId/');
+    final url = Uri.parse('https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/editProfile/remove_food_flutter/$userId/$foodId/');
     final response = await http.post(url);
 
     if (response.statusCode == 200) {
