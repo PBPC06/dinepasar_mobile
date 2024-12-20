@@ -80,6 +80,25 @@ class _FavoritePageState extends State<FavoritePage> {
     }
   }
 
+  Future<void> _deleteFavorite(int favoriteId) async {
+    final request = context.read<CookieRequest>();
+    try {
+      final response = await request.post(
+        'http://127.0.0.1:8000/favorite/delete/$favoriteId/',
+        {},
+      );
+      if (response['message'] == 'Item removed from favorites.') {
+        setState(() {
+          favoriteItems.removeWhere((item) => item.id == favoriteId);
+        });
+      } else {
+        print('Failed to delete favorite: ${response['error']}');
+      }
+    } catch (e) {
+      print('Error deleting favorite: $e');
+    }
+  }
+
   Widget _buildTabButton(String label, bool isSelected, VoidCallback onTap) {
     return Expanded(
       child: GestureDetector(
@@ -119,23 +138,63 @@ class _FavoritePageState extends State<FavoritePage> {
     );
   }
 
-  Widget _buildItemList(List<FoodItem> items) {
+  Widget _buildItemList(List<FoodItem> items, bool isFavorite) {
     return ListView.builder(
       padding: const EdgeInsets.all(16.0),
       itemCount: items.length,
       itemBuilder: (context, index) {
         final item = items[index];
-        return FoodCard(
-          name: item.namaMakanan,
-          image: item.gambar,
-          category: item.kategori,
-          rating: item.rating,
-          price: item.harga,
+        return Card(
+          margin: const EdgeInsets.only(bottom: 16),
+          elevation: 2,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: ListTile(
+            leading: Image.network(
+              item.gambar.isNotEmpty ? item.gambar : 'https://via.placeholder.com/60',
+              width: 60,
+              height: 60,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return const Icon(Icons.error, size: 60);
+              },
+            ),
+            title: Text(
+              item.namaMakanan,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(item.kategori, style: const TextStyle(fontSize: 14)),
+                const SizedBox(height: 4),
+                Text(
+                  'Rp ${item.harga}',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    color: Colors.yellow,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text('⭐ ${item.rating} / 5', style: const TextStyle(fontSize: 14)),
+              ],
+            ),
+            trailing: isFavorite
+                ? IconButton(
+                    icon: const Icon(Icons.delete, color: Colors.red),
+                    onPressed: () => _deleteFavorite(item.id),
+                  )
+                : null,
+          ),
         );
       },
     );
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -179,7 +238,10 @@ class _FavoritePageState extends State<FavoritePage> {
                             ? 'assets/images/empty_favorite.png'
                             : 'assets/images/empty_recommendation.png',
                       )
-                    : _buildItemList(isFavoriteSelected ? favoriteItems : recommendedItems),
+                    : _buildItemList(
+                        isFavoriteSelected ? favoriteItems : recommendedItems,
+                        isFavoriteSelected, // Hanya "Your Favorite" yang punya tombol hapus
+                      ),
           ),
         ],
       ),
