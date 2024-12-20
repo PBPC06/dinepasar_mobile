@@ -156,7 +156,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       return 'Nomor telepon tidak boleh kosong';
     }
     if (!value.startsWith('08')) {
-      return 'Nomor telepon harus diawali dengan "08"';
+      return 'Nomor telepon harus diawali 08';
     }
     // Regex untuk memastikan hanya digit dan panjang 10-15 digit
     final phoneRegex = RegExp(r'^08\d{8,13}$');
@@ -253,3 +253,5 @@ class _EditProfilePageState extends State<EditProfilePage> {
     );
   }
 }
+
+// tess
