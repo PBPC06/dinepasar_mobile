@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
+import '../models/food_item.dart';
+import '../widgets/food_card.dart';
 
 class FavoritePage extends StatefulWidget {
   const FavoritePage({Key? key}) : super(key: key);
@@ -10,72 +12,96 @@ class FavoritePage extends StatefulWidget {
 }
 
 class _FavoritePageState extends State<FavoritePage> {
-  List<Map<String, dynamic>> favoriteItems = [];
-  List<Map<String, dynamic>> recommendedItems = [];
+  List<FoodItem> favoriteItems = [];
+  List<FoodItem> recommendedItems = [];
   bool isLoading = true;
   bool isFavoriteSelected = true;
 
   @override
   void initState() {
     super.initState();
-    _fetchFavorites();
-    _fetchRecommended();
+    _fetchData();
   }
 
-  Future<void> _fetchFavorites() async {
-    try {
-      final response = await http.get(Uri.parse('http://localhost:8000/favorite/'));
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body) as List;
+  Future<void> _fetchData() async {
+    final request = context.read<CookieRequest>();
+    await Future.wait([
+      _fetchFavorites(request),
+      _fetchRecommended(request),
+    ]);
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  Future<void> _fetchFavorites(CookieRequest request) async {
+    await _fetchItems(
+      request: request,
+      url: 'http://127.0.0.1:8000/favorite/api/',
+      onSuccess: (data) {
         setState(() {
-          favoriteItems = data.map((item) {
-            return {
-              'name': item['food']['nama_makanan'],
-              'image': item['food']['gambar'],
-              'category': item['food']['kategori'],
-              'price': item['food']['harga'],
-              'rating': item['food']['rating'],
-            };
-          }).toList();
-          isLoading = false;
+          favoriteItems = data;
         });
+      },
+    );
+  }
+
+  Future<void> _fetchRecommended(CookieRequest request) async {
+    await _fetchItems(
+      request: request,
+      url: 'http://127.0.0.1:8000/favorite/recommended/',
+      onSuccess: (data) {
+        setState(() {
+          recommendedItems = data;
+        });
+      },
+    );
+  }
+
+  Future<void> _fetchItems({
+    required CookieRequest request,
+    required String url,
+    required Function(List<FoodItem>) onSuccess,
+  }) async {
+    try {
+      final response = await request.get(url);
+      print('Server Response: $response');
+
+      if (response != null && response is List) {
+        final data = response
+            .map((item) => FoodItem.fromJson(item as Map<String, dynamic>))
+            .toList();
+        onSuccess(data);
       } else {
-        throw Exception('Failed to load favorites');
+        throw Exception('Invalid response format');
       }
     } catch (e) {
-      print(e);
-      setState(() {
-        isLoading = false;
-      });
+      print('Error fetching data: $e');
     }
   }
 
-  Future<void> _fetchRecommended() async {
-    try {
-      final response = await http.get(Uri.parse('http://localhost:8000/recommended/'));
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body) as List;
-        setState(() {
-          recommendedItems = data.map((item) {
-            return {
-              'name': item['nama_makanan'],
-              'image': item['gambar'],
-              'category': item['kategori'],
-              'price': item['harga'],
-              'rating': item['rating'],
-            };
-          }).toList();
-          isLoading = false;
-        });
-      } else {
-        throw Exception('Failed to load recommended items');
-      }
-    } catch (e) {
-      print(e);
-      setState(() {
-        isLoading = false;
-      });
-    }
+  Widget _buildTabButton(String label, bool isSelected, VoidCallback onTap) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          height: 35,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: isSelected ? const Color(0xFFFBC02D) : const Color(0xFFEDEDED),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(
+            label,
+            style: TextStyle(
+              color: isSelected ? Colors.white : const Color(0xFF242424),
+              fontSize: 16,
+              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _buildEmptyState(String message, String subMessage, String imagePath) {
@@ -83,75 +109,28 @@ class _FavoritePageState extends State<FavoritePage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Image.asset(
-            imagePath,
-            width: 150,
-            height: 150,
-          ),
+          Image.asset(imagePath, width: 150, height: 150),
           const SizedBox(height: 16),
-          Text(
-            message,
-            style: const TextStyle(
-              fontSize: 18,
-              color: Colors.black54,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          Text(message, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black54)),
           const SizedBox(height: 8),
-          Text(
-            subMessage,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 14,
-              color: Colors.black38,
-            ),
-          ),
+          Text(subMessage, textAlign: TextAlign.center, style: const TextStyle(fontSize: 14, color: Colors.black38)),
         ],
       ),
     );
   }
 
-  Widget _buildItemList(List<Map<String, dynamic>> items) {
+  Widget _buildItemList(List<FoodItem> items) {
     return ListView.builder(
       padding: const EdgeInsets.all(16.0),
       itemCount: items.length,
       itemBuilder: (context, index) {
         final item = items[index];
-        return Card(
-          margin: const EdgeInsets.only(bottom: 16),
-          elevation: 2,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: ListTile(
-            leading: Image.network(
-              item['image'],
-              width: 60,
-              height: 60,
-              fit: BoxFit.cover,
-            ),
-            title: Text(
-              item['name'],
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-            ),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(item['category'], style: const TextStyle(fontSize: 14)),
-                Text('⭐ ${item['rating']} / 5', style: const TextStyle(fontSize: 14)),
-              ],
-            ),
-            trailing: Text(
-              'Rp ${item['price']}',
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.green,
-              ),
-            ),
-          ),
+        return FoodCard(
+          name: item.fields.namaMakanan,
+          image: item.fields.gambar,
+          category: item.fields.kategori,
+          rating: item.fields.rating,
+          price: item.fields.harga,
         );
       },
     );
@@ -162,7 +141,6 @@ class _FavoritePageState extends State<FavoritePage> {
     return Scaffold(
       body: Column(
         children: [
-          // Toggle Buttons
           Container(
             margin: const EdgeInsets.all(16),
             padding: const EdgeInsets.all(4),
@@ -172,79 +150,35 @@ class _FavoritePageState extends State<FavoritePage> {
             ),
             child: Row(
               children: [
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        isFavoriteSelected = true;
-                      });
-                    },
-                    child: Container(
-                      height: 35,
-                      decoration: BoxDecoration(
-                        color: isFavoriteSelected ? const Color(0xFFFBC02D) : const Color(0xFFEDEDED),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        'Your Favorite',
-                        style: TextStyle(
-                          color: isFavoriteSelected ? Colors.white : const Color(0xFF242424),
-                          fontSize: 16,
-                          fontWeight: isFavoriteSelected ? FontWeight.w600 : FontWeight.w400,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        isFavoriteSelected = false;
-                      });
-                    },
-                    child: Container(
-                      height: 35,
-                      decoration: BoxDecoration(
-                        color: isFavoriteSelected ? const Color(0xFFEDEDED) : const Color(0xFFFBC02D),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        'Recommended',
-                        style: TextStyle(
-                          color: isFavoriteSelected ? const Color(0xFF242424) : Colors.white,
-                          fontSize: 16,
-                          fontWeight: isFavoriteSelected ? FontWeight.w400 : FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
+                _buildTabButton('Your Favorite', isFavoriteSelected, () {
+                  setState(() {
+                    isFavoriteSelected = true;
+                  });
+                }),
+                _buildTabButton('Recommended', !isFavoriteSelected, () {
+                  setState(() {
+                    isFavoriteSelected = false;
+                  });
+                }),
               ],
             ),
           ),
-
-          // Content Area
           Expanded(
             child: isLoading
                 ? const Center(child: CircularProgressIndicator())
-                : isFavoriteSelected
-                    ? (favoriteItems.isEmpty
-                        ? _buildEmptyState(
-                            "Don't have any favorite :(",
-                            "Visit the homepage to select a food item and start adding to your favorite.",
-                            'assets/images/empty_favorite.png',
-                          )
-                        : _buildItemList(favoriteItems))
-                    : (recommendedItems.isEmpty
-                        ? _buildEmptyState(
-                            "Don't have any recommendation :(",
-                            "Add some items to your favorites to get personalized recommendations.",
-                            'assets/images/empty_recommendation.png',
-                          )
-                        : _buildItemList(recommendedItems)),
+                : (isFavoriteSelected ? favoriteItems : recommendedItems).isEmpty
+                    ? _buildEmptyState(
+                        isFavoriteSelected
+                            ? "Don't have any favorite :(" 
+                            : "Don't have any recommendation :(",
+                        isFavoriteSelected
+                            ? "Visit the homepage to select a food item and start adding to your favorite."
+                            : "Add some items to your favorites to get personalized recommendations.",
+                        isFavoriteSelected
+                            ? 'assets/images/empty_favorite.png'
+                            : 'assets/images/empty_recommendation.png',
+                      )
+                    : _buildItemList(isFavoriteSelected ? favoriteItems : recommendedItems),
           ),
         ],
       ),
