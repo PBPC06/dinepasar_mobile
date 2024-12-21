@@ -60,18 +60,19 @@ class _ExplorePageState extends State<ExplorePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Let\'s Find Your Food!',
-          style: TextStyle(
-            fontFamily: 'Roboto',
-            fontWeight: FontWeight.bold,
-            fontSize: 22,
-            color: Colors.black,
-          ),
+      title: const Text(
+        'Let\'s Find Your Food!',
+        style: TextStyle(
+          color: Color.fromRGBO(202, 138, 4, 1), // Warna teks
+          fontWeight: FontWeight.bold, // Membuat teks menjadi tebal
         ),
-        centerTitle: true,
-        backgroundColor: const Color(0xFFFEFCEC),
       ),
+      centerTitle: true,
+      backgroundColor: const Color.fromRGBO(255, 242, 229, 1), // Warna latar belakang AppBar
+      iconTheme: const IconThemeData(
+        color: Color.fromRGBO(202, 138, 4, 1), // Warna ikon
+      ),
+    ),
       body: Column(
         children: [
           // Pencarian dan filter
@@ -82,7 +83,7 @@ class _ExplorePageState extends State<ExplorePage> {
                 // Pencarian
                 TextField(
                   onChanged: handleSearch,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     hintText: 'Search for food...',
                     border: OutlineInputBorder(),
                     suffixIcon: Icon(Icons.search),

@@ -72,6 +72,9 @@ flutter:
     - lib/main/assets/food1.png
     - lib/main/assets/food2.png
     - lib/main/assets/food3.png
+    - lib/main/assets/food4.png
+    - lib/main/assets/left_gapura.png
+    - lib/main/assets/right_gapura.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

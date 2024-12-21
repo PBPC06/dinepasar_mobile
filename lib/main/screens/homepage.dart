@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:dinepasar_mobile/main/widgets/welcome_section.dart';
+import 'package:dinepasar_mobile/main/widgets/gapura.dart';
 import 'package:dinepasar_mobile/main/widgets/foodgallery.dart';
-import 'package:dinepasar_mobile/main/widgets/personalized.dart';
 import 'package:dinepasar_mobile/main/widgets/whydinepasar.dart';
-import 'package:dinepasar_mobile/main/widgets/threesteps.dart';
-import 'package:dinepasar_mobile/main/widgets/densiklopedia_preview.dart';
+import 'package:dinepasar_mobile/main/widgets/welcome_section.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -32,20 +30,28 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
-      backgroundColor: const Color.fromRGBO(255, 241, 226, 1), // Warna background
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            WelcomeSection(username: _username),
-            FoodGallerySection(),
-            PersonalizedSection(),
-            WhyDinepasarSection(),
-            ThreeStepsSection(),
-            DensiklopediaPreviewSection(),
-          ],
-        ),
+      body: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  WelcomeSection(username: _username),
+                  SizedBox(height: screenHeight * 0.01), // Jarak antar elemen
+                  FoodGallerySection(),
+                  SizedBox(height: screenHeight * 0.03),
+                  WhyDinepasarSection(),
+                  SizedBox(height: screenHeight * 0.03),
+                ],
+              ),
+            ),
+          ),
+          const GapuraSection(), // Gapura di bagian bawah
+        ],
       ),
     );
   }
