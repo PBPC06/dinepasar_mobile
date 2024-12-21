@@ -216,8 +216,8 @@ class _ProductEntryFormPageState extends State<ProductEntryFormPage> {
                             // Kirim ke Django dan tunggu respons
                             // final request = Provider.of<CookieRequest>(context, listen: false);
                             final response = await request.post(
-                                // "https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/search/add-flutter/",
-                                "http://127.0.0.1:8000/search/add-flutter/",
+                                "https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/search/add-flutter/",
+                                // "http://127.0.0.1:8000/search/add-flutter/",
                                 
                                 jsonEncode(<String, String>{
                                     'nama_makanan': _namaMakanan,
