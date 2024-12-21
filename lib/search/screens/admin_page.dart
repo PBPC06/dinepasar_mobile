@@ -21,7 +21,7 @@ class _AdminPageState extends State<AdminPage> {
 
   // Fungsi untuk mengambil data makanan
   Future<List<Food>> fetchFoods(CookieRequest request) async {
-    final response = await request.get('https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/search/api/foods/');
+    final response = await request.get('http://127.0.0.1:8000/search/api/foods/');
     // final response = await request.get('http://127.0.0.1:8000/search/api/foods/');
     var data = response;
 
@@ -70,7 +70,7 @@ class _AdminPageState extends State<AdminPage> {
     Future<String> fetchUserId(BuildContext context) async {
   final request = context.read<CookieRequest>();
   // final response = await request.get('http://127.0.0.1:8000/editProfile/show-json-all/');
-  final response = await request.get('https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/editProfile/show-json-all/');
+  final response = await request.get('http://127.0.0.1:8000/editProfile/show-json-all/');
   
   
   if (response is Map<String, dynamic>) {
@@ -96,7 +96,7 @@ class _AdminPageState extends State<AdminPage> {
       if (userId.isNotEmpty) {
         final request = context.read<CookieRequest>();
         // final url = 'http://127.0.0.1:8000/search/mark_food_flutter/$userId/$foodId/';
-        final url = 'https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/search/mark_food_flutter/$userId/$foodId/';
+        final url = 'http://127.0.0.1:8000/search/mark_food_flutter/$userId/$foodId/';
         final response = await request.post(url, {});
 
         if (response is Map<String, dynamic> && response['success'] == true) {
@@ -127,7 +127,7 @@ class _AdminPageState extends State<AdminPage> {
   // Fungsi untuk menghapus makanan
   Future<void> _deleteFood(int foodId) async {
     final request = context.read<CookieRequest>();
-    final url = 'https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/search/delete-flutter/$foodId/';
+    final url = 'http://127.0.0.1:8000/search/delete-flutter/$foodId/';
     // final url = 'http://127.0.0.1:8000/search/delete-flutter/$foodId/';
 
     try {

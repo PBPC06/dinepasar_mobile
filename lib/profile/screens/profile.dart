@@ -26,7 +26,7 @@ class _ProfilePageState extends State<ProfilePage> {
     try {
       final request = context.read<CookieRequest>();
       // final response = await request.get('http://127.0.0.1:8000/search/api/foods/');
-      final response = await request.get(' https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/search/api/foods/');
+      final response = await request.get(' http://127.0.0.1:8000/search/api/foods/');
      
 
       if (response is List) {
@@ -43,7 +43,7 @@ class _ProfilePageState extends State<ProfilePage> {
       final request = context.read<CookieRequest>();
       final response = await request.post(
         // 'http://127.0.0.1:8000/editProfile/remove_food_flutter/$userId/$foodId/',
-        'https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/editProfile/remove_food_flutter/$userId/$foodId/',
+        'http://127.0.0.1:8000/editProfile/remove_food_flutter/$userId/$foodId/',
         {}
       );
 
@@ -60,7 +60,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<UserProfileResponse> fetchProfileData() async {
     final request = context.read<CookieRequest>();
     // final response = await request.get('http://127.0.0.1:8000/editProfile/show-json-all/');
-    final response = await request.get('https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/editProfile/show-json-all/');
+    final response = await request.get('http://127.0.0.1:8000/editProfile/show-json-all/');
     
 
     if (response is Map<String, dynamic>) {

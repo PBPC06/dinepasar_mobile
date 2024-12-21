@@ -223,7 +223,7 @@ class _ProductEntryFormPageState extends State<ProductEntryFormPage> {
                     onPressed: () async {
                       if (_formKey.currentState!.validate()) {
                         final response = await request.post(
-                          "https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/search/add-flutter/",
+                          "http://127.0.0.1:8000/search/add-flutter/",
                           jsonEncode(<String, String>{
                             'nama_makanan': _namaMakanan,
                             'restoran': _restoran,
