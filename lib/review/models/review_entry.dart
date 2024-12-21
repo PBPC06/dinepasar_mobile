@@ -13,23 +13,27 @@ String foodReviewToJson(List<FoodReview> data) =>
 class FoodReview {
   String model;
   int pk;
+  bool is_admin;
   Fields fields;
 
   FoodReview({
     required this.model,
     required this.pk,
+    required this.is_admin,
     required this.fields,
   });
 
   factory FoodReview.fromJson(Map<String, dynamic> json) => FoodReview(
         model: json["model"],
         pk: json["pk"],
+        is_admin: json["is_admin"],
         fields: Fields.fromJson(json["fields"]),
       );
 
   Map<String, dynamic> toJson() => {
         "model": model,
         "pk": pk,
+        "is_admin": is_admin,
         "fields": fields.toJson(),
       };
 }
@@ -37,6 +41,7 @@ class FoodReview {
 class Fields {
   String user;
   int food;
+  String gambar;
   String namaMakanan;
   double rating;
   String reviewMessage;
@@ -45,6 +50,7 @@ class Fields {
   Fields({
     required this.user,
     required this.food,
+    required this.gambar,
     required this.namaMakanan,
     required this.rating,
     required this.reviewMessage,
@@ -54,6 +60,7 @@ class Fields {
   factory Fields.fromJson(Map<String, dynamic> json) => Fields(
         user: json["user"],
         food: json["food"],
+        gambar: json["gambar"],
         namaMakanan: json["nama_makanan"],
         rating: json["rating"],
         reviewMessage: json["review_message"],
@@ -63,6 +70,7 @@ class Fields {
   Map<String, dynamic> toJson() => {
         "user": user,
         "food": food,
+        "gambar": gambar,
         "nama_makanan": namaMakanan,
         "rating": rating,
         "review_message": reviewMessage,

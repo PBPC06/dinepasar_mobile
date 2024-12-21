@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:dinepasar_mobile/main/screens/register.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(const LoginApp());
@@ -102,9 +101,9 @@ class _LoginPageState extends State<LoginPage> {
                       // Send the login request
                       // http://127.0.0.1:8000/manageData/login_flutter/
                       // http://127.0.0.1:8000/manageData/login_flutter/
-                      final response = await request
-                          .login("http://127.0.0.1:8000/manageData/login_flutter/", {
-                          // .login("http://127.0.0.1:8000/manageData/login_flutter/", {
+                      final response = await request.login(
+                          "http://127.0.0.1:8000/manageData/login_flutter/", {
+                        // .login("http://127.0.0.1:8000/manageData/login_flutter/", {
                         'username': username,
                         'password': password,
                       });
@@ -114,20 +113,17 @@ class _LoginPageState extends State<LoginPage> {
                         String uname = response['username'];
 
                         // Check for role in response
-                        String role = response['is_admin'] == true ? 'admin' : 'user'; // Default to 'user' if not admin
-
-
-                        // Save username and role to SharedPreferences
-                        SharedPreferences prefs = await SharedPreferences.getInstance();
-                        await prefs.setString('username', uname); // Save username
-                        await prefs.setString('role', role); // Save user role
+                        String role = response['is_admin'] == true
+                            ? 'admin'
+                            : 'user'; // Default to 'user' if not admin
 
                         if (context.mounted) {
                           // Navigate to home page with user role
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => MyHomePage(userRole: role)),
+                                builder: (context) =>
+                                    MyHomePage(userRole: role)),
                           );
                           ScaffoldMessenger.of(context)
                             ..hideCurrentSnackBar()

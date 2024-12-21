@@ -1,12 +1,15 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:dinepasar_mobile/search/models/food_entry.dart';
-import 'package:dinepasar_mobile/review/review.dart';
 
 class AddReviewPage extends StatefulWidget {
-  const AddReviewPage({Key? key}) : super(key: key);
+  final int? foodId;
+
+  const AddReviewPage({super.key, this.foodId});
 
   @override
   State<AddReviewPage> createState() => _AddReviewPageState();
@@ -14,7 +17,7 @@ class AddReviewPage extends StatefulWidget {
 
 class _AddReviewPageState extends State<AddReviewPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  int? _rating;
+  double? _rating;
   String _reviewMessage = "";
   int? _selectedFoodId;
   List<Food> _foodList = [];
@@ -24,50 +27,19 @@ class _AddReviewPageState extends State<AddReviewPage> {
     super.initState();
     debugPrint('Initializing AddReviewPage and fetching food list.');
     _fetchFoodList();
+    _selectedFoodId = widget.foodId;
   }
 
   Future<void> _fetchFoodList() async {
     final request = context.read<CookieRequest>();
-    // try {
     final response =
         await request.get('http://127.0.0.1:8000/search/api/foods/');
-        // await request.get('http://127.0.0.1:8000/search/api/foods/');
-    // debugPrint('API Response: $response');
-
-    // if (response["status"] == "success") {
     var data = response;
     if (data is List) {
       setState(() {
         _foodList = data.map((item) => Food.fromJson(item)).toList();
       });
-      // debugPrint('Food list fetched successfully.');
     }
-    //   } else if (data is String) {
-    //     debugPrint('Error message from API: $data');
-    //     ScaffoldMessenger.of(context).showSnackBar(
-    //       SnackBar(content: Text(data)),
-    //     );
-    //   } else {
-    //     debugPrint('Unexpected data type: ${data.runtimeType}');
-    //     ScaffoldMessenger.of(context).showSnackBar(
-    //       const SnackBar(content: Text('Format data tidak dikenal')),
-    //     );
-    //   }
-    // } else {
-    //   // Handle error
-    //   String message = response["message"] ?? 'Failed to load food list';
-    //   debugPrint('Failed to load food list: $message');
-    //   ScaffoldMessenger.of(context).showSnackBar(
-    //     SnackBar(content: Text(message)),
-    //   );
-    // }
-    // } catch (e) {
-    //   debugPrint('Error fetching food list: $e');
-    //   ScaffoldMessenger.of(context).showSnackBar(
-    //     const SnackBar(
-    //         content: Text('Terjadi kesalahan saat memuat daftar makanan')),
-    //   );
-    // }
   }
 
   @override
@@ -76,7 +48,7 @@ class _AddReviewPageState extends State<AddReviewPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Add Review | Dinepasar'),
-        backgroundColor: Colors.yellow,
+        backgroundColor: const Color(0xFFFEFCEC),
       ),
       body: Center(
         child: _foodList.isEmpty
@@ -119,9 +91,9 @@ class _AddReviewPageState extends State<AddReviewPage> {
                           initialRating: _rating?.toDouble() ?? 0,
                           minRating: 1,
                           maxRating: 5,
-                          allowHalfRating: false,
+                          allowHalfRating: true,
                           itemCount: 5,
-                          itemSize: 40.0,
+                          itemSize: 45.0,
                           itemPadding:
                               const EdgeInsets.symmetric(horizontal: 4.0),
                           updateOnDrag: true,
@@ -131,7 +103,7 @@ class _AddReviewPageState extends State<AddReviewPage> {
                           ),
                           onRatingUpdate: (double newRating) {
                             setState(() {
-                              _rating = newRating.toInt();
+                              _rating = newRating;
                             });
                           },
                         ),
@@ -169,7 +141,7 @@ class _AddReviewPageState extends State<AddReviewPage> {
                                 return;
                               }
 
-                              if (_rating == null || _rating! < 1) {
+                              if (_rating == null) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                       content: Text('Please provide a rating')),
@@ -177,17 +149,17 @@ class _AddReviewPageState extends State<AddReviewPage> {
                                 return;
                               }
 
+                              final updateData = {
+                                'food_id': _selectedFoodId.toString(),
+                                'rating': _rating.toString(),
+                                'review_message': _reviewMessage,
+                              };
+
                               try {
                                 final response = await request.post(
-                                  "http://127.0.0.1:8000/review/add-review/",
-                                  {
-                                    'food_id': _selectedFoodId.toString(),
-                                    'rating': _rating.toString(),
-                                    'review_message': _reviewMessage,
-                                  },
+                                  "http://127.0.0.1:8000/review/add-review-flutter/",
+                                  updateData,
                                 );
-
-                                debugPrint('Add Review Response: $response');
 
                                 if (response["status"] == "success") {
                                   ScaffoldMessenger.of(context).showSnackBar(
@@ -195,12 +167,7 @@ class _AddReviewPageState extends State<AddReviewPage> {
                                         content:
                                             Text('Review added successfully')),
                                   );
-                                  Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            const ReviewPage()),
-                                  );
+                                  Navigator.pop(context, updateData);
                                 } else {
                                   String message = response["message"] ??
                                       'Failed to add review';
@@ -221,13 +188,27 @@ class _AddReviewPageState extends State<AddReviewPage> {
                             }
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.yellow,
+                            backgroundColor: const Color(0xFFFEFCEC),
                             foregroundColor: Colors.black,
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 40, vertical: 15),
                             textStyle: const TextStyle(fontSize: 16),
                           ),
                           child: const Text('Submit Review'),
+                        ),
+                        const SizedBox(height: 20),
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFFFEFCEC),
+                            foregroundColor: Colors.black,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 40, vertical: 15),
+                            textStyle: const TextStyle(fontSize: 16),
+                          ),
+                          child: const Text('Cancel'),
                         ),
                       ],
                     ),

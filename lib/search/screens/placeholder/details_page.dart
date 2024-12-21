@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:dinepasar_mobile/review/widgets/addreview.dart';
 import 'package:http/http.dart' as http; // Untuk HTTP requests
 import 'dart:convert'; // Untuk decoding JSON
 
@@ -25,7 +26,6 @@ class _DetailsPageState extends State<DetailsPage> {
       final response = await http.get(
         // Uri.parse('http://127.0.0.1:8000/deskripsi/api/${widget.foodId}/'),
         Uri.parse('http://127.0.0.1:8000/deskripsi/api/${widget.foodId}/'),
-        
       );
       if (response.statusCode == 200) {
         setState(() {
@@ -165,12 +165,19 @@ class _DetailsPageState extends State<DetailsPage> {
                                   const Icon(Icons.star,
                                       color: Colors.amber, size: 20),
                                   const SizedBox(width: 4),
-                                  Text(
-                                    '${food!['rating'] ?? 0.0}',
-                                    style: const TextStyle(
-                                      color: Color(0xFF2A2A2A),
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
+                                  RichText(
+                                    text: TextSpan(
+                                      children: [
+                                        TextSpan(
+                                          text:
+                                              '${formatRating(food!['rating'])} / 5.0',
+                                          style: const TextStyle(
+                                            color: Color(0xFF2A2A2A),
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ],
@@ -277,23 +284,40 @@ class _DetailsPageState extends State<DetailsPage> {
                                     onPressed: () => addToFavorite(request),
                                     icon: Image.asset(
                                       'assets/images/add_favorite.png',
-                                      width: 32, // Sesuaikan ukuran jika diperlukan
+                                      width:
+                                          32, // Sesuaikan ukuran jika diperlukan
                                       height: 32,
                                     ),
                                   ),
                                   const SizedBox(width: 16),
-                                  IconButton(
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(
+                                          0xFFFBC02D), // Warna kuning
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
+                                    ),
                                     onPressed: () {
                                       // Logic untuk "Add Review"
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              const AddReviewPage(), // Halaman tambah review
+                                        ),
+                                      );
                                     },
-                                    icon: Image.asset(
-                                      'assets/images/add_review.png',
-                                      width: 32, // Sesuaikan ukuran jika diperlukan
-                                      height: 32,
+                                    child: const Text(
+                                      'Add Review',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                      ),
                                     ),
                                   ),
                                 ],
-                              ),
+                              )
                             ],
                           ),
                         ),
@@ -301,4 +325,11 @@ class _DetailsPageState extends State<DetailsPage> {
                     ),
     );
   }
+}
+
+String formatRating(double rating) {
+  if (rating == rating.toInt()) {
+    return rating.toStringAsFixed(1);
+  }
+  return '$rating';
 }

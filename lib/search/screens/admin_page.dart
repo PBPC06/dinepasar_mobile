@@ -21,8 +21,8 @@ class _AdminPageState extends State<AdminPage> {
 
   // Fungsi untuk mengambil data makanan
   Future<List<Food>> fetchFoods(CookieRequest request) async {
-    final response = await request.get('http://127.0.0.1:8000/search/api/foods/');
-    // final response = await request.get('http://127.0.0.1:8000/search/api/foods/');
+    final response =
+        await request.get('http://127.0.0.1:8000/search/api/foods/');
     var data = response;
 
     List<Food> listFoods = [];
@@ -66,37 +66,38 @@ class _AdminPageState extends State<AdminPage> {
     }
   }
 
+  Future<String> fetchUserId(BuildContext context) async {
+    final request = context.read<CookieRequest>();
+    // final response = await request.get('http://127.0.0.1:8000/editProfile/show-json-all/');
+    final response =
+        await request.get('http://127.0.0.1:8000/editProfile/show-json-all/');
 
-    Future<String> fetchUserId(BuildContext context) async {
-  final request = context.read<CookieRequest>();
-  // final response = await request.get('http://127.0.0.1:8000/editProfile/show-json-all/');
-  final response = await request.get('http://127.0.0.1:8000/editProfile/show-json-all/');
-  
-  
-  if (response is Map<String, dynamic>) {
-    // Mengambil 'user_profile' yang berupa list
-    var userProfileList = response['user_profile'] as List;
-    
-    // Ambil userId pertama dari list, atau sesuaikan jika perlu
-    if (userProfileList.isNotEmpty) {
-      final userProfile = userProfileList[0]; // Bisa disesuaikan untuk memilih user yang sesuai
-      return userProfile['user_id'] ?? '';
+    if (response is Map<String, dynamic>) {
+      // Mengambil 'user_profile' yang berupa list
+      var userProfileList = response['user_profile'] as List;
+
+      // Ambil userId pertama dari list, atau sesuaikan jika perlu
+      if (userProfileList.isNotEmpty) {
+        final userProfile = userProfileList[
+            0]; // Bisa disesuaikan untuk memilih user yang sesuai
+        return userProfile['user_id'] ?? '';
+      } else {
+        throw Exception('No user profiles found');
+      }
     } else {
-      throw Exception('No user profiles found');
+      throw Exception('Failed to load profile data');
     }
-  } else {
-    throw Exception('Failed to load profile data');
   }
-}
 
-   // Fungsi untuk menandai makanan sebagai sudah dicoba
+  // Fungsi untuk menandai makanan sebagai sudah dicoba
   Future<void> markFoodAsTried(BuildContext context, String foodId) async {
     try {
       final userId = await fetchUserId(context);
       if (userId.isNotEmpty) {
         final request = context.read<CookieRequest>();
         // final url = 'http://127.0.0.1:8000/search/mark_food_flutter/$userId/$foodId/';
-        final url = 'http://127.0.0.1:8000/search/mark_food_flutter/$userId/$foodId/';
+        final url =
+            'http://127.0.0.1:8000/search/mark_food_flutter/$userId/$foodId/';
         final response = await request.post(url, {});
 
         if (response is Map<String, dynamic> && response['success'] == true) {
@@ -123,12 +124,10 @@ class _AdminPageState extends State<AdminPage> {
     }
   }
 
-
   // Fungsi untuk menghapus makanan
   Future<void> _deleteFood(int foodId) async {
     final request = context.read<CookieRequest>();
     final url = 'http://127.0.0.1:8000/search/delete-flutter/$foodId/';
-    // final url = 'http://127.0.0.1:8000/search/delete-flutter/$foodId/';
 
     try {
       final response = await request.post(url, {});
@@ -142,7 +141,8 @@ class _AdminPageState extends State<AdminPage> {
         });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal menghapus makanan: ${response['message']}')),
+          SnackBar(
+              content: Text('Gagal menghapus makanan: ${response['message']}')),
         );
       }
     } catch (e) {
@@ -157,26 +157,28 @@ class _AdminPageState extends State<AdminPage> {
     final request = context.watch<CookieRequest>();
 
     return Scaffold(
-    appBar: AppBar(
-      title: const Text(
-        'Admin - Manage Foods',
-        style: TextStyle(
-          color: Color.fromRGBO(202, 138, 4, 1), // Warna teks
-          fontWeight: FontWeight.bold, // Membuat teks menjadi tebal
+      appBar: AppBar(
+        title: const Text(
+          'Admin - Manage Foods',
+          style: TextStyle(
+            color: Color.fromRGBO(202, 138, 4, 1), // Warna teks
+            fontWeight: FontWeight.bold, // Membuat teks menjadi tebal
+          ),
+        ),
+        backgroundColor: const Color.fromRGBO(
+            255, 242, 229, 1), // Warna latar belakang AppBar
+        iconTheme: const IconThemeData(
+          color: Color.fromRGBO(202, 138, 4, 1), // Warna ikon
         ),
       ),
-      backgroundColor: const Color.fromRGBO(255, 242, 229, 1), // Warna latar belakang AppBar
-      iconTheme: const IconThemeData(
-        color: Color.fromRGBO(202, 138, 4, 1), // Warna ikon
-      ),
-    ),
       body: Container(
         // color: Theme.of(context).colorScheme.secondary, // Background halaman
         child: Column(
           children: [
             // Pencarian dan filter
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               child: Column(
                 children: [
                   TextField(
@@ -191,10 +193,12 @@ class _AdminPageState extends State<AdminPage> {
                       suffixIcon: Icon(Icons.search),
                     ),
                   ),
-                  const SizedBox(height: 16), // Space between search and filters
+                  const SizedBox(
+                      height: 16), // Space between search and filters
                   // Filter Kategori dan Harga
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.center, // Center filters horizontally
+                    mainAxisAlignment:
+                        MainAxisAlignment.center, // Center filters horizontally
                     children: [
                       // Filter Kategori
                       Padding(
@@ -206,8 +210,25 @@ class _AdminPageState extends State<AdminPage> {
                               _kategori = value ?? 'all';
                             });
                           },
-                          items: ['all', 'Ayam Betutu', 'Sate', 'Es', 'Ayam', 'Pepes', 'Nasi', 'Sayur', 'Jajanan', 'Sambal', 'Tipat', 'Rujak', 'Bebek', 'Ikan', 'Kopi', 'Lawar', 'Babi Guling']
-                              .map<DropdownMenuItem<String>>((String value) {
+                          items: [
+                            'all',
+                            'Ayam Betutu',
+                            'Sate',
+                            'Es',
+                            'Ayam',
+                            'Pepes',
+                            'Nasi',
+                            'Sayur',
+                            'Jajanan',
+                            'Sambal',
+                            'Tipat',
+                            'Rujak',
+                            'Bebek',
+                            'Ikan',
+                            'Kopi',
+                            'Lawar',
+                            'Babi Guling'
+                          ].map<DropdownMenuItem<String>>((String value) {
                             return DropdownMenuItem<String>(
                               value: value,
                               child: Text(value),
@@ -241,98 +262,108 @@ class _AdminPageState extends State<AdminPage> {
             ),
             // Tampilkan data makanan
 
-          Expanded(
-            child: FutureBuilder<List<Food>>(
-              future: fetchFoods(request), // Fetch food data
-              builder: (context, AsyncSnapshot<List<Food>> snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Center(child: Text('No foods available in Dinepasar'));
-                }
-
-                final foods = snapshot.data!;
-
-                // Filter berdasarkan pencarian dan kategori
-                final filteredFoods = foods.where((food) {
-                  bool matchesSearch = food.fields.namaMakanan.toLowerCase().contains(_keyword.toLowerCase());
-                  bool matchesCategory = _kategori == 'all' || food.fields.kategori == _kategori;
-                  bool matchesPrice = true;
-
-                  // Filter berdasarkan harga
-                  if (_harga == 'Under 50k') {
-                    matchesPrice = food.fields.harga < 50000;
-                  } else if (_harga == '50k-100k') {
-                    matchesPrice = food.fields.harga >= 50000 && food.fields.harga <= 100000;
-                  } else if (_harga == 'Above 100k') {
-                    matchesPrice = food.fields.harga > 100000;
+            Expanded(
+              child: FutureBuilder<List<Food>>(
+                future: fetchFoods(request), // Fetch food data
+                builder: (context, AsyncSnapshot<List<Food>> snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return const Center(
+                        child: Text('No foods available in Dinepasar'));
                   }
 
-                  return matchesSearch && matchesCategory && matchesPrice;
-                }).toList();
+                  final foods = snapshot.data!;
 
-                if (filteredFoods.isEmpty) {
-                  return const Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.search_off, size: 40, color: Colors.grey),
-                        Text("No results found.", style: TextStyle(color: Colors.grey)),
-                      ],
+                  // Filter berdasarkan pencarian dan kategori
+                  final filteredFoods = foods.where((food) {
+                    bool matchesSearch = food.fields.namaMakanan
+                        .toLowerCase()
+                        .contains(_keyword.toLowerCase());
+                    bool matchesCategory =
+                        _kategori == 'all' || food.fields.kategori == _kategori;
+                    bool matchesPrice = true;
+
+                    // Filter berdasarkan harga
+                    if (_harga == 'Under 50k') {
+                      matchesPrice = food.fields.harga < 50000;
+                    } else if (_harga == '50k-100k') {
+                      matchesPrice = food.fields.harga >= 50000 &&
+                          food.fields.harga <= 100000;
+                    } else if (_harga == 'Above 100k') {
+                      matchesPrice = food.fields.harga > 100000;
+                    }
+
+                    return matchesSearch && matchesCategory && matchesPrice;
+                  }).toList();
+
+                  if (filteredFoods.isEmpty) {
+                    return const Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.search_off, size: 40, color: Colors.grey),
+                          Text("No results found.",
+                              style: TextStyle(color: Colors.grey)),
+                        ],
+                      ),
+                    );
+                  }
+
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                    child: GridView.builder(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2, // Display 2 columns
+                        crossAxisSpacing: 10, // Spacing between columns
+                        mainAxisSpacing: 10, // Spacing between rows
+                        childAspectRatio:
+                            0.7, // Aspect ratio of the card (height/width)
+                      ),
+                      itemCount: filteredFoods.length,
+                      itemBuilder: (context, index) {
+                        final food = filteredFoods[index];
+
+                        return AdminFoodCard(
+                          food: food,
+                          onEdit: () async {
+                            // print("Navigating to EditFoodPage with foodId: ${food.pk}");
+                            final result = await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    EditFoodPage(foodId: food.pk),
+                              ),
+                            );
+
+                            if (result != null) {
+                              setState(() {
+                                int index = _foods
+                                    .indexWhere((item) => item.pk == food.pk);
+                                if (index != -1) {
+                                  _foods[index] = Food.fromJson(result);
+                                }
+                              });
+                            }
+                          },
+                          onApprove: () {
+                            markFoodAsTried(context, food.pk.toString());
+                          },
+                          onMore: () {
+                            // print('More details for ${food.fields.namaMakanan}');
+                          },
+                          onDelete: () {
+                            _confirmDeleteFood(
+                                food.pk, food.fields.namaMakanan);
+                          },
+                        );
+                      },
                     ),
                   );
-                }
-
-
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                  child: GridView.builder(
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2, // Display 2 columns
-                      crossAxisSpacing: 10, // Spacing between columns
-                      mainAxisSpacing: 10, // Spacing between rows
-                      childAspectRatio: 0.7, // Aspect ratio of the card (height/width)
-                    ),
-                    itemCount: filteredFoods.length,
-                    itemBuilder: (context, index) {
-                      final food = filteredFoods[index];
-
-                      return AdminFoodCard(
-                        food: food,
-                        onEdit: () async {
-                          // print("Navigating to EditFoodPage with foodId: ${food.pk}");
-                          final result = await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => EditFoodPage(foodId: food.pk),
-                            ),
-                          );
-
-                          if (result != null) {
-                            setState(() {
-                              int index = _foods.indexWhere((item) => item.pk == food.pk);
-                              if (index != -1) {
-                                _foods[index] = Food.fromJson(result);
-                              }
-                            });
-                          }
-                        },
-                        onApprove: () {
-                          markFoodAsTried(context, food.pk.toString());
-                        },
-                        onMore: () {
-                          // print('More details for ${food.fields.namaMakanan}');
-                        },
-                        onDelete: () {
-                          _confirmDeleteFood(food.pk, food.fields.namaMakanan);
-                        },
-                      );
-                    },
-                  ),
-                );
-              },
+                },
+              ),
             ),
-      ),
           ],
         ),
       ),
@@ -340,7 +371,8 @@ class _AdminPageState extends State<AdminPage> {
         onPressed: () async {
           final result = await Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const ProductEntryFormPage()),
+            MaterialPageRoute(
+                builder: (context) => const ProductEntryFormPage()),
           );
 
           if (result != null) {
@@ -349,7 +381,8 @@ class _AdminPageState extends State<AdminPage> {
             });
           }
         },
-        backgroundColor: const Color.fromRGBO(202, 138, 4, 1), // Warna latar belakang ikon Add
+        backgroundColor: const Color.fromRGBO(
+            202, 138, 4, 1), // Warna latar belakang ikon Add
         child: const Icon(
           Icons.add,
           color: Colors.white, // Warna ikon (putih agar kontras)

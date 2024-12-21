@@ -51,7 +51,6 @@ class _EditFoodPageState extends State<EditFoodPage> {
       try {
         final response = await request.post(
           "http://127.0.0.1:8000/search/edit-flutter/${widget.foodId}/",
-          // "http://127.0.0.1:8000/search/edit-flutter/${widget.foodId}/",
           jsonEncode(updatedData),
         );
 
@@ -59,7 +58,8 @@ class _EditFoodPageState extends State<EditFoodPage> {
           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
             content: Text('Data berhasil diperbarui!'),
           ));
-          Navigator.pop(context, updatedData); // Return updated data ke halaman sebelumnya
+          Navigator.pop(context,
+              updatedData); // Return updated data ke halaman sebelumnya
         } else {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text('Gagal memperbarui data: ${response['message']}'),
@@ -78,9 +78,7 @@ class _EditFoodPageState extends State<EditFoodPage> {
     try {
       final response = await request.get(
         "http://127.0.0.1:8000/search/edit-flutter/${widget.foodId}/",
-        // "http://127.0.0.1:8000/search/edit-flutter/${widget.foodId}/",
       );
-      
 
       if (response['status'] == true) {
         final data = response['data'];
@@ -128,7 +126,7 @@ class _EditFoodPageState extends State<EditFoodPage> {
                 padding: const EdgeInsets.all(16.0),
                 child: ListView(
                   children: [
-                     // Field Nama Makanan
+                    // Field Nama Makanan
                     buildFormField(
                       label: "Nama Makanan/Minuman",
                       hint: "Nama Produk",
@@ -158,7 +156,9 @@ class _EditFoodPageState extends State<EditFoodPage> {
 
                         // Validasi dasar dengan Uri.parse
                         final uri = Uri.tryParse(value);
-                        if (uri == null || !uri.hasScheme || (uri.scheme != 'http' && uri.scheme != 'https')) {
+                        if (uri == null ||
+                            !uri.hasScheme ||
+                            (uri.scheme != 'http' && uri.scheme != 'https')) {
                           return "URL tidak valid! Pastikan menggunakan format HTTP atau HTTPS.";
                         }
 
@@ -181,7 +181,7 @@ class _EditFoodPageState extends State<EditFoodPage> {
                         return null;
                       },
                     ),
-                    
+
                     // Field Gambar
                     buildFormField(
                       label: "Gambar Produk",
@@ -197,13 +197,21 @@ class _EditFoodPageState extends State<EditFoodPage> {
 
                         // Validasi URL dasar
                         final uri = Uri.tryParse(value);
-                        if (uri == null || !uri.hasScheme || (uri.scheme != 'http' && uri.scheme != 'https')) {
+                        if (uri == null ||
+                            !uri.hasScheme ||
+                            (uri.scheme != 'http' && uri.scheme != 'https')) {
                           return "URL tidak valid! Pastikan menggunakan format HTTP atau HTTPS.";
                         }
 
                         // Memastikan ekstensi file gambar yang valid
-                        final imageExtensions = ['.jpg', '.jpeg', '.png', '.gif'];
-                        if (!imageExtensions.any((ext) => value.toLowerCase().endsWith(ext))) {
+                        final imageExtensions = [
+                          '.jpg',
+                          '.jpeg',
+                          '.png',
+                          '.gif'
+                        ];
+                        if (!imageExtensions
+                            .any((ext) => value.toLowerCase().endsWith(ext))) {
                           return "URL harus mengarah ke gambar (.jpg, .jpeg, .png, .gif).";
                         }
 
@@ -245,9 +253,10 @@ class _EditFoodPageState extends State<EditFoodPage> {
 
                     // Field Rating
                     buildFormField(
-                      label: "Rating (1 - 5)", 
+                      label: "Rating (1.0 - 5.0)",
                       hint: "Rating",
-                      initialValue: _rating.toString(),  // Set initial value to _rating
+                      initialValue:
+                          _rating.toString(), // Set initial value to _rating
                       onChanged: (String? value) => setState(() {
                         // Parse the input as a double and update the rating, defaulting to 0.0 if parsing fails
                         _rating = double.tryParse(value ?? '0.0') ?? 0.0;
@@ -266,33 +275,28 @@ class _EditFoodPageState extends State<EditFoodPage> {
                       },
                     ),
 
-              
-
-
                     // Submit Button
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 20.0),
                       child: ElevatedButton(
                         onPressed: _submitForm,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color.fromRGBO(202, 138, 4, 1), // Warna latar belakang tombol
+                          backgroundColor: const Color.fromRGBO(
+                              202, 138, 4, 1), // Warna latar belakang tombol
                           foregroundColor: Colors.white, // Warna teks di tombol
                           padding: const EdgeInsets.symmetric(vertical: 15),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10), // Sudut melengkung tombol
+                            borderRadius: BorderRadius.circular(
+                                10), // Sudut melengkung tombol
                           ),
                         ),
                         child: const Text(
                           'Perbarui Makanan',
                           style: TextStyle(
-                            fontSize: 16, // Ukuran font
-                            fontWeight: FontWeight.bold, // Membuat teks menjadi tebal
-                          ),
+                              fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                       ),
                     ),
-
-
                   ],
                 ),
               ),

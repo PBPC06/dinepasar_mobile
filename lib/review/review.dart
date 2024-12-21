@@ -1,14 +1,12 @@
 // review.dart
 
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'screens/myreviews.dart';
 import 'screens/allreviews.dart';
-import 'screens/addreview.dart';
+import 'widgets/addreview.dart';
 
 class ReviewPage extends StatefulWidget {
-  const ReviewPage({Key? key}) : super(key: key);
-
+  const ReviewPage({super.key});
   @override
   State<ReviewPage> createState() => _ReviewPageState();
 }
@@ -38,7 +36,16 @@ class _ReviewPageState extends State<ReviewPage>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Reviews | Dinepasar'),
+        title: const Text(
+          'Let\'s Taste the World Through Reviews!',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 22,
+            color: Colors.black,
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: const Color(0xFFFEFCEC),
         bottom: TabBar(
           controller: _tabController,
           tabs: myTabs,
@@ -50,20 +57,9 @@ class _ReviewPageState extends State<ReviewPage>
       body: TabBarView(
         controller: _tabController,
         children: const [
-          AllReviewsPage(),
+          MyReviewsPage(),
           AllReviewsPage(),
         ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Navigate to AddReviewPage
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const AddReviewPage()),
-          );
-        },
-        child: const Icon(Icons.add),
-        backgroundColor: Colors.yellow,
       ),
     );
   }
