@@ -1,3 +1,4 @@
+
 // import 'package:flutter/material.dart';
 // import 'package:provider/provider.dart';
 // import 'package:pbp_django_auth/pbp_django_auth.dart';
@@ -335,11 +336,10 @@ class _ExplorePageState extends State<ExplorePage> {
   Future<void> markFoodAsTried(BuildContext context, String foodId) async {
     try {
       final userId = await fetchUserId(context);
-      print("tes");
       if (userId.isNotEmpty) {
         final request = context.read<CookieRequest>();
         // final url = 'http://127.0.0.1:8000/search/mark_food_flutter/$userId/$foodId/';
-        final url = 'http://127.0.0.1:8000/mark_food_flutter/$userId/$foodId/';
+        final url = 'http://127.0.0.1:8000/search/mark_food_flutter/$userId/$foodId/';
 
         final response = await request.post(url, {});
 
