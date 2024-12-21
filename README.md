@@ -88,7 +88,7 @@ Integrasi antara web service dan aplikasi web dilakukan dengan langkah-langkah b
 
 
 ## Tautan Deployment Aplikasi
-https://install.appcenter.ms/orgs/pbp-c06-2024/apps/dinepasar/distribution_groups/public/releases/2
+https://install.appcenter.ms/orgs/pbp-c06-2024/apps/dinepasar/distribution_groups/public/releases/
 
 ## Tautan Design Aplikasi
 https://www.figma.com/design/TSFcu7BFIfJ4H2hhmGNuBi/Dinepasar-Flutter-Design?node-id=0-1&t=JvM71gqiFklpPgz7-1
