@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:dinepasar_mobile/densiklopedia/models/article_entry.dart';
 import 'package:dinepasar_mobile/densiklopedia/widgets/web_image.dart';
-import 'package:dinepasar_mobile/densiklopedia/screens/view_article.dart';
 
 class ArticleCard extends StatelessWidget {
   final Article article;
@@ -23,9 +22,9 @@ class ArticleCard extends StatelessWidget {
     return InkWell(
       // Menangani navigasi ke halaman detail artikel saat kartu ditekan
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16.0), // Menyesuaikan radius agar sesuai dengan Container
-      hoverColor: Colors.transparent, // Menghilangkan efek hover
-      splashColor: Colors.grey.withOpacity(0.2), // Efek ripple saat ditekan (opsional)
+      borderRadius: BorderRadius.circular(16.0),
+      hoverColor: Colors.transparent,
+      splashColor: Colors.grey.withOpacity(0.2),
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
         decoration: BoxDecoration(
