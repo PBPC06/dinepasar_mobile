@@ -21,7 +21,8 @@ class _AdminPageState extends State<AdminPage> {
 
   // Fungsi untuk mengambil data makanan
   Future<List<Food>> fetchFoods(CookieRequest request) async {
-    final response = await request.get('https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/search/api/foods/');
+    // final response = await request.get('https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/search/api/foods/');
+    final response = await request.get('http://127.0.0.1:8000/search/api/foods/');
     var data = response;
 
     List<Food> listFoods = [];
@@ -65,10 +66,66 @@ class _AdminPageState extends State<AdminPage> {
     }
   }
 
+
+    Future<String> fetchUserId(BuildContext context) async {
+  final request = context.read<CookieRequest>();
+  final response = await request.get('http://127.0.0.1:8000/editProfile/show-json-all/');
+  
+  if (response is Map<String, dynamic>) {
+    // Mengambil 'user_profile' yang berupa list
+    var userProfileList = response['user_profile'] as List;
+    
+    // Ambil userId pertama dari list, atau sesuaikan jika perlu
+    if (userProfileList.isNotEmpty) {
+      final userProfile = userProfileList[0]; // Bisa disesuaikan untuk memilih user yang sesuai
+      return userProfile['user_id'] ?? '';
+    } else {
+      throw Exception('No user profiles found');
+    }
+  } else {
+    throw Exception('Failed to load profile data');
+  }
+}
+
+   // Fungsi untuk menandai makanan sebagai sudah dicoba
+  Future<void> markFoodAsTried(BuildContext context, String foodId) async {
+    try {
+      final userId = await fetchUserId(context);
+      if (userId.isNotEmpty) {
+        final request = context.read<CookieRequest>();
+        final url = 'http://127.0.0.1:8000/search/mark_food_flutter/$userId/$foodId/';
+        final response = await request.post(url, {});
+
+        if (response is Map<String, dynamic> && response['success'] == true) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Food marked as tried successfully!')),
+          );
+          // Optional: Refresh the food list if needed
+          setState(() {});
+        } else {
+          // Jika response bukan success, bisa jadi ada pesan error dari server
+          String errorMessage = 'Failed to mark food as tried.';
+          if (response is Map<String, dynamic> && response['error'] != null) {
+            errorMessage = response['error'];
+          }
+          throw Exception(errorMessage);
+        }
+      } else {
+        throw Exception('User ID is empty.');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    }
+  }
+
+
   // Fungsi untuk menghapus makanan
   Future<void> _deleteFood(int foodId) async {
     final request = context.read<CookieRequest>();
-    final url = 'https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/search/delete-flutter/$foodId/';
+    // final url = 'https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/search/delete-flutter/$foodId/';
+    final url = 'http://127.0.0.1:8000/search/delete-flutter/$foodId/';
 
     try {
       final response = await request.post(url, {});
@@ -243,7 +300,7 @@ class _AdminPageState extends State<AdminPage> {
                           }
                         },
                         onApprove: () {
-                          print('Approve ${food.fields.namaMakanan}');
+                          markFoodAsTried(context, food.pk.toString());
                         },
                         onMore: () {
                           print('More details for ${food.fields.namaMakanan}');
