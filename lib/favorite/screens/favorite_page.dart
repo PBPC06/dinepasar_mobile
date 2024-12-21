@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import '../models/food_item.dart';
-import '../widgets/food_card.dart';
 
 class FavoritePage extends StatefulWidget {
   const FavoritePage({Key? key}) : super(key: key);
@@ -42,6 +41,12 @@ class _FavoritePageState extends State<FavoritePage> {
         setState(() {
           favoriteItems = data;
         });
+
+        // Log daftar favorit yang dimuat
+        print('Loaded favorite items:');
+        for (var item in favoriteItems) {
+          print('Favorite ID: ${item.id}, Name: ${item.namaMakanan}');
+        }
       },
     );
   }
@@ -54,6 +59,12 @@ class _FavoritePageState extends State<FavoritePage> {
         setState(() {
           recommendedItems = data;
         });
+
+        // Log daftar rekomendasi terbaru
+        print('Updated recommended items:');
+        for (var item in recommendedItems) {
+          print('Recommended ID: ${item.id}, Name: ${item.namaMakanan}');
+        }
       },
     );
   }
@@ -68,10 +79,16 @@ class _FavoritePageState extends State<FavoritePage> {
       print('Server Response: $response'); // Log data JSON
 
       if (response != null && response is List) {
-        final data = response
-            .map((item) => FoodItem.fromJson(item as Map<String, dynamic>))
-            .toList();
-        onSuccess(data);
+        final data = response.map((item) {
+          try {
+            return FoodItem.fromJson(item as Map<String, dynamic>);
+          } catch (e) {
+            print('Error parsing item: $item, Error: $e');
+            return null; // Skip item jika parsing gagal
+          }
+        }).where((item) => item != null).toList();
+
+        onSuccess(data.cast<FoodItem>());
       } else {
         throw Exception('Invalid response format');
       }
@@ -83,14 +100,20 @@ class _FavoritePageState extends State<FavoritePage> {
   Future<void> _deleteFavorite(int favoriteId) async {
     final request = context.read<CookieRequest>();
     try {
+      print('Deleting favorite with ID: $favoriteId');
       final response = await request.post(
         'http://127.0.0.1:8000/favorite/delete/$favoriteId/',
         {},
       );
+
       if (response['message'] == 'Item removed from favorites.') {
         setState(() {
           favoriteItems.removeWhere((item) => item.id == favoriteId);
         });
+        print('Successfully deleted favorite with ID: $favoriteId');
+
+        // Fetch ulang rekomendasi setelah penghapusan
+        await _fetchRecommended(request);
       } else {
         print('Failed to delete favorite: ${response['error']}');
       }
@@ -187,9 +210,11 @@ class _FavoritePageState extends State<FavoritePage> {
             trailing: isFavorite
                 ? IconButton(
                     icon: const Icon(Icons.delete, color: Colors.red),
-                    onPressed: () => _deleteFavorite(item.id),
+                    onPressed: () {
+                      _deleteFavorite(item.id);
+                    },
                   )
-                : null,
+                : null, // Jangan tampilkan tombol hapus pada rekomendasi
           ),
         );
       },
@@ -226,22 +251,21 @@ class _FavoritePageState extends State<FavoritePage> {
           Expanded(
             child: isLoading
                 ? const Center(child: CircularProgressIndicator())
-                : (isFavoriteSelected ? favoriteItems : recommendedItems).isEmpty
-                    ? _buildEmptyState(
-                        isFavoriteSelected
-                            ? "Don't have any favorite :(" 
-                            : "Don't have any recommendation :(",
-                        isFavoriteSelected
-                            ? "Visit the homepage to select a food item and start adding to your favorite."
-                            : "Add some items to your favorites to get personalized recommendations.",
-                        isFavoriteSelected
-                            ? 'assets/images/empty_favorite.png'
-                            : 'assets/images/empty_recommendation.png',
-                      )
-                    : _buildItemList(
-                        isFavoriteSelected ? favoriteItems : recommendedItems,
-                        isFavoriteSelected, // Hanya "Your Favorite" yang punya tombol hapus
-                      ),
+                : isFavoriteSelected
+                    ? (favoriteItems.isEmpty
+                        ? _buildEmptyState(
+                            "Don't have any favorite :(",
+                            "Visit the homepage to select a food item and start adding to your favorite.",
+                            'assets/images/empty_favorite.png',
+                          )
+                        : _buildItemList(favoriteItems, true))
+                    : (recommendedItems.isEmpty
+                        ? _buildEmptyState(
+                            "Don't have any recommendation :(",
+                            "Add some items to your favorites to get personalized recommendations.",
+                            'assets/images/empty_recommendation.png',
+                          )
+                        : _buildItemList(recommendedItems, false)),
           ),
         ],
       ),
