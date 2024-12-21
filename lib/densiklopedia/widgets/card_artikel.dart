@@ -2,45 +2,49 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:dinepasar_mobile/densiklopedia/models/article_entry.dart';
 import 'package:dinepasar_mobile/densiklopedia/widgets/web_image.dart';
+import 'package:dinepasar_mobile/densiklopedia/screens/view_article.dart';
 
 class ArticleCard extends StatelessWidget {
   final Article article;
-  final VoidCallback onTap;
   final VoidCallback onEdit;
+  final VoidCallback onTap;
   final VoidCallback onDelete;
 
   const ArticleCard({
     Key? key,
     required this.article,
-    required this.onTap,
     required this.onEdit,
+    required this.onTap,
     required this.onDelete,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16.0),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 8.0,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Gambar Artikel yang Dapat Diklik
-          GestureDetector(
-            onTap: onTap,
-            child: ClipRRect(
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(16.0)),
+    return InkWell(
+      // Menangani navigasi ke halaman detail artikel saat kartu ditekan
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16.0), // Menyesuaikan radius agar sesuai dengan Container
+      hoverColor: Colors.transparent, // Menghilangkan efek hover
+      splashColor: Colors.grey.withOpacity(0.2), // Efek ripple saat ditekan (opsional)
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16.0),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 8.0,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Gambar Artikel
+            ClipRRect(
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(16.0)),
               child: kIsWeb
                   ? WebImage(
                       imageUrl: article.gambar,
@@ -57,19 +61,19 @@ class ArticleCard extends StatelessWidget {
                           height: 200,
                           color: Colors.grey[300],
                           child: const Center(
-                            child: Icon(Icons.broken_image,
-                                size: 50, color: Colors.grey),
+                            child: Icon(
+                              Icons.broken_image,
+                              size: 50,
+                              color: Colors.grey,
+                            ),
                           ),
                         );
                       },
                     ),
             ),
-          ),
-          // Konten Artikel dan Ikon Edit/Delete
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: GestureDetector(
-              onTap: onTap,
+            // Konten Artikel dan Ikon Edit/Delete
+            Padding(
+              padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -102,20 +106,26 @@ class ArticleCard extends StatelessWidget {
                     children: [
                       IconButton(
                         icon: const Icon(Icons.edit, color: Colors.brown),
-                        onPressed: onEdit,
+                        onPressed: () {
+                          // Menghentikan event propagasi ke InkWell saat ikon ditekan
+                          // sehingga tidak memicu navigasi utama
+                          onEdit();
+                        },
                       ),
                       const SizedBox(width: 12.0),
                       IconButton(
                         icon: const Icon(Icons.delete, color: Colors.brown),
-                        onPressed: onDelete,
+                        onPressed: () {
+                          onDelete();
+                        },
                       ),
                     ],
                   ),
                 ],
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
