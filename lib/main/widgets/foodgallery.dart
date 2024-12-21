@@ -40,6 +40,17 @@ class FoodGallerySection extends StatelessWidget {
               child: Image.asset('lib/main/assets/food3.png', fit: BoxFit.cover),
             ),
           ),
+          SizedBox(width: 10),
+          Card(
+            elevation: 4,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Image.asset('lib/main/assets/food4.png', fit: BoxFit.cover),
+            ),
+          ),
         ],
       ),
     );

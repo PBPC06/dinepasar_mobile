@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:dinepasar_mobile/review/widgets/addreview.dart';
+import 'package:http/http.dart' as http; // Untuk HTTP requests
+import 'dart:convert'; // Untuk decoding JSON
 
 class DetailsPage extends StatefulWidget {
   final int foodId;
@@ -14,20 +16,20 @@ class DetailsPage extends StatefulWidget {
 }
 
 class _DetailsPageState extends State<DetailsPage> {
-  Map<String, dynamic>? food; // Data makanan
-  bool isLoading = true; // Status loading
-  String errorMessage = ''; // Pesan error
-  bool showFullDescription = false; // Untuk toggle deskripsi
+  Map<String, dynamic>? food;
+  bool isLoading = true;
+  String errorMessage = '';
+  bool showFullDescription = false;
 
-  // Fungsi untuk mengambil data makanan
   Future<void> fetchFoodDetails() async {
     try {
       final response = await http.get(
+        // Uri.parse('http://127.0.0.1:8000/deskripsi/api/${widget.foodId}/'),
         Uri.parse('http://127.0.0.1:8000/deskripsi/api/${widget.foodId}/'),
       );
       if (response.statusCode == 200) {
         setState(() {
-          food = json.decode(response.body); // Parse JSON ke Map
+          food = json.decode(response.body);
           isLoading = false;
         });
       } else {
@@ -38,11 +40,38 @@ class _DetailsPageState extends State<DetailsPage> {
         isLoading = false;
         errorMessage = 'Failed to load data. Please try again.';
       });
-      print('Error: $e');
     }
   }
 
-  // Fungsi untuk membuka URL di browser
+  Future<void> addToFavorite(CookieRequest request) async {
+    try {
+      // Kirim permintaan POST menggunakan CookieRequest
+      final response = await request.post(
+        'http://127.0.0.1:8000/favorite/add/',
+        {
+          'food_id': widget.foodId.toString(),
+        },
+      );
+
+      if (response['message'] != null) {
+        _showSnackBar(response['message']);
+      } else {
+        _showSnackBar('An unexpected error occurred.');
+      }
+    } catch (e) {
+      _showSnackBar('An error occurred. Please try again.');
+    }
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
   Future<void> openUrl(String url) async {
     final Uri uri = Uri.parse(url);
     if (await canLaunchUrl(uri)) {
@@ -60,6 +89,9 @@ class _DetailsPageState extends State<DetailsPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Akses instance CookieRequest
+    final request = context.watch<CookieRequest>();
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xFFF8F8F8),
@@ -116,7 +148,6 @@ class _DetailsPageState extends State<DetailsPage> {
                                 style: const TextStyle(
                                   color: Color(0xFF242424),
                                   fontSize: 20,
-                                  fontFamily: 'Sora',
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -126,7 +157,6 @@ class _DetailsPageState extends State<DetailsPage> {
                                 style: const TextStyle(
                                   color: Color(0xFFA2A2A2),
                                   fontSize: 12,
-                                  fontFamily: 'Sora',
                                 ),
                               ),
                               const SizedBox(height: 8),
@@ -169,21 +199,17 @@ class _DetailsPageState extends State<DetailsPage> {
                                 style: TextStyle(
                                   color: Color(0xFF242424),
                                   fontSize: 16,
-                                  fontFamily: 'Sora',
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
                               const SizedBox(height: 8),
                               GestureDetector(
-                                onTap: () {
-                                  openUrl(food!['restoran'] ?? '');
-                                },
+                                onTap: () => openUrl(food!['restoran'] ?? ''),
                                 child: Text(
                                   food!['restoran'] ?? '',
                                   style: const TextStyle(
                                     color: Color(0xFFFBC02D),
                                     fontSize: 14,
-                                    fontFamily: 'Sora',
                                     fontWeight: FontWeight.w700,
                                   ),
                                 ),
@@ -203,48 +229,15 @@ class _DetailsPageState extends State<DetailsPage> {
                                 style: TextStyle(
                                   color: Color(0xFF242424),
                                   fontSize: 16,
-                                  fontFamily: 'Sora',
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
                               const SizedBox(height: 8),
-                              GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    showFullDescription = !showFullDescription;
-                                  });
-                                },
-                                child: RichText(
-                                  text: TextSpan(
-                                    children: [
-                                      TextSpan(
-                                        text: showFullDescription
-                                            ? food!['deskripsi']
-                                            : (food!['deskripsi'] ?? '')
-                                                .substring(
-                                                    0,
-                                                    food!['deskripsi'].length >
-                                                            116
-                                                        ? 116
-                                                        : food!['deskripsi']
-                                                            .length),
-                                        style: const TextStyle(
-                                          color: Color(0xFFA2A2A2),
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                      if (!showFullDescription &&
-                                          (food!['deskripsi'] ?? '').length >
-                                              116)
-                                        const TextSpan(
-                                          text: '.. Read More',
-                                          style: TextStyle(
-                                            color: Color(0xFFFBC02D),
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                    ],
-                                  ),
+                              Text(
+                                food!['deskripsi'] ?? '',
+                                style: const TextStyle(
+                                  color: Color(0xFFA2A2A2),
+                                  fontSize: 14,
                                 ),
                               ),
                             ],
@@ -287,22 +280,13 @@ class _DetailsPageState extends State<DetailsPage> {
                               ),
                               Row(
                                 children: [
-                                  ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color(0xFFFBC02D),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(16),
-                                      ),
-                                    ),
-                                    onPressed: () {
-                                      // Add to favorite logic
-                                    },
-                                    child: const Text(
-                                      'Add to Favorite',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 16,
-                                      ),
+                                  IconButton(
+                                    onPressed: () => addToFavorite(request),
+                                    icon: Image.asset(
+                                      'assets/images/add_favorite.png',
+                                      width:
+                                          32, // Sesuaikan ukuran jika diperlukan
+                                      height: 32,
                                     ),
                                   ),
                                   const SizedBox(width: 16),
@@ -315,6 +299,7 @@ class _DetailsPageState extends State<DetailsPage> {
                                       ),
                                     ),
                                     onPressed: () {
+                                      // Logic untuk "Add Review"
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(

@@ -16,7 +16,6 @@ class _RegisterPageState extends State<RegisterPage> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _referralCodeController = TextEditingController();  // Tambahkan controller untuk referral code
-
   bool isAdmin = false;  // Menyimpan apakah user memilih untuk menjadi admin
 
   @override
@@ -140,7 +139,6 @@ class _RegisterPageState extends State<RegisterPage> {
                         return null;
                       },
                     ),
-                  const SizedBox(height: 24.0),
                   ElevatedButton(
                     onPressed: () async {
                       String username = _usernameController.text;
@@ -149,15 +147,18 @@ class _RegisterPageState extends State<RegisterPage> {
                       String referralCode = _referralCodeController.text;
 
                       // Cek kredensial
+                      // TODO: Ganti URL dan jangan lupa tambahkan trailing slash (/) di akhir URL!
+                      // Untuk menyambungkan Android emulator dengan Django pada localhost,
+                      // gunakan URL http://10.0.2.2/
                       final response = await request.postJson(
-                        "http://127.0.0.1:8000/manageData/register_flutter/",                          
+                        // "http://127.0.0.1:8000/manageData/register_flutter/",     
+                        "http://127.0.0.1:8000/manageData/register_flutter/",                       
                         jsonEncode({
                             "username": username,
                             "password1": password1,
                             "password2": password2,
                             "referral_code": referralCode,  // Kirim referral code
                           }));
-
                       if (context.mounted) {
                         if (response['status'] == 'success') {
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -172,7 +173,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           );
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
+                             SnackBar(
                               content: Text(response['message']),
                             ),
                           );
@@ -196,4 +197,3 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 }
- 

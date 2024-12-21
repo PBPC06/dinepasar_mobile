@@ -55,7 +55,7 @@ class _EditFoodPageState extends State<EditFoodPage> {
         );
 
         if (response['status'] == true) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
             content: Text('Data berhasil diperbarui!'),
           ));
           Navigator.pop(context,
@@ -119,7 +119,7 @@ class _EditFoodPageState extends State<EditFoodPage> {
         title: const Text('Edit Makanan'),
       ),
       body: isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : Form(
               key: _formKey,
               child: Padding(
@@ -281,12 +281,16 @@ class _EditFoodPageState extends State<EditFoodPage> {
                       child: ElevatedButton(
                         onPressed: _submitForm,
                         style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(vertical: 15),
+                          backgroundColor: const Color.fromRGBO(
+                              202, 138, 4, 1), // Warna latar belakang tombol
+                          foregroundColor: Colors.white, // Warna teks di tombol
+                          padding: const EdgeInsets.symmetric(vertical: 15),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(
+                                10), // Sudut melengkung tombol
                           ),
                         ),
-                        child: Text(
+                        child: const Text(
                           'Perbarui Makanan',
                           style: TextStyle(
                               fontSize: 16, fontWeight: FontWeight.bold),
@@ -317,11 +321,11 @@ class _EditFoodPageState extends State<EditFoodPage> {
           hintText: hint,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(color: Colors.grey),
+            borderSide: const BorderSide(color: Colors.grey),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(color: Colors.blue),
+            borderSide: const BorderSide(color: Colors.yellow),
           ),
         ),
         onChanged: onChanged,

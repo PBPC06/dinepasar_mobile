@@ -208,12 +208,23 @@ class _ProductEntryFormPageState extends State<ProductEntryFormPage> {
                     child: ElevatedButton(
                       style: ButtonStyle(
                         backgroundColor: MaterialStateProperty.all(
-                            Theme.of(context).colorScheme.secondary),
+                          const Color.fromRGBO(202, 138, 4,
+                              1), // Warna latar belakang tombol Save
+                        ),
+                        shape: MaterialStateProperty.all(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                                12), // Tambahkan border radius untuk estetika
+                          ),
+                        ),
+                        padding: MaterialStateProperty.all(
+                          const EdgeInsets.symmetric(
+                              vertical: 12.0,
+                              horizontal: 20.0), // Padding untuk ukuran tombol
+                        ),
                       ),
                       onPressed: () async {
                         if (_formKey.currentState!.validate()) {
-                          // Kirim ke Django dan tunggu respons
-                          // final request = Provider.of<CookieRequest>(context, listen: false);
                           final response = await request.post(
                             "http://127.0.0.1:8000/search/add-flutter/",
                             jsonEncode(<String, String>{
@@ -228,28 +239,35 @@ class _ProductEntryFormPageState extends State<ProductEntryFormPage> {
                           );
                           if (context.mounted) {
                             if (response['status'] == 'success') {
-                              ScaffoldMessenger.of(context)
-                                  .showSnackBar(const SnackBar(
-                                content: Text("Food baru berhasil disimpan!"),
-                              ));
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content:
+                                        Text("Food baru berhasil disimpan!")),
+                              );
                               Navigator.pop(context, true);
                             } else {
-                              ScaffoldMessenger.of(context)
-                                  .showSnackBar(const SnackBar(
-                                content: Text(
-                                    "Terdapat kesalahan, silakan coba lagi."),
-                              ));
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text(
+                                        "Terdapat kesalahan, silakan coba lagi.")),
+                              );
                             }
                           }
                         }
                       },
                       child: const Text(
-                        "Save",
-                        style: TextStyle(color: Colors.white),
+                        "Tambah Makanan",
+                        style: TextStyle(
+                          color: Colors.white, // Warna teks di tombol Save
+                          fontSize: 16, // Ukuran font teks
+                          fontWeight:
+                              FontWeight.bold, // Membuat teks menjadi tebal
+                        ),
                       ),
                     ),
                   ),
                 ),
+
                 const SizedBox(height: 20), // Spacer di bagian bawah
               ],
             ),
