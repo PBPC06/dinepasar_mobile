@@ -273,39 +273,23 @@ class _DetailsPageState extends State<DetailsPage> {
                               ),
                               Row(
                                 children: [
-                                  ElevatedButton(
+                                  IconButton(
                                     onPressed: () => addToFavorite(request),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color(0xFFFBC02D),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(16),
-                                      ),
-                                    ),
-                                    child: const Text(
-                                      'Add to Favorite',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 16,
-                                      ),
+                                    icon: Image.asset(
+                                      'assets/images/add_favorite.png',
+                                      width: 32, // Sesuaikan ukuran jika diperlukan
+                                      height: 32,
                                     ),
                                   ),
                                   const SizedBox(width: 16),
-                                  ElevatedButton(
+                                  IconButton(
                                     onPressed: () {
-                                      // Logic for "Add Review"
+                                      // Logic untuk "Add Review"
                                     },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color(0xFFFBC02D),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(16),
-                                      ),
-                                    ),
-                                    child: const Text(
-                                      'Add Review',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 16,
-                                      ),
+                                    icon: Image.asset(
+                                      'assets/images/add_review.png',
+                                      width: 32, // Sesuaikan ukuran jika diperlukan
+                                      height: 32,
                                     ),
                                   ),
                                 ],
