@@ -21,7 +21,8 @@ class ViewArticle extends StatelessWidget {
             child: Container(
               height: 240,
               child: ClipRRect(
-                borderRadius: const BorderRadius.vertical(bottom: Radius.circular(16.0)),
+                borderRadius:
+                    const BorderRadius.vertical(bottom: Radius.circular(16.0)),
                 child: kIsWeb
                     ? WebImage(
                         imageUrl: article.gambar,
@@ -38,7 +39,8 @@ class ViewArticle extends StatelessWidget {
                             height: 240,
                             color: Colors.grey[300],
                             child: const Center(
-                              child: Icon(Icons.broken_image, size: 50, color: Colors.grey),
+                              child: Icon(Icons.broken_image,
+                                  size: 50, color: Colors.grey),
                             ),
                           );
                         },
@@ -128,7 +130,8 @@ class ViewArticle extends StatelessWidget {
     return paragraphs.map((paragraph) {
       return TextSpan(
         text: paragraph + '\n\n',
-        style: const TextStyle(height: 1.8), // Adjust line height for paragraphs
+        style:
+            const TextStyle(height: 1.8), // Adjust line height for paragraphs
       );
     }).toList();
   }

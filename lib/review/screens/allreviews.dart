@@ -217,6 +217,27 @@ class _AllReviewsPageState extends State<AllReviewsPage> {
     );
   }
 
+  Widget _buildEmptyState(String message, String subMessage, String imagePath) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image.asset(imagePath, width: 150, height: 150),
+          const SizedBox(height: 16),
+          Text(message,
+              style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black54)),
+          const SizedBox(height: 8),
+          Text(subMessage,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 14, color: Colors.black38)),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<FoodReview>>(
@@ -232,11 +253,10 @@ class _AllReviewsPageState extends State<AllReviewsPage> {
         }
         // Menampilkan pesan jika tidak ada ulasan
         else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return const Center(
-            child: Text(
-              "No reviews yet!\nBe the first to share your thoughts about our dishes.",
-              style: TextStyle(fontSize: 18, color: Colors.grey),
-            ),
+          return _buildEmptyState(
+            "Don't have any reviews :(",
+            "Start sharing your culinary experiences by adding a review.",
+            'assets/images/empty_review.png',
           );
         }
         // Menampilkan daftar ulasan

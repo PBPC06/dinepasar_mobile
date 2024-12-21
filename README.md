@@ -84,7 +84,7 @@ Integrasi antara web service dan aplikasi web dilakukan dengan langkah-langkah b
 
 
 ## Tautan Deployment Aplikasi
-(Tautan deployment aplikasi)
+https://install.appcenter.ms/orgs/pbp-c06-2024/apps/dinepasar/distribution_groups/public/releases/2
 
 
 ## Tautan Design Aplikasi
