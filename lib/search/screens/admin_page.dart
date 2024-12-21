@@ -5,7 +5,6 @@ import 'package:dinepasar_mobile/search/models/food_entry.dart';
 import 'package:dinepasar_mobile/search/widgets/admin_food_card.dart';
 import 'package:dinepasar_mobile/search/screens/productentry_form.dart';
 import 'package:dinepasar_mobile/search/screens/edit_food.dart';
-import 'package:http/http.dart' as http;
 
 class AdminPage extends StatefulWidget {
   const AdminPage({super.key});
@@ -22,7 +21,8 @@ class _AdminPageState extends State<AdminPage> {
 
   // Fungsi untuk mengambil data makanan
   Future<List<Food>> fetchFoods(CookieRequest request) async {
-    final response = await request.get('http://127.0.0.1:8000/search/api/foods/');
+    final response = await request.get('https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/search/api/foods/');
+    // final response = await request.get('http://127.0.0.1:8000/search/api/foods/');
     var data = response;
 
     List<Food> listFoods = [];
@@ -47,13 +47,13 @@ class _AdminPageState extends State<AdminPage> {
               onPressed: () {
                 Navigator.of(context).pop(false); // No
               },
-              child: Text("No"),
+              child: const Text("No"),
             ),
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(true); // Yes, Delete
               },
-              child: Text("Delete"),
+              child: const Text("Delete"),
             ),
           ],
         );
@@ -66,24 +66,89 @@ class _AdminPageState extends State<AdminPage> {
     }
   }
 
+
+    Future<String> fetchUserId(BuildContext context) async {
+  final request = context.read<CookieRequest>();
+  // final response = await request.get('http://127.0.0.1:8000/editProfile/show-json-all/');
+  final response = await request.get('https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/editProfile/show-json-all/');
+  
+  
+  if (response is Map<String, dynamic>) {
+    // Mengambil 'user_profile' yang berupa list
+    var userProfileList = response['user_profile'] as List;
+    
+    // Ambil userId pertama dari list, atau sesuaikan jika perlu
+    if (userProfileList.isNotEmpty) {
+      final userProfile = userProfileList[0]; // Bisa disesuaikan untuk memilih user yang sesuai
+      return userProfile['user_id'] ?? '';
+    } else {
+      throw Exception('No user profiles found');
+    }
+  } else {
+    throw Exception('Failed to load profile data');
+  }
+}
+
+   // Fungsi untuk menandai makanan sebagai sudah dicoba
+  Future<void> markFoodAsTried(BuildContext context, String foodId) async {
+    try {
+      final userId = await fetchUserId(context);
+      if (userId.isNotEmpty) {
+        final request = context.read<CookieRequest>();
+        // final url = 'http://127.0.0.1:8000/search/mark_food_flutter/$userId/$foodId/';
+        final url = 'https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/search/mark_food_flutter/$userId/$foodId/';
+        final response = await request.post(url, {});
+
+        if (response is Map<String, dynamic> && response['success'] == true) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Food marked as tried successfully!')),
+          );
+          // Optional: Refresh the food list if needed
+          setState(() {});
+        } else {
+          // Jika response bukan success, bisa jadi ada pesan error dari server
+          String errorMessage = 'Failed to mark food as tried.';
+          if (response is Map<String, dynamic> && response['error'] != null) {
+            errorMessage = response['error'];
+          }
+          throw Exception(errorMessage);
+        }
+      } else {
+        throw Exception('User ID is empty.');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    }
+  }
+
+
   // Fungsi untuk menghapus makanan
   Future<void> _deleteFood(int foodId) async {
     final request = context.read<CookieRequest>();
+    final url = 'https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/search/delete-flutter/$foodId/';
+    // final url = 'http://127.0.0.1:8000/search/delete-flutter/$foodId/';
 
-    final response = await http.delete(
-      Uri.parse('http://127.0.0.1:8000/search/delete-flutter/$foodId/'),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    );
+    try {
+      final response = await request.post(url, {});
 
-    if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Makanan berhasil dihapus!')));
-      setState(() {
-        _foods.removeWhere((food) => food.pk == foodId);
-      });
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal menghapus makanan')));
+      if (response['success'] == true) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Makanan berhasil dihapus!')),
+        );
+        setState(() {
+          _foods.removeWhere((food) => food.pk == foodId);
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal menghapus makanan: ${response['message']}')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Terjadi kesalahan: $e')),
+      );
     }
   }
 
@@ -92,75 +157,90 @@ class _AdminPageState extends State<AdminPage> {
     final request = context.watch<CookieRequest>();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Admin - Manage Foods')),
-      body: Column(
-        children: [
-          // Pencarian dan filter
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            child: Column(
-              children: [
-                TextField(
-                  onChanged: (query) {
-                    setState(() {
-                      _keyword = query;
-                    });
-                  },
-                  decoration: InputDecoration(
-                    hintText: 'Search for food...',
-                    border: OutlineInputBorder(),
-                    suffixIcon: Icon(Icons.search),
+    appBar: AppBar(
+      title: const Text(
+        'Admin - Manage Foods',
+        style: TextStyle(
+          color: Color.fromRGBO(202, 138, 4, 1), // Warna teks
+          fontWeight: FontWeight.bold, // Membuat teks menjadi tebal
+        ),
+      ),
+      backgroundColor: const Color.fromRGBO(255, 242, 229, 1), // Warna latar belakang AppBar
+      iconTheme: const IconThemeData(
+        color: Color.fromRGBO(202, 138, 4, 1), // Warna ikon
+      ),
+    ),
+      body: Container(
+        // color: Theme.of(context).colorScheme.secondary, // Background halaman
+        child: Column(
+          children: [
+            // Pencarian dan filter
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              child: Column(
+                children: [
+                  TextField(
+                    onChanged: (query) {
+                      setState(() {
+                        _keyword = query;
+                      });
+                    },
+                    decoration: const InputDecoration(
+                      hintText: 'Search for food...',
+                      border: OutlineInputBorder(),
+                      suffixIcon: Icon(Icons.search),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 16), // Space between search and filters
-                // Filter Kategori dan Harga
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center, // Center filters horizontally
-                  children: [
-                    // Filter Kategori
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: DropdownButton<String>(
-                        value: _kategori,
-                        onChanged: (value) {
-                          setState(() {
-                            _kategori = value ?? 'all';
-                          });
-                        },
-                        items: ['all', 'Ayam Betutu', 'Sate', 'Es', 'Ayam', 'Pepes', 'Nasi', 'Sayur', 'Jajanan', 'Sambal', 'Tipat', 'Rujak', 'Bebek', 'Ikan', 'Kopi', 'Lawar', 'Babi Guling']
-                            .map<DropdownMenuItem<String>>((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
+                  const SizedBox(height: 16), // Space between search and filters
+                  // Filter Kategori dan Harga
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center, // Center filters horizontally
+                    children: [
+                      // Filter Kategori
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: DropdownButton<String>(
+                          value: _kategori,
+                          onChanged: (value) {
+                            setState(() {
+                              _kategori = value ?? 'all';
+                            });
+                          },
+                          items: ['all', 'Ayam Betutu', 'Sate', 'Es', 'Ayam', 'Pepes', 'Nasi', 'Sayur', 'Jajanan', 'Sambal', 'Tipat', 'Rujak', 'Bebek', 'Ikan', 'Kopi', 'Lawar', 'Babi Guling']
+                              .map<DropdownMenuItem<String>>((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                        ),
                       ),
-                    ),
-                    // Filter Harga
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: DropdownButton<String>(
-                        value: _harga,
-                        onChanged: (value) {
-                          setState(() {
-                            _harga = value ?? 'all';
-                          });
-                        },
-                        items: ['all', 'Under 50k', '50k-100k', 'Above 100k']
-                            .map<DropdownMenuItem<String>>((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
+                      // Filter Harga
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: DropdownButton<String>(
+                          value: _harga,
+                          onChanged: (value) {
+                            setState(() {
+                              _harga = value ?? 'all';
+                            });
+                          },
+                          items: ['all', 'Under 50k', '50k-100k', 'Above 100k']
+                              .map<DropdownMenuItem<String>>((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-          // Tampilkan data makanan
+            // Tampilkan data makanan
+
           Expanded(
             child: FutureBuilder<List<Food>>(
               future: fetchFoods(request), // Fetch food data
@@ -192,7 +272,7 @@ class _AdminPageState extends State<AdminPage> {
                 }).toList();
 
                 if (filteredFoods.isEmpty) {
-                  return Center(
+                  return const Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -220,7 +300,7 @@ class _AdminPageState extends State<AdminPage> {
                       return AdminFoodCard(
                         food: food,
                         onEdit: () async {
-                          print("Navigating to EditFoodPage with foodId: ${food.pk}");
+                          // print("Navigating to EditFoodPage with foodId: ${food.pk}");
                           final result = await Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -238,10 +318,10 @@ class _AdminPageState extends State<AdminPage> {
                           }
                         },
                         onApprove: () {
-                          print('Approve ${food.fields.namaMakanan}');
+                          markFoodAsTried(context, food.pk.toString());
                         },
                         onMore: () {
-                          print('More details for ${food.fields.namaMakanan}');
+                          // print('More details for ${food.fields.namaMakanan}');
                         },
                         onDelete: () {
                           _confirmDeleteFood(food.pk, food.fields.namaMakanan);
@@ -252,8 +332,9 @@ class _AdminPageState extends State<AdminPage> {
                 );
               },
             ),
-          ),
-        ],
+      ),
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
@@ -268,7 +349,11 @@ class _AdminPageState extends State<AdminPage> {
             });
           }
         },
-        child: const Icon(Icons.add),
+        backgroundColor: const Color.fromRGBO(202, 138, 4, 1), // Warna latar belakang ikon Add
+        child: const Icon(
+          Icons.add,
+          color: Colors.white, // Warna ikon (putih agar kontras)
+        ),
       ),
     );
   }

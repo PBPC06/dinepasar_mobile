@@ -1,280 +1,335 @@
-import 'dart:convert';
-import 'package:dinepasar_mobile/main/screens/login.dart';
+import 'package:dinepasar_mobile/profile/models/profile_entry.dart';
+import 'package:dinepasar_mobile/profile/screens/edit_form.dart';
+import 'package:dinepasar_mobile/search/models/food_entry.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
 
-class ProfilePage extends StatelessWidget {
+
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
-  // Fungsi untuk mendapatkan data user (melalui API)
-  Future<Map<String, String>> fetchUserData() async {
-  try {
-    final response = await http.get(Uri.parse('http://127.0.0.1:8000/editProfile/get_profile/'));
-    // print(response.body);
-
-      // print("apa");
-      // print(response.statusCode);
-    if (response.statusCode == 200) {
-      print(response.body);
-      try {
-        final data = json.decode(response.body); // Mengharapkan JSON
-        print(data); // Cek data yang diterima
-        return data;
-      } catch (e) {
-        throw Exception('Failed to parse JSON');
-      }
-    } else {
-      throw Exception('Failed to load user data: ${response.statusCode}');
-    }
-  } catch (e) {
-    print('Error: $e');  // Menampilkan error lebih detail di console
-    throw Exception('Failed to load user data');
-  }
+  @override
+  _ProfilePageState createState() => _ProfilePageState();
 }
 
+class _ProfilePageState extends State<ProfilePage> {
+  late Future<UserProfileResponse> futureUserProfileResponse;
 
   @override
-  Widget build(BuildContext context) {
-    // Menghitung lebar 2/3 halaman
-    double containerWidth = MediaQuery.of(context).size.width * 2 / 3;
+  void initState() {
+    super.initState();
+    futureUserProfileResponse = fetchProfileData();
+  }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Profile'),
+  Future<List<Food>> fetchAllFoods() async {
+    try {
+      final request = context.read<CookieRequest>();
+      // final response = await request.get('http://127.0.0.1:8000/search/api/foods/');
+      final response = await request.get(' https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/search/api/foods/');
+     
+
+      if (response is List) {
+        return response.map((foodJson) => Food.fromJson(foodJson)).toList();
+      }
+    } catch (e) {
+      debugPrint('Error fetching foods: $e');
+    }
+    return [];
+  }
+
+  Future<void> removeFoodFromHistory(String userId, int foodId) async {
+    try {
+      final request = context.read<CookieRequest>();
+      final response = await request.post(
+        // 'http://127.0.0.1:8000/editProfile/remove_food_flutter/$userId/$foodId/',
+        'https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/editProfile/remove_food_flutter/$userId/$foodId/',
+        {}
+      );
+
+      if (response['success'] == true) {
+        setState(() {
+          futureUserProfileResponse = fetchProfileData();
+        });
+      }
+    } catch (e) {
+      debugPrint('Error removing food: $e');
+    }
+  }
+
+  Future<UserProfileResponse> fetchProfileData() async {
+    final request = context.read<CookieRequest>();
+    // final response = await request.get('http://127.0.0.1:8000/editProfile/show-json-all/');
+    final response = await request.get('https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/editProfile/show-json-all/');
+    
+
+    if (response is Map<String, dynamic>) {
+      return UserProfileResponse.fromJson(response);
+    } else {
+      throw Exception('Unexpected response format');
+    }
+  }
+
+  Future<List<Food>> fetchTriedFoods(List<TriedFood>? triedFoods) async {
+    if (triedFoods == null || triedFoods.isEmpty) return [];
+
+    final allFoods = await fetchAllFoods();
+    return allFoods.where((food) => 
+      triedFoods.any((triedFood) => triedFood.id == food.pk)
+    ).toList();
+  }
+
+  void showDeleteConfirmationDialog(BuildContext context, String userId, int foodId) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Are you sure?'),
+          content: const Text('Do you really want to delete this food?'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            TextButton(
+              child: const Text('Yes'),
+              onPressed: () async {
+                await removeFoodFromHistory(userId, foodId);
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Fungsi helper untuk menampilkan field atau 'Not available'
+  String displayField(String field) {
+    return field.trim().isEmpty ? 'Not available' : field;
+  }
+
+  Widget buildProfileInfo(UserProfile? profile) {
+    // Handle null profile
+    if (profile == null) {
+      return const Card(
+        margin: EdgeInsets.all(16),
+        child: Padding(
+          padding: EdgeInsets.all(16),
+          child: Text('Profile data not available'),
+        ),
+      );
+    }
+
+    return Card(
+      margin: const EdgeInsets.all(16),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Hello, ${displayField(profile.username)}!',
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)
+            ),
+            const SizedBox(height: 8),
+            Text('Email: ${displayField(profile.email)}'),
+            Text('Phone: ${displayField(profile.phone)}'),
+            Text('About Me: ${displayField(profile.aboutMe)}'),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return Dialog(
+                      child: EditProfilePage(userId: profile.userId),
+                    );
+                  },
+                ).then((_) {
+                  setState(() {
+                    futureUserProfileResponse = fetchProfileData();
+                  });
+                });
+              },
+              child: const Text('Edit Profile'),
+            ),
+          ],
+        ),
       ),
-      body: FutureBuilder<Map<String, String>>(
-        future: fetchUserData(),  // Memanggil fungsi untuk mendapatkan data user
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            // Menampilkan indikator loading jika data belum tersedia
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            // Menampilkan error jika ada masalah dalam mengambil data
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (!snapshot.hasData) {
-            // Menampilkan error jika data kosong
-            return const Center(child: Text('No data available'));
-          }
+    );
+  }
 
-          // Mengambil data dari snapshot
-          var userData = snapshot.data!;
+  Widget buildFoodGrid(List<Food> foods, UserProfile profile) {
+    if (foods.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Text('You haven\'t tried any foods yet.'),
+      );
+    }
 
-          return SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 16,
+        mainAxisSpacing: 16,
+        childAspectRatio: 0.75,
+      ),
+      itemCount: foods.length,
+      itemBuilder: (context, index) {
+        final food = foods[index];
+        return Card(
+          color: Colors.white,
+          elevation: 4,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Stack(
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 32),
-                  Text(
-                    'Hi, ${userData['username']}!',
-                    style: const TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
+                  ClipRRect(
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(8),
+                      topRight: Radius.circular(8),
                     ),
-                  ),
-                  const SizedBox(height: 64),
-
-                  Container(
-                    width: containerWidth,
-                    padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 24.0),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(12.0),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Colors.black26,
-                          blurRadius: 6.0,
-                          offset: Offset(0, 3),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        const Text(
-                          'Username',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w900,
-                            color: Color.fromARGB(255, 47, 47, 47),
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          userData['username']!,
-                          style: const TextStyle(
-                            fontSize: 20,
-                            color: Color.fromARGB(255, 47, 47, 47),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        const Text(
-                          'Phone',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w900,
-                            color: Color.fromARGB(255, 47, 47, 47),
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          userData['phone']!,
-                          style: const TextStyle(
-                            fontSize: 20,
-                            color: Color.fromARGB(255, 47, 47, 47),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        const Text(
-                          'Email',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w900,
-                            color: Color.fromARGB(255, 47, 47, 47),
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          userData['email']!,
-                          style: const TextStyle(
-                            fontSize: 20,
-                            color: Color.fromARGB(255, 47, 47, 47),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        const Text(
-                          'About me',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w900,
-                            color: Color.fromARGB(255, 47, 47, 47),
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          userData['aboutMe']!,
-                          style: const TextStyle(
-                            fontSize: 20,
-                            color: Color.fromARGB(255, 47, 47, 47),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 32),
-
-                  Center(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        // Aksi untuk navigasi ke halaman Edit Profile
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color.fromARGB(255, 200, 161, 35),
-                        padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        textStyle: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        foregroundColor: Colors.white,
-                      ),
-                      child: const Text('Edit Profile'),
-                    ),
-                  ),
-
-                  const SizedBox(height: 64),
-
-                  const Text(
-                    'Food You\'ve Tried',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w900,
-                      color: Color.fromARGB(255, 47, 47, 47),
-                    ),
-                  ),
-
-                  const SizedBox(height: 32),
-
-                  SizedBox(
-                    width: containerWidth,
-                    height: 300,
-                    child: GridView.builder(
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 16.0,
-                        mainAxisSpacing: 16.0,
-                        childAspectRatio: 1,
-                      ),
-                      itemCount: 7,
-                      itemBuilder: (context, index) {
-                        return ClipRRect(
-                          borderRadius: BorderRadius.circular(12.0),
-                          child: Image.network(
-                            'https://via.placeholder.com/150',
-                            fit: BoxFit.cover,
-                          ),
+                    child: Image.network(
+                      food.fields.gambar,
+                      width: double.infinity,
+                      height: 150,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          height: 150,
+                          color: Colors.grey[300],
+                          child: const Icon(Icons.error),
                         );
                       },
                     ),
                   ),
-
-                  const SizedBox(height: 64),
-
-                  Center(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        // Aksi untuk logout
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color.fromARGB(255, 240, 80, 80),
-                        padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        textStyle: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        foregroundColor: Colors.white,
-                      ),
-                      child: const Text('Logout'),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      food.fields.namaMakanan,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  const SizedBox(height: 64),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Text(
+                      food.fields.deskripsi,
+                      style: const TextStyle(fontSize: 12),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  )
                 ],
               ),
-            ),
+              Positioned(
+                top: 8,
+                right: 8,
+                child: CircleAvatar(
+                  radius: 15,
+                  backgroundColor: Colors.red,
+                  child: IconButton(
+                    onPressed: () => showDeleteConfirmationDialog(
+                      context,
+                      profile.userId,
+                      food.pk
+                    ),
+                    icon: const Icon(
+                      Icons.close,
+                      color: Colors.white,
+                      size: 18,
+                    ),
+                    padding: EdgeInsets.zero,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Profile Page'),
+      ),
+      body: FutureBuilder<UserProfileResponse>(
+        future: futureUserProfileResponse,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          
+          if (snapshot.hasError) {
+            return Center(
+              child: Text(
+                'Error loading profile: ${snapshot.error}',
+                textAlign: TextAlign.center,
+              ),
+            );
+          }
+
+          final userProfileResponse = snapshot.data;
+          if (userProfileResponse == null) {
+            return const Center(child: Text('Unable to load profile data'));
+          }
+
+          final profile = userProfileResponse.userProfile.isNotEmpty 
+              ? userProfileResponse.userProfile.first 
+              : null;
+
+          return FutureBuilder<List<Food>>(
+            future: fetchTriedFoods(profile?.triedFoods),
+            builder: (context, foodSnapshot) {
+              if (foodSnapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              if (foodSnapshot.hasError) {
+                return Center(
+                  child: Text(
+                    'Error loading foods: ${foodSnapshot.error}',
+                    textAlign: TextAlign.center,
+                  ),
+                );
+              }
+
+              final foods = foodSnapshot.data ?? [];
+
+              return ListView(
+                children: [
+                  buildProfileInfo(profile),
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Foods You\'ve Tried',
+                          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 16),
+                        if (profile != null) buildFoodGrid(foods, profile),
+                      ],
+                    ),
+                  ),
+                ],
+              );
+            },
           );
         },
       ),
     );
-  }
-
-  // Fungsi logout
-  Future<void> logout(BuildContext context) async {
-    final response = await http.post(
-      Uri.parse("http://127.0.0.1:8000/manageData/logout/"), // URL endpoint logout
-      headers: {
-        "Content-Type": "application/json",
-      },
-    );
-
-    if (response.statusCode == 200) {
-      // Jika logout berhasil, arahkan ke halaman login
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginApp()),
-      );
-    } else {
-      // Jika terjadi error saat logout
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Logout gagal!")),
-      );
-    }
   }
 }

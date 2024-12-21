@@ -31,6 +31,7 @@ class _AddReviewPageState extends State<AddReviewPage> {
     // try {
     final response =
         await request.get('http://127.0.0.1:8000/search/api/foods/');
+        // await request.get('https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/search/api/foods/');
     // debugPrint('API Response: $response');
 
     // if (response["status"] == "success") {

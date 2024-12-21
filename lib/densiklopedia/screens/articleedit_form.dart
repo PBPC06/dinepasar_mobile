@@ -152,7 +152,7 @@ class _ArticleEditFormState extends State<ArticleEditForm> {
                       if (_formKey.currentState!.validate()) {
                         // Edit artikel yang ada
                         final response = await request.post(
-                          "http://127.0.0.1:8000/densiklopedia/edit-flutter/${widget.article.id}/",
+                          "https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/densiklopedia/edit-flutter/${widget.article.id}/",
                           {
                             "judul": _judul,
                             "subjudul": _subjudul,
@@ -163,6 +163,7 @@ class _ArticleEditFormState extends State<ArticleEditForm> {
 
                         if (response['message'] == 'Artikel berhasil diperbarui!') {
                           ScaffoldMessenger.of(context).showSnackBar(
+
                             const SnackBar(
                               content: Text("Artikel berhasil diperbarui!"),
                             ),

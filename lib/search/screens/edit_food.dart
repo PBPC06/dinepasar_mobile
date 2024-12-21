@@ -1,7 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 
 class EditFoodPage extends StatefulWidget {
@@ -25,126 +25,110 @@ class _EditFoodPageState extends State<EditFoodPage> {
   int _harga = 0;
   double _rating = 0.0;
 
-  bool isLoading = true;  // Variabel untuk menangani status loading
+  bool isLoading = true; // Variabel untuk menangani status loading
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (isLoading) {  // Pastikan hanya mengambil data sekali
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       _fetchFoodData();
-    }
+    });
   }
 
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
+      final request = context.read<CookieRequest>();
       final updatedData = {
         'nama_makanan': _namaMakanan,
         'restoran': _restoran,
         'kategori': _kategori,
         'gambar': _gambar,
         'deskripsi': _deskripsi,
-        'harga': _harga,
-        'rating': _rating,
+        'harga': _harga.toString(),
+        'rating': _rating.toString(),
       };
 
-      final response = await http.post(
-        Uri.parse('http://127.0.0.1:8000/search/edit-flutter/${widget.foodId}/'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(updatedData),  // Kirim data yang sudah diperbarui
-      );
+      try {
+        final response = await request.post(
+          "https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/search/edit-flutter/${widget.foodId}/",
+          // "http://127.0.0.1:8000/search/edit-flutter/${widget.foodId}/",
+          jsonEncode(updatedData),
+        );
 
-      if (response.statusCode == 200) {
+        if (response['status'] == true) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Data berhasil diperbarui!'),
+          ));
+          Navigator.pop(context, updatedData); // Return updated data ke halaman sebelumnya
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text('Gagal memperbarui data: ${response['message']}'),
+          ));
+        }
+      } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Data berhasil diperbarui!'),
-        ));
-        // Mengembalikan data yang telah diperbarui ke AdminPage
-        Navigator.pop(context, updatedData);  // Return updated data ke halaman sebelumnya
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Gagal memperbarui data: ${response.body}'),
+          content: Text('Error updating data: $e'),
         ));
       }
     }
   }
 
-  // Fungsi untuk mengambil data makanan berdasarkan ID
   Future<void> _fetchFoodData() async {
-    // Menggunakan Provider.of dengan listen: false
-    final request = Provider.of<CookieRequest>(context, listen: false);
-    final response = await http.get(
-      Uri.parse('http://127.0.0.1:8000/search/edit-flutter/${widget.foodId}/'),
-      headers: {'Content-Type': 'application/json'},
-    );
+    final request = context.read<CookieRequest>();
+    try {
+      final response = await request.get(
+        "https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/search/edit-flutter/${widget.foodId}/",
+        // "http://127.0.0.1:8000/search/edit-flutter/${widget.foodId}/",
+      );
+      
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      setState(() {
-        _namaMakanan = data['nama_makanan'];
-        _restoran = data['restoran'];
-        _kategori = data['kategori'];
-        _gambar = data['gambar'];
-        _deskripsi = data['deskripsi'];
-        _harga = data['harga'];
-        _rating = data['rating'].toDouble();
-        isLoading = false;  // Mengubah status loading
-      });
-    } else {
+      if (response['status'] == true) {
+        final data = response['data'];
+        setState(() {
+          _namaMakanan = data['nama_makanan'];
+          _restoran = data['restoran'];
+          _kategori = data['kategori'];
+          _gambar = data['gambar'];
+          _deskripsi = data['deskripsi'];
+          _harga = data['harga'];
+          _rating = data['rating'].toDouble();
+          isLoading = false;
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Failed to fetch food data: ${response['message']}'),
+        ));
+        setState(() {
+          isLoading = false;
+        });
+      }
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Failed to fetch food data'),
+        content: Text('Error fetching food data: $e'),
       ));
       setState(() {
-        isLoading = false;  // Hentikan loading jika gagal
+        isLoading = false;
       });
     }
   }
 
-  // Reusable form field
-  Widget buildFormField({
-    required String label,
-    required String hint,
-    required String initialValue,
-    required Function(String?) onChanged,
-    required String? Function(String?) validator,
-    int maxLines = 1,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      child: TextFormField(
-        initialValue: initialValue,
-        decoration: InputDecoration(
-          labelText: label,
-          hintText: hint,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(color: Colors.grey),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(color: Colors.blue),
-          ),
-        ),
-        onChanged: onChanged,
-        validator: validator,
-        maxLines: maxLines,
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
+    // final request = context.watch<CookieRequest>(); // Langsung gunakan context.watch di build
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Edit Makanan'),
       ),
       body: isLoading
-          ? Center(child: CircularProgressIndicator())  // Tampilkan loading jika sedang mengambil data
+          ? const Center(child: CircularProgressIndicator())
           : Form(
               key: _formKey,
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: ListView(
                   children: [
-                    // Field Nama Makanan
+                     // Field Nama Makanan
                     buildFormField(
                       label: "Nama Makanan/Minuman",
                       hint: "Nama Produk",
@@ -248,7 +232,7 @@ class _EditFoodPageState extends State<EditFoodPage> {
                       label: "Harga",
                       hint: "Harga",
                       initialValue: _harga.toString(),
-                      onChanged: (value) => setState(() {
+                      onChanged: (String? value) => setState(() {
                         _harga = int.tryParse(value!) ?? 0;
                       }),
                       validator: (value) {
@@ -282,14 +266,7 @@ class _EditFoodPageState extends State<EditFoodPage> {
                       },
                     ),
 
-                    
-
-
-                    
-
-
-                    
-
+              
 
 
                     // Submit Button
@@ -298,21 +275,59 @@ class _EditFoodPageState extends State<EditFoodPage> {
                       child: ElevatedButton(
                         onPressed: _submitForm,
                         style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(vertical: 15),
+                          backgroundColor: const Color.fromRGBO(202, 138, 4, 1), // Warna latar belakang tombol
+                          foregroundColor: Colors.white, // Warna teks di tombol
+                          padding: const EdgeInsets.symmetric(vertical: 15),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(10), // Sudut melengkung tombol
                           ),
                         ),
-                        child: Text(
+                        child: const Text(
                           'Perbarui Makanan',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                            fontSize: 16, // Ukuran font
+                            fontWeight: FontWeight.bold, // Membuat teks menjadi tebal
+                          ),
                         ),
                       ),
                     ),
+
+
                   ],
                 ),
               ),
             ),
+    );
+  }
+
+  Widget buildFormField({
+    required String label,
+    required String hint,
+    required String initialValue,
+    required Function(String?) onChanged,
+    required String? Function(String?) validator,
+    int maxLines = 1,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: TextFormField(
+        initialValue: initialValue,
+        decoration: InputDecoration(
+          labelText: label,
+          hintText: hint,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: Colors.grey),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: Colors.yellow),
+          ),
+        ),
+        onChanged: onChanged,
+        validator: validator,
+        maxLines: maxLines,
+      ),
     );
   }
 }

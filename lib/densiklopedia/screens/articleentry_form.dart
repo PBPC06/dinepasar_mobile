@@ -155,7 +155,7 @@ class _ArticleEntryFormState extends State<ArticleEntryForm> {
                         if (widget.article == null) {
                           try {
                             final response = await request.post(
-                              "http://127.0.0.1:8000/densiklopedia/create-flutter/",
+                              "https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/densiklopedia/create-flutter/",
                               {
                                 "judul": _judul,
                                 "subjudul": _subjudul,
@@ -187,7 +187,7 @@ class _ArticleEntryFormState extends State<ArticleEntryForm> {
                         } else {
                           // Edit artikel yang ada
                           final response = await request.post(
-                            "http://127.0.0.1:8000/densiklopedia/edit-flutter/${widget.article!.id}/",
+                            "http://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/densiklopedia/edit-flutter/${widget.article!.id}/",
                             {
                               "judul": _judul,
                               "subjudul": _subjudul,

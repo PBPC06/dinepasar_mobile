@@ -40,11 +40,22 @@ class _MyHomePageState extends State<MyHomePage> {
         : const ExplorePage();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Dinepasar'),
-        backgroundColor: const Color.fromARGB(255, 200, 161, 35),
-      ),
-      body: _selectedIndex == 1 ? searchPageContent : _pages[_selectedIndex],
+    // appBar: AppBar(
+    //   title: Text(
+    //     'Dinepasar',
+    //     style: TextStyle(
+    //       color: Color.fromRGBO(202, 138, 4, 1), // Warna teks
+    //       fontSize: 28, // Ukuran font
+    //       fontWeight: FontWeight.w600, // Ketebalan font (semi-bold)
+    //       fontStyle: FontStyle.normal, // Gaya font (normal/italic)
+    //     ),
+    //   ),
+    //   centerTitle: true, // Teks berada di tengah
+    //   backgroundColor: const Color.fromRGBO(254, 252, 233, 1), // Warna latar belakang
+    // ),
+      body: _selectedIndex == 1
+          ? searchPageContent // Display appropriate search page based on role
+          : _pages[_selectedIndex], // Display other pages based on tab selection
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
