@@ -47,13 +47,13 @@ class _AdminPageState extends State<AdminPage> {
               onPressed: () {
                 Navigator.of(context).pop(false); // No
               },
-              child: Text("No"),
+              child: const Text("No"),
             ),
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(true); // Yes, Delete
               },
-              child: Text("Delete"),
+              child: const Text("Delete"),
             ),
           ],
         );
@@ -157,75 +157,90 @@ class _AdminPageState extends State<AdminPage> {
     final request = context.watch<CookieRequest>();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Admin - Manage Foods')),
-      body: Column(
-        children: [
-          // Pencarian dan filter
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            child: Column(
-              children: [
-                TextField(
-                  onChanged: (query) {
-                    setState(() {
-                      _keyword = query;
-                    });
-                  },
-                  decoration: InputDecoration(
-                    hintText: 'Search for food...',
-                    border: OutlineInputBorder(),
-                    suffixIcon: Icon(Icons.search),
+    appBar: AppBar(
+      title: const Text(
+        'Admin - Manage Foods',
+        style: TextStyle(
+          color: Color.fromRGBO(202, 138, 4, 1), // Warna teks
+          fontWeight: FontWeight.bold, // Membuat teks menjadi tebal
+        ),
+      ),
+      backgroundColor: const Color.fromRGBO(255, 242, 229, 1), // Warna latar belakang AppBar
+      iconTheme: const IconThemeData(
+        color: Color.fromRGBO(202, 138, 4, 1), // Warna ikon
+      ),
+    ),
+      body: Container(
+        // color: Theme.of(context).colorScheme.secondary, // Background halaman
+        child: Column(
+          children: [
+            // Pencarian dan filter
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              child: Column(
+                children: [
+                  TextField(
+                    onChanged: (query) {
+                      setState(() {
+                        _keyword = query;
+                      });
+                    },
+                    decoration: const InputDecoration(
+                      hintText: 'Search for food...',
+                      border: OutlineInputBorder(),
+                      suffixIcon: Icon(Icons.search),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 16), // Space between search and filters
-                // Filter Kategori dan Harga
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center, // Center filters horizontally
-                  children: [
-                    // Filter Kategori
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: DropdownButton<String>(
-                        value: _kategori,
-                        onChanged: (value) {
-                          setState(() {
-                            _kategori = value ?? 'all';
-                          });
-                        },
-                        items: ['all', 'Ayam Betutu', 'Sate', 'Es', 'Ayam', 'Pepes', 'Nasi', 'Sayur', 'Jajanan', 'Sambal', 'Tipat', 'Rujak', 'Bebek', 'Ikan', 'Kopi', 'Lawar', 'Babi Guling']
-                            .map<DropdownMenuItem<String>>((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
+                  const SizedBox(height: 16), // Space between search and filters
+                  // Filter Kategori dan Harga
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center, // Center filters horizontally
+                    children: [
+                      // Filter Kategori
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: DropdownButton<String>(
+                          value: _kategori,
+                          onChanged: (value) {
+                            setState(() {
+                              _kategori = value ?? 'all';
+                            });
+                          },
+                          items: ['all', 'Ayam Betutu', 'Sate', 'Es', 'Ayam', 'Pepes', 'Nasi', 'Sayur', 'Jajanan', 'Sambal', 'Tipat', 'Rujak', 'Bebek', 'Ikan', 'Kopi', 'Lawar', 'Babi Guling']
+                              .map<DropdownMenuItem<String>>((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                        ),
                       ),
-                    ),
-                    // Filter Harga
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: DropdownButton<String>(
-                        value: _harga,
-                        onChanged: (value) {
-                          setState(() {
-                            _harga = value ?? 'all';
-                          });
-                        },
-                        items: ['all', 'Under 50k', '50k-100k', 'Above 100k']
-                            .map<DropdownMenuItem<String>>((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
+                      // Filter Harga
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: DropdownButton<String>(
+                          value: _harga,
+                          onChanged: (value) {
+                            setState(() {
+                              _harga = value ?? 'all';
+                            });
+                          },
+                          items: ['all', 'Under 50k', '50k-100k', 'Above 100k']
+                              .map<DropdownMenuItem<String>>((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-          // Tampilkan data makanan
+            // Tampilkan data makanan
+
           Expanded(
             child: FutureBuilder<List<Food>>(
               future: fetchFoods(request), // Fetch food data
@@ -257,7 +272,7 @@ class _AdminPageState extends State<AdminPage> {
                 }).toList();
 
                 if (filteredFoods.isEmpty) {
-                  return Center(
+                  return const Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -285,7 +300,7 @@ class _AdminPageState extends State<AdminPage> {
                       return AdminFoodCard(
                         food: food,
                         onEdit: () async {
-                          print("Navigating to EditFoodPage with foodId: ${food.pk}");
+                          // print("Navigating to EditFoodPage with foodId: ${food.pk}");
                           final result = await Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -306,7 +321,7 @@ class _AdminPageState extends State<AdminPage> {
                           markFoodAsTried(context, food.pk.toString());
                         },
                         onMore: () {
-                          print('More details for ${food.fields.namaMakanan}');
+                          // print('More details for ${food.fields.namaMakanan}');
                         },
                         onDelete: () {
                           _confirmDeleteFood(food.pk, food.fields.namaMakanan);
@@ -317,8 +332,9 @@ class _AdminPageState extends State<AdminPage> {
                 );
               },
             ),
-          ),
-        ],
+      ),
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
@@ -333,7 +349,11 @@ class _AdminPageState extends State<AdminPage> {
             });
           }
         },
-        child: const Icon(Icons.add),
+        backgroundColor: const Color.fromRGBO(202, 138, 4, 1), // Warna latar belakang ikon Add
+        child: const Icon(
+          Icons.add,
+          color: Colors.white, // Warna ikon (putih agar kontras)
+        ),
       ),
     );
   }

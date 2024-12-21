@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
           useMaterial3: true,
           colorScheme: ColorScheme.fromSwatch(
             primarySwatch: Colors.yellow,
-          ).copyWith(secondary: const Color.fromRGBO(254, 252, 233, 50)),
+          ).copyWith(secondary: const Color.fromRGBO(202, 138, 4, 1)),
         ),
         home: const LoginPage(),
       ),

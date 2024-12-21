@@ -31,7 +31,7 @@ class FoodCard extends StatelessWidget {
                 topRight: Radius.circular(12),
               ),
               child: food.fields.gambar.isEmpty
-                  ? Center(
+                  ? const Center(
                       child: Icon(
                         Icons.restaurant,  // Ganti dengan icon sendok dan garpu
                         size: 48,
@@ -43,7 +43,7 @@ class FoodCard extends StatelessWidget {
                       fit: BoxFit.cover,
                       width: double.infinity,
                       errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
-                        return Center(
+                        return const Center(
                           child: Icon(
                             Icons.restaurant,  // Ganti dengan icon sendok dan garpu
                             size: 48,
@@ -107,12 +107,12 @@ class FoodCard extends StatelessWidget {
                           margin: const EdgeInsets.only(right: 8.0),
                           decoration: const BoxDecoration(
                             shape: BoxShape.circle,
-                            color: Colors.yellow,
+                            color: Color.fromRGBO(202, 138, 4, 1), // Warna latar belakang tombol
                           ),
                           child: const Icon(
-                            Icons.more_vert,
+                            Icons.more_horiz,
                             size: 20,
-                            color: Colors.black,
+                            color: Colors.white, // Warna ikon
                           ),
                         ),
                       ),
@@ -124,18 +124,19 @@ class FoodCard extends StatelessWidget {
                           height: 32,
                           decoration: const BoxDecoration(
                             shape: BoxShape.circle,
-                            color: Colors.yellow,
+                            color: Color.fromRGBO(202, 138, 4, 1), // Warna latar belakang tombol
                           ),
                           child: const Icon(
                             Icons.check,
                             size: 20,
-                            color: Colors.black,
+                            color: Colors.white, // Warna ikon
                           ),
                         ),
                       ),
                     ],
                   ),
                 ),
+
               ],
             ),
           ),
