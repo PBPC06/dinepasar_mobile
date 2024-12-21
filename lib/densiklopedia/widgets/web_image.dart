@@ -1,8 +1,5 @@
-// web_image.dart
-
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'dart:html' as html;
-import 'dart:ui_web' as ui;
 
 class WebImage extends StatelessWidget {
   final String imageUrl;
@@ -18,22 +15,19 @@ class WebImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Registrasi view factory
-    final uniqueId = imageUrl; // Gunakan identifikasi unik
-
-    // ignore: undefined_prefixed_name
-    ui.platformViewRegistry.registerViewFactory(
-      uniqueId,
-      (int viewId) => html.ImageElement()
-        ..src = imageUrl
-        ..style.width = '100%'
-        ..style.height = '100%',
-    );
-
-    return SizedBox(
+    return CachedNetworkImage(
+      imageUrl: imageUrl,
       height: height,
       width: width,
-      child: HtmlElementView(viewType: uniqueId),
+      fit: BoxFit.cover,
+      placeholder: (context, url) => Container(
+        color: Colors.grey[200],
+        child: const Center(child: CircularProgressIndicator()),
+      ),
+      errorWidget: (context, url, error) => Container(
+        color: Colors.grey[200],
+        child: const Icon(Icons.error),
+      ),
     );
   }
 }
