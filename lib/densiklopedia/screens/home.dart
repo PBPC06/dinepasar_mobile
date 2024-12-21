@@ -47,7 +47,7 @@ class HomePageArticle extends StatelessWidget {
         itemCount: articles.length,
         itemBuilder: (context, index) {
           final article = articles[index];
-          return ArticleCard(
+          return HomeCard(
             article: article,
             onTap: () {
               // Navigate to the corresponding screen based on the article ID
