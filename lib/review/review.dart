@@ -41,11 +41,11 @@ class _ReviewPageState extends State<ReviewPage>
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 22,
-            color: Colors.black,
+            color: Color.fromRGBO(202, 138, 4, 1),
           ),
         ),
         centerTitle: true,
-        backgroundColor: const Color(0xFFFEFCEC),
+        backgroundColor: const Color.fromRGBO(255, 242, 229, 1),
         bottom: TabBar(
           controller: _tabController,
           tabs: myTabs,

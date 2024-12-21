@@ -4,7 +4,7 @@ import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 
 class ArticleEditForm extends StatefulWidget {
-  final Article article; // Menambahkan parameter 'article'
+  final Article article;
 
   const ArticleEditForm({Key? key, required this.article}) : super(key: key); // Menambahkan 'article' dalam konstruktor
 

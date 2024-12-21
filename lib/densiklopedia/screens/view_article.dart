@@ -4,7 +4,7 @@ import 'package:dinepasar_mobile/densiklopedia/models/article_entry.dart';
 import 'package:dinepasar_mobile/densiklopedia/widgets/web_image.dart';
 
 class ViewArticle extends StatelessWidget {
-  final Article article; // Menggunakan model Article
+  final Article article;
 
   const ViewArticle({Key? key, required this.article}) : super(key: key);
 

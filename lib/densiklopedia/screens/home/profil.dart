@@ -8,8 +8,10 @@ class ProfilPage extends StatelessWidget {
     final article = Article(
       id: "1",
       judul: "Profil Denpasar yang Harus Kamu Ketahui",
-      gambar: "https://upload.wikimedia.org/wikipedia/commons/f/f8/Aerial_view_of_Bajra_Sandhi_Monument_Denpasar_Bali_Indonesia.jpg",
-      subjudul: "Temukan berbagai informasi menarik tentang Denpasar, ibukota Bali.",
+      gambar:
+          "https://upload.wikimedia.org/wikipedia/commons/f/f8/Aerial_view_of_Bajra_Sandhi_Monument_Denpasar_Bali_Indonesia.jpg",
+      subjudul:
+          "Temukan berbagai informasi menarik tentang Denpasar, ibukota Bali.",
       konten: """
       Denpasar, ibu kota Provinsi Bali, merupakan pusat pemerintahan, budaya, dan ekonomi di pulau dewata. Terletak strategis di bagian selatan Bali, Denpasar menjadi pintu gerbang utama bagi wisatawan domestik maupun mancanegara yang ingin menjelajahi keindahan alam dan budaya Bali. Kota ini memadukan perkembangan modern dengan kekayaan tradisi yang tetap terjaga, menjadikannya sebagai pusat dinamika kehidupan masyarakat Bali.
 

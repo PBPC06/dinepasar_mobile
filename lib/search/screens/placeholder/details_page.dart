@@ -290,30 +290,22 @@ class _DetailsPageState extends State<DetailsPage> {
                                     ),
                                   ),
                                   const SizedBox(width: 16),
-                                  ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color(
-                                          0xFFFBC02D), // Warna kuning
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(16),
-                                      ),
-                                    ),
+                                  IconButton(
                                     onPressed: () {
-                                      // Logic untuk "Add Review"
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (context) =>
-                                              const AddReviewPage(), // Halaman tambah review
+                                          builder: (context) => AddReviewPage(
+                                            foodId: widget.foodId,
+                                          ),
                                         ),
                                       );
                                     },
-                                    child: const Text(
-                                      'Add Review',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 16,
-                                      ),
+                                    icon: Image.asset(
+                                      'assets/images/add_review.png',
+                                      width:
+                                          32, // Sesuaikan ukuran jika diperlukan
+                                      height: 32,
                                     ),
                                   ),
                                 ],

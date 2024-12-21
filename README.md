@@ -1,3 +1,8 @@
+[![Pre-Release](https://github.com/PBPC06/dinepasar_mobile/actions/workflows/pre-release.yml/badge.svg)](https://github.com/PBPC06/dinepasar_mobile/actions/workflows/pre-release.yml)
+[![Release](https://github.com/PBPC06/dinepasar_mobile/actions/workflows/release.yml/badge.svg)](https://github.com/PBPC06/dinepasar_mobile/actions/workflows/release.yml)
+[![Staging](https://github.com/PBPC06/dinepasar_mobile/actions/workflows/staging.yml/badge.svg)](https://github.com/PBPC06/dinepasar_mobile/actions/workflows/staging.yml)
+[![Build status](https://build.appcenter.ms/v0.1/apps/905f757b-085d-4831-9b63-5f5c9e2e5e0a/branches/main/badge)](https://appcenter.ms)
+
 # Proyek Akhir Semester C06 - PBP Gasal 2024/2025
 - [Nama Aplikasi](#nama-aplikasi-dinepasar)
 - [Anggota Kelompok C06](#anggota-kelompok-c06)
@@ -18,7 +23,6 @@
 | Namira Aulia | 2306165931 |
 | Joanne Kenisa Adelina | 2306275626 |
 | Anindya Nabila Syifa | 2306165805 |
-
 
 ## Deskripsi Aplikasi
 Denpasar, Bali terkenal sebagai statusnya sebagai destinasi pariwisata yang terkenal dengan keindahan budaya dan ragam kulinernya. Sebagai salah satu destinasi favorit turis, Denpasar tidak hanya menyajikan pantai yang eksotis dan keunikan budaya, namun juga variasi hidangan lezat yang mampu memanjakan lidah.
@@ -84,8 +88,9 @@ Integrasi antara web service dan aplikasi web dilakukan dengan langkah-langkah b
 
 
 ## Tautan Deployment Aplikasi
-(Tautan deployment aplikasi)
-
+https://install.appcenter.ms/orgs/pbp-c06-2024/apps/dinepasar/distribution_groups/public/releases/
 
 ## Tautan Design Aplikasi
 https://www.figma.com/design/TSFcu7BFIfJ4H2hhmGNuBi/Dinepasar-Flutter-Design?node-id=0-1&t=JvM71gqiFklpPgz7-1
+
+## Tautan YouTube Video Dinepasar

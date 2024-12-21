@@ -4,6 +4,7 @@ import 'package:dinepasar_mobile/search/models/food_entry.dart';
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
+import 'package:dinepasar_mobile/main/screens/login.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -24,8 +25,9 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<List<Food>> fetchAllFoods() async {
     try {
       final request = context.read<CookieRequest>();
-      final response = await request.get('http://127.0.0.1:8000/search/api/foods/');
-      // final response = await request.get(' https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/search/api/foods/');
+      // final response = await request.get('http://127.0.0.1:8000/search/api/foods/');
+      final response =
+          await request.get(' http://127.0.0.1:8000/search/api/foods/');
 
       if (response is List) {
         return response.map((foodJson) => Food.fromJson(foodJson)).toList();
@@ -40,10 +42,9 @@ class _ProfilePageState extends State<ProfilePage> {
     try {
       final request = context.read<CookieRequest>();
       final response = await request.post(
-        // 'http://127.0.0.1:8000/editProfile/remove_food_flutter/$userId/$foodId/',
-        'http://127.0.0.1:8000/editProfile/remove_food_flutter/$userId/$foodId/',
-        {}
-      );
+          // 'http://127.0.0.1:8000/editProfile/remove_food_flutter/$userId/$foodId/',
+          'http://127.0.0.1:8000/editProfile/remove_food_flutter/$userId/$foodId/',
+          {});
 
       if (response['success'] == true) {
         setState(() {
@@ -57,8 +58,9 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Future<UserProfileResponse> fetchProfileData() async {
     final request = context.read<CookieRequest>();
-    final response = await request.get('http://127.0.0.1:8000/editProfile/show-json-all/');
-    // final response = await request.get('https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/editProfile/show-json-all/');
+    // final response = await request.get('http://127.0.0.1:8000/editProfile/show-json-all/');
+    final response =
+        await request.get('http://127.0.0.1:8000/editProfile/show-json-all/');
 
     if (response is Map<String, dynamic>) {
       return UserProfileResponse.fromJson(response);
@@ -71,12 +73,13 @@ class _ProfilePageState extends State<ProfilePage> {
     if (triedFoods == null || triedFoods.isEmpty) return [];
 
     final allFoods = await fetchAllFoods();
-    return allFoods.where((food) => 
-      triedFoods.any((triedFood) => triedFood.id == food.pk)
-    ).toList();
+    return allFoods
+        .where((food) => triedFoods.any((triedFood) => triedFood.id == food.pk))
+        .toList();
   }
 
-  void showDeleteConfirmationDialog(BuildContext context, String userId, int foodId) {
+  void showDeleteConfirmationDialog(
+      BuildContext context, String userId, int foodId) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -120,45 +123,55 @@ class _ProfilePageState extends State<ProfilePage> {
       );
     }
 
-    return Center(
-      child: Card(
-        margin: const EdgeInsets.all(16),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                'Hello, ${displayField(profile.username)}!',
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 8),
-              Text('Email: ${displayField(profile.email)}', textAlign: TextAlign.center),
-              Text('Phone: ${displayField(profile.phone)}', textAlign: TextAlign.center),
-              Text('About Me: ${displayField(profile.aboutMe)}', textAlign: TextAlign.center),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return Dialog(
-                        child: EditProfilePage(userId: profile.userId),
-                      );
-                    },
-                  ).then((_) {
-                    setState(() {
-                      futureUserProfileResponse = fetchProfileData();
-                    });
+    return Card(
+      margin: const EdgeInsets.all(16),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Hello, ${displayField(profile.username)}!',
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            Text('Email: ${displayField(profile.email)}'),
+            Text('Phone: ${displayField(profile.phone)}'),
+            Text('About Me: ${displayField(profile.aboutMe)}'),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return Dialog(
+                      child: EditProfilePage(userId: profile.userId),
+                    );
+                  },
+                ).then((_) {
+                  setState(() {
+                    futureUserProfileResponse = fetchProfileData();
                   });
-                },
-                child: const Text('Edit Profile'),
-              ),
-            ],
-          ),
+                });
+              },
+              child: const Text('Edit Profile'),
+            ),
+            const SizedBox(height: 8),
+            ElevatedButton(
+              onPressed: _logout,
+              child: const Text('Logout'),
+            ),
+          ],
         ),
       ),
+    );
+  }
+
+  Future<void> _logout() async {
+    final request = context.read<CookieRequest>();
+    await request.logout('http://127.0.0.1:8000/manageData/logout_flutter/');
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginPage()),
     );
   }
 
@@ -235,34 +248,31 @@ class _ProfilePageState extends State<ProfilePage> {
                         textAlign: TextAlign.center,
                       ),
                     ),
-                  ],
-                ),
-                Positioned(
-                  top: 8,
-                  right: 8,
-                  child: CircleAvatar(
-                    radius: 15,
-                    backgroundColor: Colors.red,
-                    child: IconButton(
-                      onPressed: () => showDeleteConfirmationDialog(
-                        context,
-                        profile.userId,
-                        food.pk
-                      ),
-                      icon: const Icon(
-                        Icons.close,
-                        color: Colors.white,
-                        size: 18,
-                      ),
-                      padding: EdgeInsets.zero,
+                  )
+                ],
+              ),
+              Positioned(
+                top: 8,
+                right: 8,
+                child: CircleAvatar(
+                  radius: 15,
+                  backgroundColor: Colors.red,
+                  child: IconButton(
+                    onPressed: () => showDeleteConfirmationDialog(
+                        context, profile.userId, food.pk),
+                    icon: const Icon(
+                      Icons.close,
+                      color: Colors.white,
+                      size: 18,
                     ),
+                    padding: EdgeInsets.zero,
                   ),
                 ),
-              ],
-            ),
-          );
-        },
-      ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -293,8 +303,8 @@ class _ProfilePageState extends State<ProfilePage> {
             return const Center(child: Text('Unable to load profile data', textAlign: TextAlign.center));
           }
 
-          final profile = userProfileResponse.userProfile.isNotEmpty 
-              ? userProfileResponse.userProfile.first 
+          final profile = userProfileResponse.userProfile.isNotEmpty
+              ? userProfileResponse.userProfile.first
               : null;
 
           return FutureBuilder<List<Food>>(
@@ -325,8 +335,8 @@ class _ProfilePageState extends State<ProfilePage> {
                       children: [
                         const Text(
                           'Foods You\'ve Tried',
-                          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontSize: 22, fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 16),
                         if (profile != null) buildFoodGrid(foods, profile),
