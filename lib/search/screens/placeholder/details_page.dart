@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
+import 'package:dinepasar_mobile/review/widgets/addreview.dart';
 
 class DetailsPage extends StatefulWidget {
   final int foodId;
@@ -95,7 +96,8 @@ class _DetailsPageState extends State<DetailsPage> {
                             width: double.infinity,
                             height: 202,
                             decoration: BoxDecoration(
-                              borderRadius: const BorderRadius.all(Radius.circular(16)),
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(16)),
                               image: DecorationImage(
                                 image: NetworkImage(food!['gambar'] ?? ''),
                                 fit: BoxFit.cover,
@@ -130,13 +132,15 @@ class _DetailsPageState extends State<DetailsPage> {
                               const SizedBox(height: 8),
                               Row(
                                 children: [
-                                  const Icon(Icons.star, color: Colors.amber, size: 20),
+                                  const Icon(Icons.star,
+                                      color: Colors.amber, size: 20),
                                   const SizedBox(width: 4),
                                   RichText(
                                     text: TextSpan(
                                       children: [
                                         TextSpan(
-                                          text: '${food!['rating'] ?? 0.0} ',
+                                          text:
+                                              '${formatRating(food!['rating'])} / 5.0',
                                           style: const TextStyle(
                                             color: Color(0xFF2A2A2A),
                                             fontSize: 16,
@@ -217,13 +221,21 @@ class _DetailsPageState extends State<DetailsPage> {
                                         text: showFullDescription
                                             ? food!['deskripsi']
                                             : (food!['deskripsi'] ?? '')
-                                                .substring(0, food!['deskripsi'].length > 116 ? 116 : food!['deskripsi'].length),
+                                                .substring(
+                                                    0,
+                                                    food!['deskripsi'].length >
+                                                            116
+                                                        ? 116
+                                                        : food!['deskripsi']
+                                                            .length),
                                         style: const TextStyle(
                                           color: Color(0xFFA2A2A2),
                                           fontSize: 14,
                                         ),
                                       ),
-                                      if (!showFullDescription && (food!['deskripsi'] ?? '').length > 116)
+                                      if (!showFullDescription &&
+                                          (food!['deskripsi'] ?? '').length >
+                                              116)
                                         const TextSpan(
                                           text: '.. Read More',
                                           style: TextStyle(
@@ -296,13 +308,20 @@ class _DetailsPageState extends State<DetailsPage> {
                                   const SizedBox(width: 16),
                                   ElevatedButton(
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color(0xFFFBC02D),
+                                      backgroundColor: const Color(
+                                          0xFFFBC02D), // Warna kuning
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(16),
                                       ),
                                     ),
                                     onPressed: () {
-                                      // Add review logic
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              const AddReviewPage(), // Halaman tambah review
+                                        ),
+                                      );
                                     },
                                     child: const Text(
                                       'Add Review',
@@ -313,7 +332,7 @@ class _DetailsPageState extends State<DetailsPage> {
                                     ),
                                   ),
                                 ],
-                              ),
+                              )
                             ],
                           ),
                         ),
@@ -321,4 +340,11 @@ class _DetailsPageState extends State<DetailsPage> {
                     ),
     );
   }
+}
+
+String formatRating(double rating) {
+  if (rating == rating.toInt()) {
+    return rating.toStringAsFixed(1);
+  }
+  return '$rating';
 }

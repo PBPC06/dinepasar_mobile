@@ -21,7 +21,8 @@ class _AdminPageState extends State<AdminPage> {
 
   // Fungsi untuk mengambil data makanan
   Future<List<Food>> fetchFoods(CookieRequest request) async {
-    final response = await request.get('https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/search/api/foods/');
+    final response =
+        await request.get('http://127.0.0.1:8000/search/api/foods/');
     var data = response;
 
     List<Food> listFoods = [];
@@ -68,7 +69,7 @@ class _AdminPageState extends State<AdminPage> {
   // Fungsi untuk menghapus makanan
   Future<void> _deleteFood(int foodId) async {
     final request = context.read<CookieRequest>();
-    final url = 'https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/search/delete-flutter/$foodId/';
+    final url = 'http://127.0.0.1:8000/search/delete-flutter/$foodId/';
 
     try {
       final response = await request.post(url, {});
@@ -82,7 +83,8 @@ class _AdminPageState extends State<AdminPage> {
         });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal menghapus makanan: ${response['message']}')),
+          SnackBar(
+              content: Text('Gagal menghapus makanan: ${response['message']}')),
         );
       }
     } catch (e) {
@@ -102,7 +104,8 @@ class _AdminPageState extends State<AdminPage> {
         children: [
           // Pencarian dan filter
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             child: Column(
               children: [
                 TextField(
@@ -120,7 +123,8 @@ class _AdminPageState extends State<AdminPage> {
                 const SizedBox(height: 16), // Space between search and filters
                 // Filter Kategori dan Harga
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.center, // Center filters horizontally
+                  mainAxisAlignment:
+                      MainAxisAlignment.center, // Center filters horizontally
                   children: [
                     // Filter Kategori
                     Padding(
@@ -132,8 +136,25 @@ class _AdminPageState extends State<AdminPage> {
                             _kategori = value ?? 'all';
                           });
                         },
-                        items: ['all', 'Ayam Betutu', 'Sate', 'Es', 'Ayam', 'Pepes', 'Nasi', 'Sayur', 'Jajanan', 'Sambal', 'Tipat', 'Rujak', 'Bebek', 'Ikan', 'Kopi', 'Lawar', 'Babi Guling']
-                            .map<DropdownMenuItem<String>>((String value) {
+                        items: [
+                          'all',
+                          'Ayam Betutu',
+                          'Sate',
+                          'Es',
+                          'Ayam',
+                          'Pepes',
+                          'Nasi',
+                          'Sayur',
+                          'Jajanan',
+                          'Sambal',
+                          'Tipat',
+                          'Rujak',
+                          'Bebek',
+                          'Ikan',
+                          'Kopi',
+                          'Lawar',
+                          'Babi Guling'
+                        ].map<DropdownMenuItem<String>>((String value) {
                           return DropdownMenuItem<String>(
                             value: value,
                             child: Text(value),
@@ -173,22 +194,27 @@ class _AdminPageState extends State<AdminPage> {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Center(child: Text('No foods available in Dinepasar'));
+                  return const Center(
+                      child: Text('No foods available in Dinepasar'));
                 }
 
                 final foods = snapshot.data!;
 
                 // Filter berdasarkan pencarian dan kategori
                 final filteredFoods = foods.where((food) {
-                  bool matchesSearch = food.fields.namaMakanan.toLowerCase().contains(_keyword.toLowerCase());
-                  bool matchesCategory = _kategori == 'all' || food.fields.kategori == _kategori;
+                  bool matchesSearch = food.fields.namaMakanan
+                      .toLowerCase()
+                      .contains(_keyword.toLowerCase());
+                  bool matchesCategory =
+                      _kategori == 'all' || food.fields.kategori == _kategori;
                   bool matchesPrice = true;
 
                   // Filter berdasarkan harga
                   if (_harga == 'Under 50k') {
                     matchesPrice = food.fields.harga < 50000;
                   } else if (_harga == '50k-100k') {
-                    matchesPrice = food.fields.harga >= 50000 && food.fields.harga <= 100000;
+                    matchesPrice = food.fields.harga >= 50000 &&
+                        food.fields.harga <= 100000;
                   } else if (_harga == 'Above 100k') {
                     matchesPrice = food.fields.harga > 100000;
                   }
@@ -202,21 +228,23 @@ class _AdminPageState extends State<AdminPage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(Icons.search_off, size: 40, color: Colors.grey),
-                        Text("No results found.", style: TextStyle(color: Colors.grey)),
+                        Text("No results found.",
+                            style: TextStyle(color: Colors.grey)),
                       ],
                     ),
                   );
                 }
 
-
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10.0),
                   child: GridView.builder(
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2, // Display 2 columns
                       crossAxisSpacing: 10, // Spacing between columns
                       mainAxisSpacing: 10, // Spacing between rows
-                      childAspectRatio: 0.7, // Aspect ratio of the card (height/width)
+                      childAspectRatio:
+                          0.7, // Aspect ratio of the card (height/width)
                     ),
                     itemCount: filteredFoods.length,
                     itemBuilder: (context, index) {
@@ -225,17 +253,20 @@ class _AdminPageState extends State<AdminPage> {
                       return AdminFoodCard(
                         food: food,
                         onEdit: () async {
-                          print("Navigating to EditFoodPage with foodId: ${food.pk}");
+                          print(
+                              "Navigating to EditFoodPage with foodId: ${food.pk}");
                           final result = await Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => EditFoodPage(foodId: food.pk),
+                              builder: (context) =>
+                                  EditFoodPage(foodId: food.pk),
                             ),
                           );
 
                           if (result != null) {
                             setState(() {
-                              int index = _foods.indexWhere((item) => item.pk == food.pk);
+                              int index = _foods
+                                  .indexWhere((item) => item.pk == food.pk);
                               if (index != -1) {
                                 _foods[index] = Food.fromJson(result);
                               }
@@ -264,7 +295,8 @@ class _AdminPageState extends State<AdminPage> {
         onPressed: () async {
           final result = await Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const ProductEntryFormPage()),
+            MaterialPageRoute(
+                builder: (context) => const ProductEntryFormPage()),
           );
 
           if (result != null) {

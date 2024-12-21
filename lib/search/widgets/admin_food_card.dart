@@ -20,7 +20,8 @@ class AdminFoodCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.all(8.0), // Menambahkan margin agar card tidak terlalu mepet
+      margin: const EdgeInsets.all(
+          8.0), // Menambahkan margin agar card tidak terlalu mepet
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
@@ -38,9 +39,9 @@ class AdminFoodCard extends StatelessWidget {
               child: food.fields.gambar.isEmpty
                   ? Center(
                       child: Icon(
-                        Icons.restaurant,  // Ganti dengan icon sendok dan garpu
+                        Icons.restaurant, // Ganti dengan icon sendok dan garpu
                         size: 48,
-                        color: Colors.grey,  // Warna icon sesuai tema
+                        color: Colors.grey, // Warna icon sesuai tema
                       ),
                     )
                   : Image.network(
@@ -50,9 +51,10 @@ class AdminFoodCard extends StatelessWidget {
                       errorBuilder: (context, error, stackTrace) {
                         return Center(
                           child: Icon(
-                            Icons.restaurant,  // Ganti dengan icon sendok dan garpu
+                            Icons
+                                .restaurant, // Ganti dengan icon sendok dan garpu
                             size: 48,
-                            color: Colors.grey,  // Warna icon sesuai tema
+                            color: Colors.grey, // Warna icon sesuai tema
                           ),
                         );
                       },
@@ -68,13 +70,17 @@ class AdminFoodCard extends StatelessWidget {
                 // Nama makanan
                 Text(
                   food.fields.namaMakanan,
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                      fontSize: 14, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 4),
                 // Harga makanan
                 Text(
                   'Rp ${food.fields.harga.toString()}',
-                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: Colors.black),
+                  style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.black),
                 ),
                 const SizedBox(height: 4),
                 // Rating
@@ -83,7 +89,7 @@ class AdminFoodCard extends StatelessWidget {
                     const Icon(Icons.star, color: Colors.amber, size: 14),
                     const SizedBox(width: 4),
                     Text(
-                      food.fields.rating.toString(),
+                      '${formatRating(food.fields.rating)} / 5.0',
                       style: const TextStyle(fontSize: 12),
                     ),
                   ],
@@ -112,7 +118,8 @@ class AdminFoodCard extends StatelessWidget {
                           margin: const EdgeInsets.only(right: 8.0),
                           decoration: const BoxDecoration(
                             shape: BoxShape.circle,
-                            color: Colors.yellow, // Warna tombol Approve (kuning halus)
+                            color: Colors
+                                .yellow, // Warna tombol Approve (kuning halus)
                           ),
                           child: const Icon(
                             Icons.check,
@@ -124,14 +131,15 @@ class AdminFoodCard extends StatelessWidget {
 
                       // Tombol Hapus (Delete)
                       InkWell(
-                        onTap: onDelete,  // Memanggil fungsi _deleteFood
+                        onTap: onDelete, // Memanggil fungsi _deleteFood
                         child: Container(
                           width: 32,
                           height: 32,
                           margin: const EdgeInsets.only(right: 8.0),
                           decoration: const BoxDecoration(
                             shape: BoxShape.circle,
-                            color: Colors.yellow, // Warna tombol Delete (kuning halus)
+                            color: Colors
+                                .yellow, // Warna tombol Delete (kuning halus)
                           ),
                           child: const Icon(
                             Icons.delete,
@@ -150,7 +158,8 @@ class AdminFoodCard extends StatelessWidget {
                           margin: const EdgeInsets.only(right: 8.0),
                           decoration: const BoxDecoration(
                             shape: BoxShape.circle,
-                            color: Colors.yellow, // Warna tombol Edit (kuning halus)
+                            color: Colors
+                                .yellow, // Warna tombol Edit (kuning halus)
                           ),
                           child: const Icon(
                             Icons.edit,
@@ -169,7 +178,8 @@ class AdminFoodCard extends StatelessWidget {
                           margin: const EdgeInsets.only(right: 8.0),
                           decoration: const BoxDecoration(
                             shape: BoxShape.circle,
-                            color: Colors.yellow, // Warna tombol More (kuning halus)
+                            color: Colors
+                                .yellow, // Warna tombol More (kuning halus)
                           ),
                           child: const Icon(
                             Icons.more_horiz,
@@ -188,4 +198,11 @@ class AdminFoodCard extends StatelessWidget {
       ),
     );
   }
+}
+
+String formatRating(double rating) {
+  if (rating == rating.toInt()) {
+    return rating.toStringAsFixed(1);
+  }
+  return '$rating';
 }
