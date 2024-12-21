@@ -217,15 +217,33 @@ class _MyReviewsPageState extends State<MyReviewsPage> {
     );
   }
 
+  Widget _buildEmptyState(String message, String subMessage, String imagePath) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image.asset(imagePath, width: 150, height: 150),
+          const SizedBox(height: 16),
+          Text(message,
+              style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black54)),
+          const SizedBox(height: 8),
+          Text(subMessage,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 14, color: Colors.black38)),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     setState(() {
       _myReviewsFuture = _fetchMyReviews();
     });
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('My Reviews'),
-      ),
       body: FutureBuilder<List<FoodReview>>(
         future: _myReviewsFuture,
         builder: (context, snapshot) {
@@ -239,11 +257,10 @@ class _MyReviewsPageState extends State<MyReviewsPage> {
           }
           // Menampilkan pesan jika tidak ada ulasan
           else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(
-              child: Text(
-                "You haven't reviewed any food yet!\nStart sharing your culinary experiences by adding a review.",
-                style: TextStyle(fontSize: 18, color: Colors.grey),
-              ),
+            return _buildEmptyState(
+              "You don't have any reviews :(",
+              "Start sharing your culinary experiences by adding a review.",
+              'assets/images/empty_review.png',
             );
           }
           // Menampilkan daftar ulasan

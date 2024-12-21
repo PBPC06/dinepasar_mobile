@@ -108,7 +108,8 @@ class ViewArticle extends StatelessWidget {
     return paragraphs.map((paragraph) {
       return TextSpan(
         text: paragraph + '\n\n',
-        style: const TextStyle(height: 1.8), // Adjust line height for paragraphs
+        style:
+            const TextStyle(height: 1.8), // Adjust line height for paragraphs
       );
     }).toList();
   }
