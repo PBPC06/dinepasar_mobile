@@ -51,6 +51,7 @@ class _EditFoodPageState extends State<EditFoodPage> {
       try {
         final response = await request.post(
           "https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/search/edit-flutter/${widget.foodId}/",
+          // "http://127.0.0.1:8000/search/edit-flutter/${widget.foodId}/",
           jsonEncode(updatedData),
         );
 
@@ -77,7 +78,9 @@ class _EditFoodPageState extends State<EditFoodPage> {
     try {
       final response = await request.get(
         "https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/search/edit-flutter/${widget.foodId}/",
+        // "http://127.0.0.1:8000/search/edit-flutter/${widget.foodId}/",
       );
+      
 
       if (response['status'] == true) {
         final data = response['data'];
