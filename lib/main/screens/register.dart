@@ -152,7 +152,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       // gunakan URL http://10.0.2.2/
                       final response = await request.postJson(
                         // "http://127.0.0.1:8000/manageData/register_flutter/",     
-                        "https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/manageData/register_flutter/",                       
+                        "http://127.0.0.1:8000/manageData/register_flutter/",                       
                         jsonEncode({
                             "username": username,
                             "password1": password1,
