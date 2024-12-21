@@ -1,4 +1,3 @@
-
 // import 'package:flutter/material.dart';
 // import 'package:provider/provider.dart';
 // import 'package:pbp_django_auth/pbp_django_auth.dart';
@@ -22,14 +21,13 @@
 
 //   Future<String> fetchUserId(BuildContext context) async {
 //   final request = context.read<CookieRequest>();
-//   // final response = await request.get('https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/editProfile/show-json-all/');
+//   // final response = await request.get('http://127.0.0.1:8000/editProfile/show-json-all/');
 //   final response = await request.get('http://127.0.0.1:8000/editProfile/show-json-all/');
 
-  
 //   if (response is Map<String, dynamic>) {
 //     // Mengambil 'user_profile' yang berupa list
 //     var userProfileList = response['user_profile'] as List;
-    
+
 //     // Ambil userId pertama dari list, atau sesuaikan jika perlu
 //     if (userProfileList.isNotEmpty) {
 //       final userProfile = userProfileList[0]; // Bisa disesuaikan untuk memilih user yang sesuai
@@ -41,7 +39,6 @@
 //     throw Exception('Failed to load profile data');
 //   }
 // }
-
 
 //    // Fungsi untuk menandai makanan sebagai sudah dicoba
 //   Future<void> markFoodAsTried(BuildContext context, String foodId) async {
@@ -76,12 +73,9 @@
 //     }
 //   }
 
-
-
-
 //   // Fungsi untuk mengambil data makanan
 //   Future<List<Food>> fetchProduct(CookieRequest request) async {
-//     // final response = await request.get('https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/search/api/foods/');
+//     // final response = await request.get('http://127.0.0.1:8000/search/api/foods/');
 //     final response = await request.get('http://127.0.0.1:8000/search/api/foods/');
 //     var data = response;
 
@@ -269,7 +263,6 @@
 //   }
 // }
 
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
@@ -292,27 +285,27 @@ class _ExplorePageState extends State<ExplorePage> {
   String priceRange = 'all';
 
   Future<String> fetchUserId(BuildContext context) async {
-  final request = context.read<CookieRequest>();
-  // final response = await request.get('http://127.0.0.1:8000/editProfile/show-json-all/');
-  final response = await request.get('https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/editProfile/show-json-all/');
-  
-  
-  if (response is Map<String, dynamic>) {
-    // Mengambil 'user_profile' yang berupa list
-    var userProfileList = response['user_profile'] as List;
-    
-    // Ambil userId pertama dari list, atau sesuaikan jika perlu
-    if (userProfileList.isNotEmpty) {
-      final userProfile = userProfileList[0]; // Bisa disesuaikan untuk memilih user yang sesuai
-      return userProfile['user_id'] ?? '';
-    } else {
-      throw Exception('No user profiles found');
-    }
-  } else {
-    throw Exception('Failed to load profile data');
-  }
-}
+    final request = context.read<CookieRequest>();
+    // final response = await request.get('http://127.0.0.1:8000/editProfile/show-json-all/');
+    final response =
+        await request.get('http://127.0.0.1:8000/editProfile/show-json-all/');
 
+    if (response is Map<String, dynamic>) {
+      // Mengambil 'user_profile' yang berupa list
+      var userProfileList = response['user_profile'] as List;
+
+      // Ambil userId pertama dari list, atau sesuaikan jika perlu
+      if (userProfileList.isNotEmpty) {
+        final userProfile = userProfileList[
+            0]; // Bisa disesuaikan untuk memilih user yang sesuai
+        return userProfile['user_id'] ?? '';
+      } else {
+        throw Exception('No user profiles found');
+      }
+    } else {
+      throw Exception('Failed to load profile data');
+    }
+  }
 
   // // Fungsi untuk menandai makanan sebagai sudah dicoba
   // void markFoodAsTried(String foodId) async {
@@ -338,17 +331,16 @@ class _ExplorePageState extends State<ExplorePage> {
   //   }
   // }
 
-
-
-   // Fungsi untuk menandai makanan sebagai sudah dicoba
+  // Fungsi untuk menandai makanan sebagai sudah dicoba
   Future<void> markFoodAsTried(BuildContext context, String foodId) async {
     try {
       final userId = await fetchUserId(context);
+      print("tes");
       if (userId.isNotEmpty) {
         final request = context.read<CookieRequest>();
         // final url = 'http://127.0.0.1:8000/search/mark_food_flutter/$userId/$foodId/';
-        final url = 'https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/mark_food_flutter/$userId/$foodId/';
-        
+        final url = 'http://127.0.0.1:8000/mark_food_flutter/$userId/$foodId/';
+
         final response = await request.post(url, {});
 
         if (response is Map<String, dynamic> && response['success'] == true) {
@@ -375,13 +367,12 @@ class _ExplorePageState extends State<ExplorePage> {
     }
   }
 
-
-
   // Fungsi untuk mengambil data makanan
   Future<List<Food>> fetchProduct(CookieRequest request) async {
     // final response = await request.get('http://127.0.0.1:8000/search/api/foods/');
-    final response = await request.get('https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/search/api/foods/');
-    
+    final response =
+        await request.get('http://127.0.0.1:8000/search/api/foods/');
+
     var data = response;
 
     List<Food> listProduct = [];
@@ -423,35 +414,40 @@ class _ExplorePageState extends State<ExplorePage> {
         title: const Text(
           'Let\'s Find Your Food!',
           style: TextStyle(
-            fontFamily: 'Roboto',
-            fontWeight: FontWeight.bold,
-            fontSize: 22,
-            color: Colors.black,
+            color: Color.fromRGBO(202, 138, 4, 1), // Warna teks
+            fontWeight: FontWeight.bold, // Membuat teks menjadi tebal
           ),
         ),
         centerTitle: true,
-        backgroundColor: const Color(0xFFFEFCEC),
+        backgroundColor: const Color.fromRGBO(
+            255, 242, 229, 1), // Warna latar belakang AppBar
+        iconTheme: const IconThemeData(
+          color: Color.fromRGBO(202, 138, 4, 1), // Warna ikon
+        ),
       ),
       body: Column(
         children: [
           // Pencarian dan filter
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
             child: Column(
               children: [
                 // Pencarian
                 TextField(
                   onChanged: handleSearch,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     hintText: 'Search for food...',
                     border: OutlineInputBorder(),
                     suffixIcon: Icon(Icons.search),
                   ),
                 ),
-                const SizedBox(height: 16), // Memberikan space antara pencarian dan filter
+                const SizedBox(
+                    height: 16), // Memberikan space antara pencarian dan filter
                 // Filter kategori dan harga
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.center, // This centers the filters horizontally
+                  mainAxisAlignment: MainAxisAlignment
+                      .center, // This centers the filters horizontally
                   children: [
                     // Filter kategori dengan padding
                     Padding(
@@ -459,8 +455,25 @@ class _ExplorePageState extends State<ExplorePage> {
                       child: DropdownButton<String>(
                         value: selectedCategory,
                         onChanged: handleCategoryChange,
-                        items: ['All', 'Ayam Betutu', 'Sate', 'Es', 'Ayam', 'Pepes', 'Nasi', 'Sayur', 'Jajanan', 'Sambal', 'Tipat', 'Rujak', 'Bebek', 'Ikan', 'Kopi', 'Lawar', 'Babi Guling']
-                            .map<DropdownMenuItem<String>>((String value) {
+                        items: [
+                          'All',
+                          'Ayam Betutu',
+                          'Sate',
+                          'Es',
+                          'Ayam',
+                          'Pepes',
+                          'Nasi',
+                          'Sayur',
+                          'Jajanan',
+                          'Sambal',
+                          'Tipat',
+                          'Rujak',
+                          'Bebek',
+                          'Ikan',
+                          'Kopi',
+                          'Lawar',
+                          'Babi Guling'
+                        ].map<DropdownMenuItem<String>>((String value) {
                           return DropdownMenuItem<String>(
                             value: value,
                             child: Text(value),
@@ -496,30 +509,33 @@ class _ExplorePageState extends State<ExplorePage> {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Center(child: Text('No foods available in Dinepasar'));
+                  return const Center(
+                      child: Text('No foods available in Dinepasar'));
                 }
 
                 final foods = snapshot.data!;
 
                 // Filter berdasarkan pencarian dan kategori
                 final filteredFoods = foods.where((food) {
-                  bool matchesSearch = food.fields.namaMakanan.toLowerCase().contains(searchQuery.toLowerCase());
-                  bool matchesCategory = selectedCategory == 'All' || food.fields.kategori == selectedCategory;
+                  bool matchesSearch = food.fields.namaMakanan
+                      .toLowerCase()
+                      .contains(searchQuery.toLowerCase());
+                  bool matchesCategory = selectedCategory == 'All' ||
+                      food.fields.kategori == selectedCategory;
                   bool matchesPrice = true;
 
                   // Filter berdasarkan harga
                   if (priceRange == 'Under 50k') {
                     matchesPrice = food.fields.harga < 50000;
                   } else if (priceRange == '50k-100k') {
-                    matchesPrice = food.fields.harga >= 50000 && food.fields.harga <= 100000;
+                    matchesPrice = food.fields.harga >= 50000 &&
+                        food.fields.harga <= 100000;
                   } else if (priceRange == 'Above 100k') {
                     matchesPrice = food.fields.harga > 100000;
                   }
 
                   return matchesSearch && matchesCategory && matchesPrice;
                 }).toList();
-
-                
 
                 // Jika tidak ada makanan yang cocok
                 if (filteredFoods.isEmpty) {
@@ -529,7 +545,8 @@ class _ExplorePageState extends State<ExplorePage> {
                       children: [
                         Icon(Icons.search_off, size: 50, color: Colors.grey),
                         SizedBox(height: 16),
-                        Text('No foods found based on your search.', style: TextStyle(color: Colors.grey, fontSize: 16)),
+                        Text('No foods found based on your search.',
+                            style: TextStyle(color: Colors.grey, fontSize: 16)),
                       ],
                     ),
                   );
@@ -551,11 +568,13 @@ class _ExplorePageState extends State<ExplorePage> {
                       food: food,
                       onApprove: () {
                         markFoodAsTried(context, food.pk.toString());
-                                        },
+                      },
                       onMore: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => DetailsPage(foodId: food.pk)),
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  DetailsPage(foodId: food.pk)),
                         );
                       },
                     );

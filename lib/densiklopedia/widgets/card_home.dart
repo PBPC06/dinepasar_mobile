@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:dinepasar_mobile/densiklopedia/models/article_entry.dart';
 
-class ArticleCard extends StatelessWidget {
+class HomeCard extends StatelessWidget {
   final Article article; // Menggunakan model Article
   final VoidCallback onTap; // Callback untuk navigasi
 
-  const ArticleCard({
+  const HomeCard({
     Key? key,
     required this.article,
     required this.onTap, // Terima onTap

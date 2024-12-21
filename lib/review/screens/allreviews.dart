@@ -1,14 +1,14 @@
-import 'dart:convert';
+// ignore_for_file: use_build_context_synchronously, sort_child_properties_last
 
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
-import 'package:dinepasar_mobile/search/models/food_entry.dart';
 import 'package:dinepasar_mobile/review/models/review_entry.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
 class AllReviewsPage extends StatefulWidget {
-  const AllReviewsPage({Key? key}) : super(key: key);
+  const AllReviewsPage({super.key});
 
   @override
   State<AllReviewsPage> createState() => _AllReviewsPageState();
@@ -16,40 +16,17 @@ class AllReviewsPage extends StatefulWidget {
 
 class _AllReviewsPageState extends State<AllReviewsPage> {
   late Future<List<FoodReview>> _allReviewsFuture;
-  late Future<List<Food>> _allFoodsFuture;
-
-  // Pemetaan ID Makanan ke Objek Food
-  Map<int, Food> _foodMap = {};
-
   @override
   void initState() {
     super.initState();
-    _allFoodsFuture = _fetchAllFoods();
     _allReviewsFuture = _fetchAllReviews();
   }
 
-  // Fungsi untuk mengambil semua makanan
-  Future<List<Food>> _fetchAllFoods() async {
-    final request = context.read<CookieRequest>();
-    final response =
-        await request.get('http://127.0.0.1:8000/search/api/foods/');
-
-    if (response['status'] == 'success') {
-      List<dynamic> foodsJson = response['data'];
-      List<Food> foods = foodsJson.map((item) => Food.fromJson(item)).toList();
-      // Membuat peta ID Makanan ke Objek Food
-      _foodMap = {for (var food in foods) food.pk: food};
-      return foods;
-    } else {
-      throw Exception('Failed to load foods: ${response['message']}');
-    }
-  }
-
-  // Fungsi untuk mengambil semua ulasan
+  // Fungsi untuk mengambil ulasan user
   Future<List<FoodReview>> _fetchAllReviews() async {
     final request = context.read<CookieRequest>();
-    final response = await request.get(
-        "http://127.0.0.1:8000/review/json/"); // Sesuaikan dengan endpoint Anda
+    final response =
+        await request.get("http://127.0.0.1:8000/review/json_all/");
 
     if (response['status'] == 'success') {
       List<dynamic> reviewsJson = response['data'];
@@ -62,7 +39,7 @@ class _AllReviewsPageState extends State<AllReviewsPage> {
 
   // Fungsi untuk menampilkan modal edit ulasan
   void _showEditModal(BuildContext context, FoodReview review) {
-    final _formKey = GlobalKey<FormState>();
+    final formKey = GlobalKey<FormState>();
     double rating = review.fields.rating;
     String message = review.fields.reviewMessage;
 
@@ -70,27 +47,27 @@ class _AllReviewsPageState extends State<AllReviewsPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Edit Review'),
+          title: Text('Edit Review | ${review.fields.namaMakanan}',
+              style: const TextStyle(fontWeight: FontWeight.bold)),
           content: StatefulBuilder(
             builder: (BuildContext context, StateSetter setState) {
               return SingleChildScrollView(
-                child: Container(
+                child: SizedBox(
                   width: double.maxFinite,
                   child: Form(
-                    key: _formKey,
+                    key: formKey,
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        // Menampilkan Nama Makanan
-                        Text('Food ID: ${review.fields.food}'),
+                        const Text('Food Rating | 0.0 - 5.0'),
                         const SizedBox(height: 10),
                         RatingBar.builder(
                           initialRating: rating.toDouble(),
-                          minRating: 1,
+                          minRating: 0,
                           maxRating: 5,
                           allowHalfRating: true,
                           itemCount: 5,
-                          itemSize: 30.0,
+                          itemSize: 45.0,
                           itemBuilder: (context, _) => const Icon(
                             Icons.star,
                             color: Colors.amber,
@@ -128,20 +105,34 @@ class _AllReviewsPageState extends State<AllReviewsPage> {
           ),
           actions: [
             TextButton(
-              child: const Text('Cancel'),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromRGBO(107, 114, 128, 1),
+                foregroundColor: Colors.white,
+              ),
               onPressed: () => Navigator.of(context).pop(),
             ),
             ElevatedButton(
-              child: const Text('Save Changes'),
+              child: const Text(
+                'Save Changes',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
+                backgroundColor: const Color.fromRGBO(202, 139, 4, 1),
                 foregroundColor: Colors.white,
               ),
               onPressed: () async {
-                if (_formKey.currentState!.validate()) {
+                if (formKey.currentState!.validate()) {
                   final request = context.read<CookieRequest>();
                   final editUrl =
-                      "http://127.0.0.1:8000/review/edit/${review.pk}/"; // Sesuaikan dengan endpoint edit Anda
+                      "http://127.0.0.1:8000/review/edit/${review.pk}/";
 
                   final response = await request.post(
                     editUrl,
@@ -177,30 +168,53 @@ class _AllReviewsPageState extends State<AllReviewsPage> {
     );
   }
 
+  void _confirmDeleteReview(int reviewId) async {
+    bool? delete = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Are you sure you want to delete this review?",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false); // No
+              },
+              child: const Text("No"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
+              child: const Text("Delete"),
+            ),
+          ],
+        );
+      },
+    );
+
+    // If user confirmed deletion, proceed with the delete action
+    if (delete == true) {
+      _deleteReview(reviewId);
+    }
+    setState(() {
+      _allReviewsFuture = _fetchAllReviews();
+    });
+  }
+
   // Fungsi untuk menghapus ulasan
   void _deleteReview(int reviewId) async {
     final request = context.read<CookieRequest>();
     final deleteUrl =
         "http://127.0.0.1:8000/review/delete-review/$reviewId/"; // Sesuaikan dengan endpoint delete Anda
 
-    final response = await request.post(
+    await request.post(
       deleteUrl,
       {},
     );
-
-    if (response['status'] == 'success') {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Review deleted successfully')),
-      );
-      setState(() {
-        _allReviewsFuture = _fetchAllReviews();
-      });
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text('Failed to delete review: ${response['message']}')),
-      );
-    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Review deleted successfully')),
+    );
   }
 
   @override
@@ -220,7 +234,7 @@ class _AllReviewsPageState extends State<AllReviewsPage> {
         else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return const Center(
             child: Text(
-              "No reviews available!",
+              "No reviews yet!\nBe the first to share your thoughts about our dishes.",
               style: TextStyle(fontSize: 18, color: Colors.grey),
             ),
           );
@@ -232,7 +246,6 @@ class _AllReviewsPageState extends State<AllReviewsPage> {
             onRefresh: () async {
               setState(() {
                 _allReviewsFuture = _fetchAllReviews();
-                _allFoodsFuture = _fetchAllFoods();
               });
             },
             child: ListView.builder(
@@ -240,9 +253,6 @@ class _AllReviewsPageState extends State<AllReviewsPage> {
               itemCount: reviews.length,
               itemBuilder: (context, index) {
                 final review = reviews[index];
-                final foodId = review.fields.food;
-                final food = _foodMap[foodId];
-
                 return Card(
                   shape: RoundedRectangleBorder(
                     side: BorderSide(color: Colors.yellow.shade300),
@@ -255,18 +265,19 @@ class _AllReviewsPageState extends State<AllReviewsPage> {
                     child: Row(
                       children: [
                         // Menampilkan gambar makanan jika tersedia
-                        food != null && food.fields.gambar.isNotEmpty
+                        review.fields.gambar.isNotEmpty
                             ? Image.network(
-                                food.fields.gambar,
+                                review.fields.gambar,
                                 width: 80,
                                 height: 80,
                                 fit: BoxFit.cover,
                                 errorBuilder: (context, error, stackTrace) {
-                                  return Image.network(
-                                    "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/1665px-No-Image-Placeholder.svg.png",
+                                  return Container(
                                     width: 80,
                                     height: 80,
-                                    fit: BoxFit.cover,
+                                    color: Colors.grey.shade300,
+                                    child: const Icon(Icons.restaurant,
+                                        size: 40, color: Colors.white),
                                   );
                                 },
                               )
@@ -274,7 +285,7 @@ class _AllReviewsPageState extends State<AllReviewsPage> {
                                 width: 80,
                                 height: 80,
                                 color: Colors.grey.shade300,
-                                child: const Icon(Icons.fastfood,
+                                child: const Icon(Icons.restaurant,
                                     size: 40, color: Colors.white),
                               ),
                         const SizedBox(width: 16),
@@ -295,13 +306,13 @@ class _AllReviewsPageState extends State<AllReviewsPage> {
                               // Menampilkan rating
                               Row(
                                 children: [
-                                  Icon(Icons.star,
+                                  const Icon(Icons.star,
                                       color: Colors.amber, size: 16),
                                   const SizedBox(width: 4),
                                   Text(
-                                    '${review.fields.rating} / 5',
+                                    '${formatRating(review.fields.rating)} / 5.0',
                                     style:
-                                        TextStyle(color: Colors.grey.shade600),
+                                        TextStyle(color: Colors.grey.shade800),
                                   ),
                                 ],
                               ),
@@ -309,47 +320,66 @@ class _AllReviewsPageState extends State<AllReviewsPage> {
                               // Menampilkan pesan ulasan
                               Text(
                                 '"${review.fields.reviewMessage}"',
-                                style: TextStyle(color: Colors.grey.shade700),
+                                style: TextStyle(color: Colors.grey.shade800),
                               ),
                               const SizedBox(height: 4),
                               // Menampilkan informasi pengguna dan tanggal ulasan
-                              Text(
-                                'Reviewed by ${review.fields.user} on ${_formatDate(review.fields.createdAt)}',
-                                style: const TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: 12,
+                              RichText(
+                                text: TextSpan(
+                                  style: const TextStyle(
+                                    color: Color.fromARGB(255, 69, 69, 69),
+                                    fontSize: 12,
+                                  ),
+                                  children: [
+                                    const TextSpan(
+                                      text: 'Reviewed by ',
+                                    ),
+                                    TextSpan(
+                                      text: review.fields.user,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    TextSpan(
+                                      text:
+                                          ' on ${_formatDate(review.fields.createdAt)}',
+                                    ),
+                                  ],
                                 ),
                               ),
                               const SizedBox(height: 8),
-                              // Tombol Edit dan Delete
-                              Row(
-                                children: [
-                                  ElevatedButton(
-                                    onPressed: () =>
-                                        _showEditModal(context, review),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.blue,
-                                      foregroundColor: Colors.white,
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 12, vertical: 8),
-                                      textStyle: const TextStyle(fontSize: 12),
+                              if (review.is_admin == true)
+                                Row(
+                                  children: [
+                                    ElevatedButton(
+                                      onPressed: () =>
+                                          _showEditModal(context, review),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.blue,
+                                        foregroundColor: Colors.white,
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 12, vertical: 8),
+                                        textStyle:
+                                            const TextStyle(fontSize: 12),
+                                      ),
+                                      child: const Text('Edit'),
                                     ),
-                                    child: const Text('Edit'),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  ElevatedButton(
-                                    onPressed: () => _deleteReview(review.pk),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.red,
-                                      foregroundColor: Colors.white,
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 12, vertical: 8),
-                                      textStyle: const TextStyle(fontSize: 12),
+                                    const SizedBox(width: 8),
+                                    ElevatedButton(
+                                      onPressed: () =>
+                                          _confirmDeleteReview(review.pk),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.red,
+                                        foregroundColor: Colors.white,
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 12, vertical: 8),
+                                        textStyle:
+                                            const TextStyle(fontSize: 12),
+                                      ),
+                                      child: const Text('Delete'),
                                     ),
-                                    child: const Text('Delete'),
-                                  ),
-                                ],
-                              ),
+                                  ],
+                                ),
                             ],
                           ),
                         ),
@@ -367,7 +397,6 @@ class _AllReviewsPageState extends State<AllReviewsPage> {
 
   // Fungsi untuk memformat tanggal
   String _formatDate(DateTime date) {
-    // Format tanggal sebagai "d M Y", misalnya "09 Dec 2024"
     return "${date.day} ${_monthString(date.month)} ${date.year}";
   }
 
@@ -388,4 +417,11 @@ class _AllReviewsPageState extends State<AllReviewsPage> {
     ];
     return months[month - 1];
   }
+}
+
+String formatRating(double rating) {
+  if (rating == rating.toInt()) {
+    return rating.toStringAsFixed(1);
+  }
+  return '$rating';
 }

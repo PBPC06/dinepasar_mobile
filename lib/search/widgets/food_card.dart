@@ -31,23 +31,25 @@ class FoodCard extends StatelessWidget {
                 topRight: Radius.circular(12),
               ),
               child: food.fields.gambar.isEmpty
-                  ? Center(
+                  ? const Center(
                       child: Icon(
-                        Icons.restaurant,  // Ganti dengan icon sendok dan garpu
+                        Icons.restaurant, // Ganti dengan icon sendok dan garpu
                         size: 48,
-                        color: Colors.grey,  // Warna icon sesuai tema
+                        color: Colors.grey, // Warna icon sesuai tema
                       ),
                     )
                   : Image.network(
                       food.fields.gambar,
                       fit: BoxFit.cover,
                       width: double.infinity,
-                      errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
-                        return Center(
+                      errorBuilder: (BuildContext context, Object exception,
+                          StackTrace? stackTrace) {
+                        return const Center(
                           child: Icon(
-                            Icons.restaurant,  // Ganti dengan icon sendok dan garpu
+                            Icons
+                                .restaurant, // Ganti dengan icon sendok dan garpu
                             size: 48,
-                            color: Colors.grey,  // Warna icon sesuai tema
+                            color: Colors.grey, // Warna icon sesuai tema
                           ),
                         );
                       },
@@ -63,13 +65,17 @@ class FoodCard extends StatelessWidget {
                 // Nama makanan
                 Text(
                   food.fields.namaMakanan,
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                      fontSize: 14, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 4),
                 // Harga
                 Text(
                   'Rp ${food.fields.harga.toString()}',
-                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: Colors.black),
+                  style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.black),
                 ),
                 const SizedBox(height: 4),
                 // Rating
@@ -78,7 +84,7 @@ class FoodCard extends StatelessWidget {
                     const Icon(Icons.star, color: Colors.amber, size: 14),
                     const SizedBox(width: 4),
                     Text(
-                      food.fields.rating.toString(),
+                      '${formatRating(food.fields.rating)} / 5.0',
                       style: const TextStyle(fontSize: 12),
                     ),
                   ],
@@ -107,12 +113,13 @@ class FoodCard extends StatelessWidget {
                           margin: const EdgeInsets.only(right: 8.0),
                           decoration: const BoxDecoration(
                             shape: BoxShape.circle,
-                            color: Colors.yellow,
+                            color: Color.fromRGBO(
+                                202, 138, 4, 1), // Warna latar belakang tombol
                           ),
                           child: const Icon(
-                            Icons.more_vert,
+                            Icons.more_horiz,
                             size: 20,
-                            color: Colors.black,
+                            color: Colors.white, // Warna ikon
                           ),
                         ),
                       ),
@@ -124,12 +131,13 @@ class FoodCard extends StatelessWidget {
                           height: 32,
                           decoration: const BoxDecoration(
                             shape: BoxShape.circle,
-                            color: Colors.yellow,
+                            color: Color.fromRGBO(
+                                202, 138, 4, 1), // Warna latar belakang tombol
                           ),
                           child: const Icon(
                             Icons.check,
                             size: 20,
-                            color: Colors.black,
+                            color: Colors.white, // Warna ikon
                           ),
                         ),
                       ),
@@ -143,4 +151,11 @@ class FoodCard extends StatelessWidget {
       ),
     );
   }
+}
+
+String formatRating(double rating) {
+  if (rating == rating.toInt()) {
+    return rating.toStringAsFixed(1);
+  }
+  return '$rating';
 }

@@ -1,106 +1,45 @@
+// ignore_for_file: use_build_context_synchronously, sort_child_properties_last
+
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
-import 'package:dinepasar_mobile/search/models/food_entry.dart';
 import 'package:dinepasar_mobile/review/models/review_entry.dart';
-import 'addreview.dart';
+import 'package:dinepasar_mobile/review/widgets/addreview.dart';
 
 class MyReviewsPage extends StatefulWidget {
-  const MyReviewsPage({Key? key}) : super(key: key);
+  const MyReviewsPage({super.key});
 
   @override
   State<MyReviewsPage> createState() => _MyReviewsPageState();
 }
 
 class _MyReviewsPageState extends State<MyReviewsPage> {
-  late Future<List<Map<String, dynamic>>> _myReviewsFuture;
-  // String? _currentUsername;
-
+  late Future<List<FoodReview>> _myReviewsFuture;
   @override
   void initState() {
     super.initState();
-    _myReviewsFuture = _fetchMyReviews(); // Inisialisasi di sini
+    _myReviewsFuture = _fetchMyReviews();
   }
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   _initializeUsername();
-  // }
 
-  // Future<void> _initializeUsername() async {
-  //   try {
-  //     final request = context.read<CookieRequest>();
-  //     final response =
-  //         await request.get("http://127.0.0.1:8000/editProfile/get_profile/");
-
-  //     if (response['status'] == 'success') {
-  //       final userData = response['data'];
-
-  //       setState(() {
-  //         _currentUsername = userData['username'];
-  //         _myReviewsFuture = _fetchMyReviews();
-  //       });
-  //     } else {
-  //       // Tampilkan pesan error jika status tidak sukses
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         SnackBar(
-  //             content:
-  //                 Text('Gagal memuat data pengguna: ${response['message']}')),
-  //       );
-  //     }
-  //   } catch (e) {
-  //     // Tangani error yang terjadi selama permintaan HTTP
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(content: Text('Error: $e')),
-  //     );
-  //   }
-  // }
-
-  Future<List<Map<String, dynamic>>> _fetchMyReviews() async {
+  // Fungsi untuk mengambil ulasan user
+  Future<List<FoodReview>> _fetchMyReviews() async {
     final request = context.read<CookieRequest>();
+    final response = await request.get("http://127.0.0.1:8000/review/json/");
 
-    final url = Uri.parse(
-        'http://127.0.0.1:8000/review/json/'); // Gunakan IP yang benar
-
-    final response = await request.get(url.toString());
-
-    if (response["status"] != "success") {
-      throw Exception('Failed to load reviews');
+    if (response['status'] == 'success') {
+      List<dynamic> reviewsJson = response['data'];
+      List<FoodReview> reviews = foodReviewFromJson(jsonEncode(reviewsJson));
+      return reviews;
+    } else {
+      throw Exception('Failed to load reviews: ${response['message']}');
     }
-
-    List<dynamic> data = response["data"];
-    List<FoodReview> reviews = foodReviewFromJson(jsonEncode(data));
-
-    // Menggunakan Future.wait untuk mengambil detail makanan secara paralel
-    List<Future<Map<String, dynamic>>> futures = reviews.map((review) async {
-      final foodId = review.fields.food;
-      final foodUrl = Uri.parse(
-          'http://127.0.0.1:8000/review/json/$foodId/'); // Sesuaikan dengan endpoint makanan
-      final foodResponse = await request.get(foodUrl.toString());
-      if (foodResponse["status"] == "success") {
-        Food food = Food.fromJson(foodResponse["data"]);
-        return {
-          'review': review,
-          'food': food,
-        };
-      } else {
-        // Jika gagal mendapatkan detail makanan, gunakan placeholder
-        return {'review': review, 'food': Food};
-      }
-    }).toList();
-
-    List<Map<String, dynamic>> detailedReviews = await Future.wait(futures);
-
-    // throw Exception(detailedReviews);
-    return detailedReviews;
   }
 
-  void _showEditModal(BuildContext context, Map<String, dynamic> reviewData) {
-    final FoodReview review = reviewData['review'];
-    final Food food = reviewData['food'];
-    final _formKey = GlobalKey<FormState>();
+  // Fungsi untuk menampilkan modal edit ulasan
+  void _showEditModal(BuildContext context, FoodReview review) {
+    final formKey = GlobalKey<FormState>();
     double rating = review.fields.rating;
     String message = review.fields.reviewMessage;
 
@@ -108,18 +47,19 @@ class _MyReviewsPageState extends State<MyReviewsPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Edit Review'),
+          title: Text('Edit Review | ${review.fields.namaMakanan}',
+              style: const TextStyle(fontWeight: FontWeight.bold)),
           content: StatefulBuilder(
             builder: (BuildContext context, StateSetter setState) {
               return SingleChildScrollView(
-                child: Container(
+                child: SizedBox(
                   width: double.maxFinite,
                   child: Form(
-                    key: _formKey,
+                    key: formKey,
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text('Food: ${food.fields.namaMakanan}'),
+                        const Text('Food Rating | 1.0 - 5.0'),
                         const SizedBox(height: 10),
                         RatingBar.builder(
                           initialRating: rating.toDouble(),
@@ -127,7 +67,7 @@ class _MyReviewsPageState extends State<MyReviewsPage> {
                           maxRating: 5,
                           allowHalfRating: true,
                           itemCount: 5,
-                          itemSize: 30.0,
+                          itemSize: 45.0,
                           itemBuilder: (context, _) => const Icon(
                             Icons.star,
                             color: Colors.amber,
@@ -165,30 +105,44 @@ class _MyReviewsPageState extends State<MyReviewsPage> {
           ),
           actions: [
             TextButton(
-              child: const Text('Cancel'),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromRGBO(107, 114, 128, 1),
+                foregroundColor: Colors.white,
+              ),
               onPressed: () => Navigator.of(context).pop(),
             ),
             ElevatedButton(
-              child: const Text('Save Changes'),
+              child: const Text(
+                'Save Changes',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue, // Menggunakan backgroundColor
-                foregroundColor: Colors.white, // Menggunakan foregroundColor
+                backgroundColor: const Color.fromRGBO(202, 139, 4, 1),
+                foregroundColor: Colors.white,
               ),
               onPressed: () async {
-                if (_formKey.currentState!.validate()) {
+                if (formKey.currentState!.validate()) {
                   final request = context.read<CookieRequest>();
-                  final editUrl = Uri.parse(
-                      'http://127.0.0.1:8000/review/edit/${review.pk}/');
+                  final editUrl =
+                      "http://127.0.0.1:8000/review/edit/${review.pk}/";
 
                   final response = await request.post(
-                    editUrl.toString(),
+                    editUrl,
                     {
                       'rating': rating.toString(),
                       'review_message': message,
                     },
                   );
 
-                  if (response["status"] == "success") {
+                  if (response['status'] == 'success') {
                     Navigator.of(context).pop();
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
@@ -200,7 +154,9 @@ class _MyReviewsPageState extends State<MyReviewsPage> {
                   } else {
                     Navigator.of(context).pop();
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Failed to update review')),
+                      SnackBar(
+                          content: Text(
+                              'Failed to update review: ${response['message']}')),
                     );
                   }
                 }
@@ -212,221 +168,264 @@ class _MyReviewsPageState extends State<MyReviewsPage> {
     );
   }
 
+  void _confirmDeleteReview(int reviewId) async {
+    bool? delete = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Are you sure you want to delete this review?",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false); // No
+              },
+              child: const Text("No"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
+              child: const Text("Delete"),
+            ),
+          ],
+        );
+      },
+    );
+
+    // If user confirmed deletion, proceed with the delete action
+    if (delete == true) {
+      _deleteReview(reviewId);
+    }
+    setState(() {
+      _myReviewsFuture = _fetchMyReviews();
+    });
+  }
+
+  // Fungsi untuk menghapus ulasan
   void _deleteReview(int reviewId) async {
     final request = context.read<CookieRequest>();
     final deleteUrl =
-        Uri.parse('http://127.0.0.1:8000/review/delete-review/$reviewId/');
+        "http://127.0.0.1:8000/review/delete-review/$reviewId/"; // Sesuaikan dengan endpoint delete Anda
 
-    final response = await request.post(
-      deleteUrl.toString(),
+    await request.post(
+      deleteUrl,
       {},
     );
-
-    if (response["status"] == "success") {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Review deleted successfully')),
-      );
-      setState(() {
-        _myReviewsFuture = _fetchMyReviews();
-      });
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to delete review')),
-      );
-    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Review deleted successfully')),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<Map<String, dynamic>>>(
-      future: _myReviewsFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          // Loading state
-          return const Center(child: CircularProgressIndicator());
-          // } else if (snapshot.hasError) {
-          //   // Error state
-          //   return Center(child: Text('Error: ${snapshot.error}'));
-        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          // Empty state
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text(
-                  "You haven't reviewed any food yet!",
-                  style: TextStyle(fontSize: 18, color: Colors.grey),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 10),
-                const Text(
-                  "Start sharing your culinary experiences by adding a review.",
-                  style: TextStyle(fontSize: 14, color: Colors.grey),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () {
-                    // Navigate to AddReviewPage
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const AddReviewPage()),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFD4A017), // backgroundColor
-                    foregroundColor: Colors.white, // foregroundColor
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 10),
-                    textStyle: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                  child: const Text('Add Your Review'),
-                ),
-              ],
-            ),
-          );
-        } else {
-          // Data loaded
-          List<Map<String, dynamic>> reviews = snapshot.data!;
-          return RefreshIndicator(
-            onRefresh: () async {
-              setState(() {
-                _myReviewsFuture = _fetchMyReviews();
-              });
-            },
-            child: ListView.builder(
-              padding: const EdgeInsets.all(16.0),
-              itemCount: reviews.length,
-              itemBuilder: (context, index) {
-                final reviewData = reviews[index];
-                final FoodReview review = reviewData['review'];
-                final Food food = reviewData['food'];
-
-                return Card(
-                  shape: RoundedRectangleBorder(
-                    side: BorderSide(color: Colors.yellow.shade300!),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  elevation: 4,
-                  margin: const EdgeInsets.symmetric(vertical: 8),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Row(
-                      children: [
-                        food.fields.gambar.isNotEmpty
-                            ? Image.network(
-                                food.fields.gambar,
-                                width: 80,
-                                height: 80,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Image.network(
-                                    "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/1665px-No-Image-Placeholder.svg.png",
-                                    width: 80,
-                                    height: 80,
-                                    fit: BoxFit.cover,
-                                  );
-                                },
-                              )
-                            : Container(
-                                width: 80,
-                                height: 80,
-                                color: Colors.grey.shade300,
-                                child: const Icon(Icons.fastfood,
-                                    size: 40, color: Colors.white),
-                              ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                review.fields.namaMakanan,
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.grey.shade800,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Row(
-                                children: [
-                                  Icon(Icons.star,
-                                      color: Colors.amber, size: 16),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    '${review.fields.rating.toStringAsFixed(1)} / 5',
-                                    style:
-                                        TextStyle(color: Colors.grey.shade600),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                '"${review.fields.reviewMessage}"',
-                                style: TextStyle(color: Colors.grey.shade700),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                'Reviewed by ${review.fields.user} on ${_formatDate(review.fields.createdAt)}',
-                                style: const TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: 12,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              // Edit and Delete buttons
-                              Row(
-                                children: [
-                                  ElevatedButton(
-                                    onPressed: () =>
-                                        _showEditModal(context, reviewData),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor:
-                                          Colors.blue, // backgroundColor
-                                      foregroundColor:
-                                          Colors.white, // foregroundColor
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 12, vertical: 8),
-                                      textStyle: const TextStyle(fontSize: 12),
-                                    ),
-                                    child: const Text('Edit'),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  ElevatedButton(
-                                    onPressed: () => _deleteReview(review.pk),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor:
-                                          Colors.red, // backgroundColor
-                                      foregroundColor:
-                                          Colors.white, // foregroundColor
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 12, vertical: 8),
-                                      textStyle: const TextStyle(fontSize: 12),
-                                    ),
-                                    child: const Text('Delete'),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
+    setState(() {
+      _myReviewsFuture = _fetchMyReviews();
+    });
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('My Reviews'),
+      ),
+      body: FutureBuilder<List<FoodReview>>(
+        future: _myReviewsFuture,
+        builder: (context, snapshot) {
+          // Menampilkan indikator loading saat data sedang diambil
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          // Menampilkan pesan error jika terjadi kesalahan
+          else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+          // Menampilkan pesan jika tidak ada ulasan
+          else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(
+              child: Text(
+                "You haven't reviewed any food yet!\nStart sharing your culinary experiences by adding a review.",
+                style: TextStyle(fontSize: 18, color: Colors.grey),
+              ),
+            );
+          }
+          // Menampilkan daftar ulasan
+          else {
+            List<FoodReview> reviews = snapshot.data!;
+            return RefreshIndicator(
+              onRefresh: () async {
+                setState(() {
+                  _myReviewsFuture = _fetchMyReviews();
+                });
               },
-            ),
+              child: ListView.builder(
+                padding: const EdgeInsets.all(16.0),
+                itemCount: reviews.length,
+                itemBuilder: (context, index) {
+                  final review = reviews[index];
+                  return Card(
+                    shape: RoundedRectangleBorder(
+                      side: BorderSide(color: Colors.yellow.shade300),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    elevation: 4,
+                    margin: const EdgeInsets.symmetric(vertical: 8),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Row(
+                        children: [
+                          // Menampilkan gambar makanan jika tersedia
+                          review.fields.gambar.isNotEmpty
+                              ? Image.network(
+                                  review.fields.gambar,
+                                  width: 80,
+                                  height: 80,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Container(
+                                      width: 80,
+                                      height: 80,
+                                      color: Colors.grey.shade300,
+                                      child: const Icon(Icons.restaurant,
+                                          size: 40, color: Colors.white),
+                                    );
+                                  },
+                                )
+                              : Container(
+                                  width: 80,
+                                  height: 80,
+                                  color: Colors.grey.shade300,
+                                  child: const Icon(Icons.restaurant,
+                                      size: 40, color: Colors.white),
+                                ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Menampilkan nama makanan
+                                Text(
+                                  review.fields.namaMakanan,
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.grey.shade800,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                // Menampilkan rating
+                                Row(
+                                  children: [
+                                    const Icon(Icons.star,
+                                        color: Colors.amber, size: 16),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      '${formatRating(review.fields.rating)} / 5.0',
+                                      style: TextStyle(
+                                          color: Colors.grey.shade800),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                // Menampilkan pesan ulasan
+                                Text(
+                                  '"${review.fields.reviewMessage}"',
+                                  style: TextStyle(color: Colors.grey.shade800),
+                                ),
+                                const SizedBox(height: 4),
+                                // Menampilkan informasi pengguna dan tanggal ulasan
+                                RichText(
+                                  text: TextSpan(
+                                    style: const TextStyle(
+                                      color: Color.fromARGB(255, 69, 69, 69),
+                                      fontSize: 12,
+                                    ),
+                                    children: [
+                                      const TextSpan(
+                                        text: 'Reviewed by ',
+                                      ),
+                                      TextSpan(
+                                        text: review.fields.user,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      TextSpan(
+                                        text:
+                                            ' on ${_formatDate(review.fields.createdAt)}',
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                // Tombol Edit dan Delete
+                                Row(
+                                  children: [
+                                    ElevatedButton(
+                                      onPressed: () =>
+                                          _showEditModal(context, review),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.blue,
+                                        foregroundColor: Colors.white,
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 12, vertical: 8),
+                                        textStyle:
+                                            const TextStyle(fontSize: 12),
+                                      ),
+                                      child: const Text('Edit'),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    ElevatedButton(
+                                      onPressed: () =>
+                                          _confirmDeleteReview(review.pk),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.red,
+                                        foregroundColor: Colors.white,
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 12, vertical: 8),
+                                        textStyle:
+                                            const TextStyle(fontSize: 12),
+                                      ),
+                                      child: const Text('Delete'),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            );
+          }
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          final newReview = await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const AddReviewPage()),
           );
-        }
-      },
+
+          if (newReview != null) {
+            setState(() {
+              // Tambahkan ulasan baru tanpa memuat ulang seluruh data
+              _myReviewsFuture = Future(() async {
+                final currentReviews = await _myReviewsFuture;
+                currentReviews.add(FoodReview.fromJson(newReview));
+                return currentReviews;
+              });
+            });
+          }
+        },
+        child: const Icon(Icons.add),
+        backgroundColor: const Color(0xFFFEFCEC),
+      ),
     );
   }
 
+  // Fungsi untuk memformat tanggal
   String _formatDate(DateTime date) {
-    // Format date sebagai "d M Y", misalnya "09 Dec 2024"
     return "${date.day} ${_monthString(date.month)} ${date.year}";
   }
 
@@ -447,4 +446,11 @@ class _MyReviewsPageState extends State<MyReviewsPage> {
     ];
     return months[month - 1];
   }
+}
+
+String formatRating(double rating) {
+  if (rating == rating.toInt()) {
+    return rating.toStringAsFixed(1);
+  }
+  return '$rating';
 }

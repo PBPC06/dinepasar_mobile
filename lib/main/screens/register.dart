@@ -145,6 +145,17 @@ class _RegisterPageState extends State<RegisterPage> {
                       String password1 = _passwordController.text;
                       String password2 = _confirmPasswordController.text;
                       String referralCode = _referralCodeController.text;
+                      
+
+                      // Validasi referral code hanya jika toggle "Register as Admin" diaktifkan
+                      if (isAdmin && referralCode.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Referral code is required for admin registration.'),
+                          ),
+                        );
+                        return;
+                      }
 
                       // Cek kredensial
                       // TODO: Ganti URL dan jangan lupa tambahkan trailing slash (/) di akhir URL!
@@ -152,7 +163,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       // gunakan URL http://10.0.2.2/
                       final response = await request.postJson(
                         // "http://127.0.0.1:8000/manageData/register_flutter/",     
-                        "https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/manageData/register_flutter/",                       
+                        "http://127.0.0.1:8000/manageData/register_flutter/",                       
                         jsonEncode({
                             "username": username,
                             "password1": password1,
@@ -160,7 +171,9 @@ class _RegisterPageState extends State<RegisterPage> {
                             "referral_code": referralCode,  // Kirim referral code
                           }));
                       if (context.mounted) {
-                        if (response['status'] == 'success') {
+                        // print(response);
+                        // print(response['status']);
+                        if (response['status'] == true) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text('Successfully registered!'),
