@@ -1,6 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-
 class WebImage extends StatelessWidget {
   final String imageUrl;
   final double height;
@@ -13,10 +12,14 @@ class WebImage extends StatelessWidget {
     this.width = double.infinity,
   }) : super(key: key);
 
+  String _getProxiedUrl(String url) {
+    return "https://cors-proxy.fringe.zone/${url}";
+  }
+
   @override
   Widget build(BuildContext context) {
     return CachedNetworkImage(
-      imageUrl: imageUrl,
+      imageUrl: _getProxiedUrl(imageUrl),
       height: height,
       width: width,
       fit: BoxFit.cover,
@@ -24,10 +27,13 @@ class WebImage extends StatelessWidget {
         color: Colors.grey[200],
         child: const Center(child: CircularProgressIndicator()),
       ),
-      errorWidget: (context, url, error) => Container(
-        color: Colors.grey[200],
-        child: const Icon(Icons.error),
-      ),
+      errorWidget: (context, url, error) {
+        print('Error loading image: $error');
+        return Container(
+          color: Colors.grey[200],
+          child: const Icon(Icons.error),
+        );
+      }
     );
   }
 }

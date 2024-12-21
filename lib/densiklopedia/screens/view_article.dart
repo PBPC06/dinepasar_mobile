@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:dinepasar_mobile/densiklopedia/models/article_entry.dart';
+import 'package:dinepasar_mobile/densiklopedia/widgets/web_image.dart';
 
 class ViewArticle extends StatelessWidget {
   final Article article;
@@ -18,11 +20,29 @@ class ViewArticle extends StatelessWidget {
             right: 0,
             child: Container(
               height: 240,
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: NetworkImage(article.gambar),
-                  fit: BoxFit.cover,
-                ),
+              child: ClipRRect(
+                borderRadius: const BorderRadius.vertical(bottom: Radius.circular(16.0)),
+                child: kIsWeb
+                    ? WebImage(
+                        imageUrl: article.gambar,
+                        height: 240,
+                        width: double.infinity,
+                      )
+                    : Image.network(
+                        article.gambar,
+                        height: 240,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            height: 240,
+                            color: Colors.grey[300],
+                            child: const Center(
+                              child: Icon(Icons.broken_image, size: 50, color: Colors.grey),
+                            ),
+                          );
+                        },
+                      ),
               ),
             ),
           ),
@@ -108,8 +128,7 @@ class ViewArticle extends StatelessWidget {
     return paragraphs.map((paragraph) {
       return TextSpan(
         text: paragraph + '\n\n',
-        style:
-            const TextStyle(height: 1.8), // Adjust line height for paragraphs
+        style: const TextStyle(height: 1.8), // Adjust line height for paragraphs
       );
     }).toList();
   }

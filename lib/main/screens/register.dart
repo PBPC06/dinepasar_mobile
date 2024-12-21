@@ -145,6 +145,17 @@ class _RegisterPageState extends State<RegisterPage> {
                       String password1 = _passwordController.text;
                       String password2 = _confirmPasswordController.text;
                       String referralCode = _referralCodeController.text;
+                      
+
+                      // Validasi referral code hanya jika toggle "Register as Admin" diaktifkan
+                      if (isAdmin && referralCode.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Referral code is required for admin registration.'),
+                          ),
+                        );
+                        return;
+                      }
 
                       // Cek kredensial
                       // TODO: Ganti URL dan jangan lupa tambahkan trailing slash (/) di akhir URL!
@@ -160,7 +171,9 @@ class _RegisterPageState extends State<RegisterPage> {
                             "referral_code": referralCode,  // Kirim referral code
                           }));
                       if (context.mounted) {
-                        if (response['status'] == 'success') {
+                        // print(response);
+                        // print(response['status']);
+                        if (response['status'] == true) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text('Successfully registered!'),
@@ -173,7 +186,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           );
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
-                             SnackBar(
+                            SnackBar(
                               content: Text(response['message']),
                             ),
                           );
