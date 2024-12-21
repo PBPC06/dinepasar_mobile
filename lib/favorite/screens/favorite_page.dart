@@ -60,8 +60,8 @@ class _FavoritePageState extends State<FavoritePage> {
           recommendedItems = data;
         });
 
-        // Log daftar rekomendasi
-        print('Recommended items:');
+        // Log daftar rekomendasi terbaru
+        print('Updated recommended items:');
         for (var item in recommendedItems) {
           print('Recommended ID: ${item.id}, Name: ${item.namaMakanan}');
         }
@@ -111,6 +111,9 @@ class _FavoritePageState extends State<FavoritePage> {
           favoriteItems.removeWhere((item) => item.id == favoriteId);
         });
         print('Successfully deleted favorite with ID: $favoriteId');
+
+        // Fetch ulang rekomendasi setelah penghapusan
+        await _fetchRecommended(request);
       } else {
         print('Failed to delete favorite: ${response['error']}');
       }
