@@ -27,7 +27,7 @@ class _ProfilePageState extends State<ProfilePage> {
       final request = context.read<CookieRequest>();
       // final response = await request.get('http://127.0.0.1:8000/search/api/foods/');
       final response =
-          await request.get(' http://127.0.0.1:8000/search/api/foods/');
+          await request.get('http://127.0.0.1:8000/search/api/foods/');
 
       if (response is List) {
         return response.map((foodJson) => Food.fromJson(foodJson)).toList();

@@ -99,8 +99,7 @@ class _LoginPageState extends State<LoginPage> {
                       String password = _passwordController.text;
 
                       // Send the login request
-                      // http://127.0.0.1:8000/manageData/login_flutter/
-                      // http://127.0.0.1:8000/manageData/login_flutter/
+                     
                       final response = await request.login(
                           "http://127.0.0.1:8000/manageData/login_flutter/", {
                         // .login("http://127.0.0.1:8000/manageData/login_flutter/", {
