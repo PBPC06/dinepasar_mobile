@@ -62,6 +62,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     final request = context.read<CookieRequest>();
     // final response = await request.get('http://127.0.0.1:8000/editProfile/show-json-all/');
     final response = await request.get('https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/editProfile/show-json-all/');
+    
 
     if (response is Map<String, dynamic>) {
       UserProfileResponse profileListResponse = UserProfileResponse.fromJson(response);
@@ -91,6 +92,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       final response = await request.post(
         // 'http://127.0.0.1:8000/editProfile/edit-flutter/${widget.userId}/',
         'https://namira-aulia31-dinepasar.pbp.cs.ui.ac.id/editProfile/edit-flutter/${widget.userId}/',
+        
         json.encode({
           'email': _email,
           'phone': _phone,
